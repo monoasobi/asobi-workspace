@@ -193,7 +193,7 @@ export function CallGuideEditor({
             <NativeSelectOption key={item.id} value={item.id}>
               {(item.start + track.sync).toFixed(2)}초 · {callLabels[item.type]}{" "}
               {resolved.issues[item.id] ? "⚠" : ""}{" "}
-              {item.type === "chant"
+              {item.type === "chant" || item.type === "custom"
                 ? (item.labels?.ko ?? item.label)
                 : item.label}
             </NativeSelectOption>

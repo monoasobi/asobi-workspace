@@ -2,7 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { fanLightHex, normalizeFanLightColor } from "@/lib/fanlights";
+import {
+  fanLightBackground,
+  fanLightHex,
+  normalizeFanLightColor,
+} from "@/lib/fanlights";
 
 export function FanLightBadge({
   color,
@@ -13,6 +17,7 @@ export function FanLightBadge({
 }) {
   const t = useTranslations();
   const hex = fanLightHex(color);
+  const background = fanLightBackground(color);
   const name = normalizeFanLightColor(color) ?? color;
   if (!compact)
     return (
@@ -33,7 +38,7 @@ export function FanLightBadge({
           aria-hidden="true"
           className="h-[clamp(1.25rem,4cqi,1.75rem)] w-[clamp(1.75rem,6cqi,2.5rem)] rounded-lg border-black/15 dark:border-white/25"
           style={{
-            backgroundColor: hex,
+            background,
             boxShadow: hex ? `0 0 10px ${hex}33` : undefined,
           }}
         />
@@ -56,12 +61,12 @@ export function FanLightBadge({
           : undefined
       }
     >
-      {hex && (
+      {background && (
         <span
           aria-hidden="true"
           className="size-3 shrink-0 rounded-full border border-black/20"
           style={{
-            backgroundColor: hex,
+            background,
           }}
         />
       )}

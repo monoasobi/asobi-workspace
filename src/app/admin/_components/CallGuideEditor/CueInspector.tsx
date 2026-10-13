@@ -9,6 +9,7 @@ import {
   resizeCue,
   roundTime,
   changeCueType,
+  defaultPulsePattern,
   type CallCue,
 } from "@/lib/callGuide";
 import { NumberField } from "./NumberField";
@@ -74,7 +75,7 @@ export function CueInspector({
           <div
             role="group"
             aria-labelledby="cue-type-label"
-            className="grid grid-cols-3 gap-1 rounded-lg border bg-muted/40 p-1"
+            className="grid grid-cols-4 gap-1 rounded-lg border bg-muted/40 p-1"
           >
             {Object.entries(callLabels).map(([value, label]) => (
               <Button
@@ -99,30 +100,36 @@ export function CueInspector({
             바꾸면 선택 강조는 해제됩니다.
           </p>
         </div>
-        {cue.type === "chant" ? (
+        {cue.type === "chant" || cue.type === "custom" ? (
           <div className="space-y-3 rounded-lg border bg-muted/20 p-3">
-            <h3 className="text-sm font-medium">챈트 내용 / 설명</h3>
-            <div
-              className="flex flex-wrap gap-2"
-              role="group"
-              aria-label="챈트 프리셋"
-            >
-              {[
-                { ko: "어이!", ja: "オイ！", en: "Oi!" },
-                { ko: "헤이!", ja: "ヘイ！", en: "Hey!" },
-              ].map((labels) => (
-                <Button
-                  key={labels.ko}
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={disabled}
-                  onClick={() => onChange({ ...cue, labels, label: labels.ko })}
-                >
-                  {labels.ko}
-                </Button>
-              ))}
-            </div>
+            <h3 className="text-sm font-medium">
+              {cue.type === "custom" ? "커스텀 표시 문구" : "챈트 내용 / 설명"}
+            </h3>
+            {cue.type === "chant" && (
+              <div
+                className="flex flex-wrap gap-2"
+                role="group"
+                aria-label="챈트 프리셋"
+              >
+                {[
+                  { ko: "어이!", ja: "オイ！", en: "Oi!" },
+                  { ko: "헤이!", ja: "ヘイ！", en: "Hey!" },
+                ].map((labels) => (
+                  <Button
+                    key={labels.ko}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={disabled}
+                    onClick={() =>
+                      onChange({ ...cue, labels, label: labels.ko })
+                    }
+                  >
+                    {labels.ko}
+                  </Button>
+                ))}
+              </div>
+            )}
             {(
               [
                 { locale: "ko", name: "한국어" },
@@ -150,7 +157,9 @@ export function CueInspector({
               </div>
             ))}
             <p className="text-xs text-muted-foreground">
-              사용자가 선택한 언어의 내용을 표시합니다.
+              {cue.type === "custom"
+                ? "가사에 없는 의성어·떼창 문구나 콜 가이드의 역주를 입력하세요. 박자 없이도 구간 동안 표시됩니다."
+                : "사용자가 선택한 언어의 내용을 표시합니다."}
             </p>
           </div>
         ) : (
@@ -166,6 +175,40 @@ export function CueInspector({
             />
           </div>
         )}
+        <div className="space-y-2 rounded-lg border p-3">
+          <h3 className="text-sm font-medium">사용자에게 보여줄 메모</h3>
+          {(
+            [
+              { locale: "ko", name: "한국어" },
+              { locale: "ja", name: "일본어" },
+              { locale: "en", name: "영어" },
+            ] as const
+          ).map(({ locale, name }) => (
+            <div key={locale} className="space-y-1">
+              <Label htmlFor={`cue-note-${locale}`}>{name}</Label>
+              <textarea
+                className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
+                id={`cue-note-${locale}`}
+                lang={locale}
+                maxLength={2000}
+                value={cue.notes?.[locale] ?? ""}
+                onChange={(event) =>
+                  onChange({
+                    ...cue,
+                    notes: {
+                      ...(cue.notes ?? { ko: "", ja: "", en: "" }),
+                      [locale]: event.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground">
+            공개 가사 카드에 표시됩니다. 번역이 비어 있으면 한국어 메모를
+            표시합니다.
+          </p>
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <NumberField
             label="시작 (재생 초)"
@@ -219,16 +262,46 @@ export function CueInspector({
             onChange={onChange}
           />
         )}
-        {cue.type !== "singalong" && (
-          <PatternEditor
-            cue={cue}
-            defaultBpm={defaultBpm}
-            sync={sync}
-            playback={playback}
-            disabled={disabled}
-            onChange={onChange}
-          />
+        {cue.type === "custom" && (
+          <div className="space-y-1">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              aria-pressed={!!cue.pattern || cue.pulseTimes.length > 0}
+              onClick={() =>
+                onChange({
+                  ...cue,
+                  pulseTimes: [],
+                  pattern:
+                    cue.pattern || cue.pulseTimes.length
+                      ? undefined
+                      : defaultPulsePattern(defaultBpm),
+                })
+              }
+            >
+              {cue.pattern || cue.pulseTimes.length
+                ? "박자 효과 끄기"
+                : "박자 효과 추가 (선택)"}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              문구만 표시하려면 박자 효과를 꺼두세요.
+            </p>
+          </div>
         )}
+        {cue.type !== "singalong" &&
+          (cue.type !== "custom" ||
+            cue.pattern ||
+            cue.pulseTimes.length > 0) && (
+            <PatternEditor
+              cue={cue}
+              defaultBpm={defaultBpm}
+              sync={sync}
+              playback={playback}
+              disabled={disabled}
+              onChange={onChange}
+            />
+          )}
         <Button variant="destructive" size="sm" onClick={onDelete}>
           블록 삭제
         </Button>

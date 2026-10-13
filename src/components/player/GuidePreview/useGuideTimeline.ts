@@ -130,13 +130,17 @@ export function useGuideTimeline(
       );
       const chanting = new Set(
         pulsing
-          .filter((section) => section.type === "chant")
+          .filter(
+            (section) => section.type === "chant" || section.type === "custom",
+          )
           .map((section) => section.id),
       );
       const colors = [
         ...new Set(
           pulsing.map((section) =>
-            section.type === "chant" ? "var(--cyan-500)" : "var(--yellow-600)",
+            section.type === "chant" || section.type === "custom"
+              ? "var(--cyan-500)"
+              : "var(--yellow-600)",
           ),
         ),
       ];

@@ -102,7 +102,7 @@ export function PatternEditor({
             value={pattern.subdivision}
             onChange={(event) =>
               patch({
-                subdivision: Number(event.target.value) as 1 | 2,
+                subdivision: Number(event.target.value) as 1 | 2 | 4,
                 steps: pattern.steps
                   .map(
                     (value) =>
@@ -115,6 +115,7 @@ export function PatternEditor({
           >
             <NativeSelectOption value={1}>1박 단위 · 8칸</NativeSelectOption>
             <NativeSelectOption value={2}>반박 단위 · 16칸</NativeSelectOption>
+            <NativeSelectOption value={4}>¼박 단위 · 32칸</NativeSelectOption>
           </NativeSelect>
           <div
             className="grid grid-cols-4 gap-2 sm:grid-cols-8"
@@ -125,13 +126,15 @@ export function PatternEditor({
                 key={index}
                 className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded border p-1 text-xs ${now >= cue.start && now < cue.end && step >= 0 && step % (8 * pattern.subdivision) === index ? "bg-primary/20 ring-2 ring-primary" : "bg-card"}`}
               >
-                {pattern.subdivision === 2 && index % 2
-                  ? "&"
+                {index % pattern.subdivision
+                  ? pattern.subdivision === 2
+                    ? "&"
+                    : ["", "e", "&", "a"][index % 4]
                   : Math.floor(index / pattern.subdivision) + 1}
                 <Checkbox
                   disabled={disabled}
                   checked={pattern.steps.includes(index)}
-                  aria-label={`${Math.floor(index / pattern.subdivision) + 1}${pattern.subdivision === 2 && index % 2 ? " 반박" : "박"}`}
+                  aria-label={`${Math.floor(index / pattern.subdivision) + 1}${index % pattern.subdivision ? `박 +${(index % pattern.subdivision) / pattern.subdivision}` : "박"}`}
                   onCheckedChange={(checked) =>
                     patch({
                       steps: checked

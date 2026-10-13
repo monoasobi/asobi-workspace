@@ -23,11 +23,12 @@ export interface CallSection {
   start: number;
   end: number;
   id: string;
-  type: "clap" | "chant" | "singalong";
+  type: "clap" | "chant" | "singalong" | "custom";
   firstLine: number;
   lastLine: number;
   label?: string;
   labels?: Record<LyricLocale, string>;
+  notes?: Record<LyricLocale, string>;
   // Seconds on the lyric timeline; track sync is added when reading player time.
   pulseTimes: number[];
   // Optional selected text offsets, not pre-split lyric segments.

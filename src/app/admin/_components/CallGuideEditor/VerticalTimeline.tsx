@@ -289,10 +289,10 @@ export function VerticalTimeline({
               >
                 <span className="relative z-10">
                   {callLabels[cue.type]}
-                  {(cue.type === "chant"
+                  {(cue.type === "chant" || cue.type === "custom"
                     ? (cue.labels?.ko ?? cue.label)
                     : cue.label) &&
-                    ` · ${cue.type === "chant" ? (cue.labels?.ko ?? cue.label) : cue.label}`}
+                    ` · ${cue.type === "chant" || cue.type === "custom" ? (cue.labels?.ko ?? cue.label) : cue.label}`}
                   {cue.type === "singalong" &&
                     cue.lines.map((snapshot) => {
                       const text =

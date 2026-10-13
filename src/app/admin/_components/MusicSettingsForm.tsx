@@ -25,7 +25,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   fanLightKeys,
-  fanLightHex,
+  fanLightBackground,
   normalizeFanLightColor,
 } from "@/lib/fanlights";
 import type { AdminMusic } from "@/types/catalog";
@@ -227,7 +227,7 @@ export function MusicSettingsForm({
                             <span
                               aria-hidden="true"
                               className="size-4 shrink-0 rounded-full border border-black/25"
-                              style={{ backgroundColor: fanLightHex(key) }}
+                              style={{ background: fanLightBackground(key) }}
                             />
                             {key}
                           </SelectItem>

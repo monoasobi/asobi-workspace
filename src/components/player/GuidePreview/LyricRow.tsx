@@ -29,7 +29,9 @@ export const LyricRow = memo(function LyricRow({
   onSeek: (index: number) => void;
 }) {
   const t = useTranslations();
-  const chants = sections.filter((section) => section.type === "chant");
+  const chants = sections.filter(
+    (section) => section.type === "chant" || section.type === "custom",
+  );
   function highlighted(field: LyricTextField) {
     const ranges = sections.flatMap((s) => [
       ...(field === "jp" && s.selection?.line === index ? [s.selection] : []),
@@ -60,7 +62,7 @@ export const LyricRow = memo(function LyricRow({
                 />
               )}
               <span className="min-w-0 truncate">
-                {section.type === "chant"
+                {section.type === "chant" || section.type === "custom"
                   ? section.labels?.[locale] || section.label
                   : `${t(section.type)}${(section.labels?.[locale] ?? section.label) ? ` · ${section.labels?.[locale] ?? section.label}` : ""}`}
               </span>
@@ -157,6 +159,26 @@ export const LyricRow = memo(function LyricRow({
             )}
           </>
         )}
+        {badges.map((section) => {
+          const note = section.notes?.[locale] || section.notes?.ko;
+          const customText =
+            section.type === "custom"
+              ? section.labels?.[locale] || section.label
+              : undefined;
+          return note || customText ? (
+            <span
+              key={section.id}
+              className="mt-2 block whitespace-pre-wrap break-words text-sm text-muted-foreground"
+            >
+              {customText && (
+                <span className="block font-semibold text-cyan-600 dark:text-cyan-400">
+                  {customText}
+                </span>
+              )}
+              {note && <span className="block">{note}</span>}
+            </span>
+          ) : null;
+        })}
       </button>
     </div>
   );

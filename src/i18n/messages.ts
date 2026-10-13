@@ -59,6 +59,7 @@ const ko = {
   clap: "박수",
   chant: "챈트",
   singalong: "떼창",
+  custom: "커스텀",
 };
 type Messages = Record<keyof typeof ko, string>;
 const ja: Messages = {
@@ -122,6 +123,7 @@ const ja: Messages = {
   clap: "手拍子",
   chant: "チャント",
   singalong: "一緒に歌う",
+  custom: "カスタム",
 };
 const en: Messages = {
   settingsHelp: "Make yourself comfortable and sing along.",
@@ -185,5 +187,6 @@ const en: Messages = {
   clap: "Clap",
   chant: "Chant",
   singalong: "Sing along",
+  custom: "Custom",
 };
 export const messages = { ko, ja, en };

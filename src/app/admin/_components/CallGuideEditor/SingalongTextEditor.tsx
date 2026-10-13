@@ -29,10 +29,26 @@ export function SingalongTextEditor({
     range?: { start: number; end: number; text: string },
   ) {
     if (disabled) return;
-    const next = selections.filter(
+    const others = selections.filter(
       (item) => item.lineId !== lineId || item.field !== field,
     );
-    if (range) next.push({ lineId, field, ...range });
+    const matching = selections.filter(
+      (item) => item.lineId === lineId && item.field === field,
+    );
+    // Add disjoint selections; merge touching ranges and replace stale snapshots.
+    const merged: typeof matching = [];
+    if (range) {
+      for (const item of [
+        ...matching.filter((item) => item.text === range.text),
+        { lineId, field, ...range },
+      ].sort((a, b) => a.start - b.start)) {
+        const previous = merged.at(-1);
+        if (previous && item.start <= previous.end)
+          previous.end = Math.max(previous.end, item.end);
+        else merged.push({ ...item });
+      }
+    }
+    const next = [...others, ...merged];
     onChange({
       ...cue,
       selection: undefined,
@@ -42,9 +58,9 @@ export function SingalongTextEditor({
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        연결된 가사의 일본어 원문·한국어 독음·영어 독음에서 떼창할 부분을
-        드래그하세요. 언어별 범위는 독립적이며 자동 번역하지 않습니다. 가사
-        내용은 MONOASOBI에서 수정합니다.
+        연결된 가사의 일본어 원문·한국어 독음·영어 독음에서 떼창할 부분을 차례로
+        드래그하면 한 줄에 여러 범위를 추가할 수 있습니다. 언어별 범위는
+        독립적이며 자동 번역하지 않습니다. 가사 내용은 MONOASOBI에서 수정합니다.
       </p>
       {!cue.lines.length && (
         <p className="text-sm">
@@ -111,10 +127,25 @@ export function SingalongTextEditor({
                 field={field}
                 text={line?.[field] ?? ""}
                 disabled={disabled}
-                selection={selections.find(
+                selections={selections.filter(
                   (range) =>
                     range.lineId === snapshot.id && range.field === field,
                 )}
+                onRemove={(removed) =>
+                  onChange({
+                    ...cue,
+                    selection: undefined,
+                    textSelections: selections.filter(
+                      (range) =>
+                        !(
+                          range.lineId === snapshot.id &&
+                          range.field === field &&
+                          range.start === removed.start &&
+                          range.end === removed.end
+                        ),
+                    ),
+                  })
+                }
                 onChange={(range) => change(snapshot.id, field, range)}
               />
             ))}
@@ -128,18 +159,20 @@ export function SingalongTextEditor({
 function TextSelectionField({
   field,
   text,
-  selection,
+  selections,
+  onRemove,
   disabled,
   onChange,
 }: {
   field: LyricTextField;
   text: string;
-  selection?: { start: number; end: number; text: string };
+  selections: { start: number; end: number; text: string }[];
+  onRemove: (range: { start: number; end: number }) => void;
   disabled: boolean;
   onChange: (range?: { start: number; end: number; text: string }) => void;
 }) {
   const textRef = useRef<HTMLParagraphElement>(null);
-  const stale = !!selection && selection.text !== text;
+  const stale = selections.some((selection) => selection.text !== text);
   function selectText() {
     if (disabled || !text) return;
     const selected = window.getSelection();
@@ -174,7 +207,7 @@ function TextSelectionField({
         {text ? (
           <HighlightedText
             text={text}
-            ranges={selection && !stale ? [selection] : []}
+            ranges={selections.filter((selection) => selection.text === text)}
           />
         ) : (
           "자료 없음"
@@ -186,10 +219,26 @@ function TextSelectionField({
         </p>
       )}
       <p className="text-xs text-muted-foreground">
-        {selection && !stale
-          ? `선택: ${text.slice(selection.start, selection.end)}`
+        {selections.length && !stale
+          ? `선택: ${selections.map((selection) => text.slice(selection.start, selection.end)).join(" / ")}`
           : "선택된 강조 없음"}
       </p>
+      {selections.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {selections.map((selection) => (
+            <Button
+              key={`${selection.start}:${selection.end}`}
+              size="xs"
+              variant="outline"
+              disabled={disabled}
+              onClick={() => onRemove(selection)}
+              aria-label={`${selection.text.slice(selection.start, selection.end)} 강조 삭제`}
+            >
+              {selection.text.slice(selection.start, selection.end)} ×
+            </Button>
+          ))}
+        </div>
+      )}
       <div className="flex flex-wrap gap-1">
         <Button
           size="xs"
@@ -197,7 +246,7 @@ function TextSelectionField({
           disabled={disabled || !text}
           onClick={selectText}
         >
-          선택 범위 사용
+          선택 범위 추가
         </Button>
         <Button
           size="xs"
@@ -210,7 +259,7 @@ function TextSelectionField({
         <Button
           size="xs"
           variant="ghost"
-          disabled={disabled || !selection}
+          disabled={disabled || !selections.length}
           onClick={() => onChange()}
         >
           강조 해제

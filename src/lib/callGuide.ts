@@ -11,13 +11,20 @@ const sourceLine = z.object({
 });
 const common = {
   id: z.string().min(1).max(100),
-  type: z.enum(["clap", "chant", "singalong"]),
+  type: z.enum(["clap", "chant", "singalong", "custom"]),
   label: z.string().max(200),
   labels: z
     .object({
       ko: z.string().max(200),
       ja: z.string().max(200),
       en: z.string().max(200),
+    })
+    .optional(),
+  notes: z
+    .object({
+      ko: z.string().max(2000),
+      ja: z.string().max(2000),
+      en: z.string().max(2000),
     })
     .optional(),
   lines: z.array(sourceLine).max(500),
@@ -48,9 +55,9 @@ const cueSchema = z.object({
   pattern: z
     .object({
       bpm: z.number().finite().min(20).max(400),
-      subdivision: z.union([z.literal(1), z.literal(2)]),
+      subdivision: z.union([z.literal(1), z.literal(2), z.literal(4)]),
       firstOffset: z.number().finite().nonnegative().max(86400),
-      steps: z.array(z.number().int().min(0).max(15)).max(16),
+      steps: z.array(z.number().int().min(0).max(31)).max(32),
     })
     .optional(),
 });
@@ -102,9 +109,11 @@ export function changeCueType(
     selection: type === "singalong" ? cue.selection : undefined,
     textSelections: type === "singalong" ? cue.textSelections : undefined,
     pulseTimes:
-      type === "singalong" || cue.type === "singalong" ? [] : cue.pulseTimes,
+      type === "singalong" || type === "custom" || cue.type === "singalong"
+        ? []
+        : cue.pulseTimes,
     pattern:
-      type === "singalong"
+      type === "singalong" || type === "custom"
         ? undefined
         : !cuePulses(cue).length
           ? defaultPulsePattern(bpm)
@@ -219,7 +228,9 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
     )
       issue =
         "펄스는 블록 안에 중복 없이 오름차순으로 지정해 주세요. 최대 2,000개입니다.";
-    else if (cue.type !== "singalong" && !pulses.length)
+    else if (cue.type === "custom" && !(cue.labels?.ko || cue.label).trim())
+      issue = "커스텀 표시 문구를 입력해 주세요.";
+    else if ((cue.type === "clap" || cue.type === "chant") && !pulses.length)
       issue = "박수·챈트의 타이밍을 하나 이상 선택해 주세요.";
     else if (
       cue.type === "singalong" &&
@@ -244,8 +255,8 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
       const ranges = cueTextSelections(cue);
       if (
         cue.type !== "singalong" ||
-        new Set(ranges.map((r) => `${r.lineId}:${r.field}`)).size !==
-          ranges.length ||
+        new Set(ranges.map((r) => `${r.lineId}:${r.field}:${r.start}:${r.end}`))
+          .size !== ranges.length ||
         ranges.some((range) => {
           const line = selected.find((line) => line.id === range.lineId);
           return (
@@ -267,7 +278,9 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
       id: cue.id,
       type: cue.type,
       label: cue.label || undefined,
-      labels: cue.type === "chant" ? cue.labels : undefined,
+      labels:
+        cue.type === "chant" || cue.type === "custom" ? cue.labels : undefined,
+      notes: cue.notes,
       start: cue.start,
       end: cue.end,
       firstLine: first,

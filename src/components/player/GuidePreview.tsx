@@ -185,6 +185,7 @@ export function GuidePreview({
                         ({
                           clap: "var(--yellow-600)",
                           chant: "var(--cyan-500)",
+                          custom: "var(--cyan-500)",
                           singalong: "var(--magenta-500)",
                         })[section.type],
                     ),

@@ -15,6 +15,7 @@ export const fanLights = {
   LIME: "#C4EF30",
   TURQUOISE: "#24D5C4",
   "HOT PINK": "#FF1493",
+  RGB: "linear-gradient(to right, #FF0000 0% 33.333%, #00FF00 33.333% 66.667%, #0000FF 66.667% 100%)",
 } as const;
 export type FanLightColor = keyof typeof fanLights;
 export const fanLightKeys = Object.keys(fanLights) as [
@@ -44,8 +45,17 @@ const legacyColors: Record<string, string> = {
 export function fanLightHex(name?: string | null) {
   const key = normalizeFanLightColor(name);
   return key
-    ? fanLights[key]
+    ? key === "RGB"
+      ? undefined
+      : fanLights[key]
     : name && Object.hasOwn(legacyColors, name)
       ? legacyColors[name]
       : undefined;
+}
+
+// Hard stops keep all three primary colors visible without blending.
+export function fanLightBackground(name?: string | null) {
+  return normalizeFanLightColor(name) === "RGB"
+    ? fanLights.RGB
+    : fanLightHex(name);
 }
