@@ -1,4 +1,5 @@
 "use client";
+import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -81,9 +82,8 @@ export function SidebarOrderEditor({
       if (!response.ok) throw new Error(result.error);
       setSaved(result.document);
       setLayout(result.document.layout);
-      setMessage(
-        "추천 목록을 저장했습니다. 공개 화면을 새로고침하면 반영됩니다.",
-      );
+      notifyCatalogUpdated();
+      setMessage("추천 목록을 저장했습니다. 공개 화면에도 바로 반영됩니다.");
     } catch (error) {
       setMessage(
         error instanceof Error

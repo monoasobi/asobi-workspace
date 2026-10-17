@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getAdminSession } from "@/server/auth/access";
 import { privateHeaders, rejectCrossOrigin } from "@/server/auth/request";
@@ -44,6 +45,10 @@ export async function PUT(request: Request) {
     return reply({ error: "그룹 이름과 곡 중복 여부를 확인해 주세요." }, 400);
   try {
     const result = await saveSidebar(input.data.revision, input.data.layout);
+    if (result.status === 200) {
+      revalidatePath("/");
+      revalidatePath("/admin/sidebar");
+    }
     return reply(result, result.status);
   } catch {
     return reply({ error: "저장하지 못했습니다. 초안은 유지됩니다." }, 503);

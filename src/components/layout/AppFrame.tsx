@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Header } from "./Header";
@@ -14,6 +15,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import type { CatalogEntry } from "@/types/catalog";
+import { useCatalogRefresh } from "./AppFrame/useCatalogRefresh";
 import { useIsCompact } from "./AppFrame/useIsCompact";
 import { sidebarMusicIds, type SidebarLayout } from "@/lib/sidebarOrder";
 
@@ -26,11 +28,15 @@ export function AppFrame({
   sidebarLayout: SidebarLayout;
   unavailable?: boolean;
 }) {
+  const router = useRouter();
+  useCatalogRefresh();
   const t = useTranslations();
   const compact = useIsCompact();
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(
+    sidebarMusicIds(sidebarLayout)[0] ?? catalog[0]?.music.id ?? null,
+  );
   const [sort, setSort] = useState<"recommended" | "release">("recommended");
   const mainRef = useRef<HTMLElement>(null);
   const selected =
@@ -129,7 +135,7 @@ export function AppFrame({
               {unavailable && (
                 <Button
                   type="button"
-                  onClick={() => window.location.reload()}
+                  onClick={() => router.refresh()}
                   variant="link"
                 >
                   {t("retry")}

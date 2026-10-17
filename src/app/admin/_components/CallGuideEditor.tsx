@@ -1,4 +1,5 @@
 "use client";
+import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -92,8 +93,13 @@ export function CallGuideEditor({
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "저장하지 못했습니다.");
       setSaved(result.document);
+      history.update(() => ({
+        guide: result.document.guide,
+        syncOffset: result.document.syncOffset,
+      }));
+      notifyCatalogUpdated();
       setMessage(
-        "콜과 가사 싱크를 저장했습니다. 공개 화면은 새로고침하면 반영됩니다.",
+        "콜과 가사 싱크를 저장했습니다. 공개 화면에도 바로 반영됩니다.",
       );
     } catch (error) {
       setMessage(

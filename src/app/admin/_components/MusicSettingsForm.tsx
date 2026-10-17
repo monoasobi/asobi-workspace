@@ -1,4 +1,5 @@
 "use client";
+import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
@@ -90,11 +91,12 @@ export function MusicSettingsForm({
       setYoutubeId(result.settings.youtubeId ?? "");
       setSyncOffset(String(result.settings.syncOffset));
       setBpm(String(result.settings.bpm ?? ""));
+      setFanLightColor(result.settings.fanLightColor ?? "");
+      setPublish(result.settings.publish);
+      notifyCatalogUpdated();
       onDirtyChange(false);
       setDirty(false);
-      setMessage(
-        "저장했습니다. 공개 화면은 다시 열거나 새로고침하면 반영됩니다.",
-      );
+      setMessage("저장했습니다. 공개 화면에도 바로 반영됩니다.");
     } catch {
       setFailed(true);
       setMessage("서버에 연결하지 못했습니다. 다시 시도해 주세요.");

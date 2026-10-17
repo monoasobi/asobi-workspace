@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getAdminSession } from "@/server/auth/access";
 import { privateHeaders, rejectCrossOrigin } from "@/server/auth/request";
@@ -73,6 +74,10 @@ export async function PUT(
       input.data.guide,
       input.data.syncOffset,
     );
+    if (result.status === 200) {
+      revalidatePath("/");
+      revalidatePath("/admin", "layout");
+    }
     return reply(result, result.status);
   } catch {
     return reply(

@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/server/auth/access";
 import { rejectCrossOrigin, privateHeaders } from "@/server/auth/request";
 import { musicSettingsSchema } from "@/server/schemas/music";
@@ -40,6 +41,10 @@ export async function PUT(
     );
   try {
     const saved = await saveMusicSettings(id, parsed.data);
+    if (saved) {
+      revalidatePath("/");
+      revalidatePath("/admin", "layout");
+    }
     return saved
       ? Response.json(
           { ok: true, settings: saved },
