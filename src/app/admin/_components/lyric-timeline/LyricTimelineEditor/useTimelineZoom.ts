@@ -31,13 +31,13 @@ export const useTimelineZoom = ({
   timelineStart,
 }: UseTimelineZoomParams) => {
   const getAnchorTime = useCallback(
-    (clientX?: number) => {
+    (clientY?: number) => {
       const timeline = timelineRef.current;
       if (!timeline) return currentTime || 0;
 
       const rect = timeline.getBoundingClientRect();
-      const x = clientX == null ? rect.width / 2 : clientX - rect.left;
-      return timelineStart + (timeline.scrollLeft + x) / pixelsPerSecond;
+      const y = clientY == null ? rect.height / 2 : clientY - rect.top;
+      return timelineStart + (timeline.scrollTop + y) / pixelsPerSecond;
     },
     [currentTime, pixelsPerSecond, timelineRef, timelineStart],
   );
@@ -57,17 +57,17 @@ export const useTimelineZoom = ({
       }
 
       const rect = timeline.getBoundingClientRect();
-      const anchorX =
+      const anchorY =
         anchorTime === currentTime
-          ? rect.width / 2
+          ? rect.height / 2
           : (anchorTime - timelineStart) * pixelsPerSecond -
-            timeline.scrollLeft;
+            timeline.scrollTop;
 
       setPixelsPerSecond(nextPixelsPerSecond);
 
       requestAnimationFrame(() => {
-        timeline.scrollLeft =
-          (anchorTime - timelineStart) * nextPixelsPerSecond - anchorX;
+        timeline.scrollTop =
+          (anchorTime - timelineStart) * nextPixelsPerSecond - anchorY;
       });
     },
     [
@@ -89,7 +89,7 @@ export const useTimelineZoom = ({
 
       const direction = event.deltaY > 0 ? -1 : 1;
       const factor = Math.pow(ZOOM_FACTOR, direction);
-      zoomTimeline(pixelsPerSecond * factor, getAnchorTime(event.clientX));
+      zoomTimeline(pixelsPerSecond * factor, getAnchorTime(event.clientY));
     },
     [getAnchorTime, pixelsPerSecond, zoomTimeline],
   );

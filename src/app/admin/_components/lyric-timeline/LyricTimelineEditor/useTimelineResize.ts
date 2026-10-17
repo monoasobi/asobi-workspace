@@ -9,6 +9,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type SetStateAction,
 } from "react";
+import { snapTimelineDelta } from "./timelineSnap";
 import { MIN_LINE_DURATION, clamp, roundTime } from "../time";
 
 export type TimelineEdge = "start" | "end";
@@ -16,18 +17,22 @@ export type TimelineEdge = "start" | "end";
 type DragState = {
   index: number;
   edge: TimelineEdge;
-  startX: number;
+  startY: number;
   lyrics: LyricLine[];
 };
 
 interface UseTimelineResizeParams {
   draftLyrics: LyricLine[];
+  currentTime: number;
+  draftSync: number;
   pixelsPerSecond: number;
   setDraftLyrics: Dispatch<SetStateAction<LyricLine[]>>;
 }
 
 export const useTimelineResize = ({
   draftLyrics,
+  currentTime,
+  draftSync,
   pixelsPerSecond,
   setDraftLyrics,
 }: UseTimelineResizeParams) => {
@@ -96,36 +101,44 @@ export const useTimelineResize = ({
     index: number,
     edge: TimelineEdge,
   ) => {
+    if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
     dragRef.current = {
       index,
       edge,
-      startX: event.clientX,
+      startY: event.clientY,
       lyrics: draftLyrics,
     };
   };
 
   const handleDragMove = useCallback(
-    (clientX: number) => {
+    (event: MouseEvent) => {
       const drag = dragRef.current;
       if (!drag) return;
 
-      const deltaSeconds = (clientX - drag.startX) / pixelsPerSecond;
+      const deltaSeconds = (event.clientY - drag.startY) / pixelsPerSecond;
       const line = drag.lyrics[drag.index];
       if (!line) return;
 
-      const nextTime =
-        drag.edge === "start"
-          ? line.start + deltaSeconds
-          : line.end + deltaSeconds;
+      const edgeTime = line[drag.edge];
+      const min = drag.edge === "start"
+        ? (drag.index > 0 ? drag.lyrics[drag.index - 1].start + MIN_LINE_DURATION : 0)
+        : line.start + MIN_LINE_DURATION;
+      const max = drag.edge === "start"
+        ? line.end - MIN_LINE_DURATION
+        : (drag.lyrics[drag.index + 1]?.end ?? Infinity) - MIN_LINE_DURATION;
+      const nextTime = edgeTime + snapTimelineDelta(
+        deltaSeconds, [edgeTime], currentTime - draftSync, pixelsPerSecond,
+        min - edgeTime, max - edgeTime, event.metaKey || event.ctrlKey,
+      );
       setDraftLyrics(
         drag.edge === "start"
           ? resizeLineStart(drag.index, nextTime, drag.lyrics)
           : resizeLineEnd(drag.index, nextTime, drag.lyrics),
       );
     },
-    [pixelsPerSecond, resizeLineEnd, resizeLineStart, setDraftLyrics],
+    [currentTime, draftSync, pixelsPerSecond, resizeLineEnd, resizeLineStart, setDraftLyrics],
   );
 
   const stopDragging = useCallback(() => {
@@ -136,7 +149,7 @@ export const useTimelineResize = ({
     const handleMouseMove = (event: MouseEvent) => {
       if (!dragRef.current) return;
       event.preventDefault();
-      handleDragMove(event.clientX);
+      handleDragMove(event);
     };
 
     const handleMouseUp = () => {

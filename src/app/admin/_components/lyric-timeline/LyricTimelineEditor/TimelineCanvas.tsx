@@ -38,7 +38,7 @@ interface TimelineCanvasProps {
   timelineRef: RefObject<HTMLDivElement | null>;
   timelineStart: number;
   trackRef: RefObject<HTMLDivElement | null>;
-  timelineWidth: number;
+  timelineHeight: number;
   onConsumeLineClick: (index: number) => boolean;
   onDeleteLine: (index: number) => void;
   onEditLine: (index: number | null) => void;
@@ -74,7 +74,7 @@ export const TimelineCanvas = ({
   timelineRef,
   timelineStart,
   trackRef,
-  timelineWidth,
+  timelineHeight,
   onConsumeLineClick,
   onDeleteLine,
   onEditLine,
@@ -93,19 +93,19 @@ export const TimelineCanvas = ({
   const ticks = getTimelineTicks(timelineStart, timelineEnd);
   const gridInterval = getTimelineGridInterval(pixelsPerSecond);
   const trackStyle = {
-    "--timeline-grid-width": `${gridInterval * pixelsPerSecond}px`,
+    "--timeline-grid-height": `${gridInterval * pixelsPerSecond}px`,
   } as CSSProperties;
 
   return (
     <section className={styles.timelineSection}>
       <div className={styles.timelineScroll} ref={timelineRef} onWheel={onWheel}>
-        <div className={styles.timelineCanvas} style={{ width: timelineWidth }}>
+        <div className={styles.timelineCanvas} style={{ height: timelineHeight }}>
           <div className={styles.ruler} onClick={onRulerClick}>
             {ticks.map((time) => (
               <div
                 key={time}
                 className={styles.tick}
-                style={{ left: timelineToPixel(time) }}
+                style={{ top: timelineToPixel(time) }}
               >
                 {formatTime(time)}
               </div>
@@ -114,7 +114,7 @@ export const TimelineCanvas = ({
 
           <div
             className={styles.playhead}
-            style={{ left: timelineToPixel(currentTime) }}
+            style={{ top: timelineToPixel(currentTime) }}
             aria-label={`현재 시간 ${formatTime(currentTime)}`}
           />
 
@@ -135,15 +135,15 @@ export const TimelineCanvas = ({
             {draftLyrics.map((line, index) => {
               const displayStart = getDisplayStart(line, draftSync);
               const displayEnd = getDisplayEnd(line, draftSync);
-              const left = timelineToPixel(displayStart);
-              const width = Math.max(
-                24,
+              const top = timelineToPixel(displayStart);
+              const height = Math.max(
+                10,
                 (displayEnd - displayStart) * pixelsPerSecond,
               );
 
               return (
                 <TimelineLineBlock
-                  key={`${line.start}-${line.end}-${index}`}
+                  key={line.id ?? index}
                   index={index}
                   canManage={canManage}
                   currentTime={currentTime}
@@ -151,9 +151,9 @@ export const TimelineCanvas = ({
                   isActive={activeLineIndex === index}
                   isEditing={editingLineIndex === index}
                   isSelected={selectedLineIndexes.includes(index)}
-                  left={left}
+                  top={top}
                   line={line}
-                  width={width}
+                  height={height}
                   onConsumeClick={onConsumeLineClick}
                   onDelete={onDeleteLine}
                   onEdit={onEditLine}

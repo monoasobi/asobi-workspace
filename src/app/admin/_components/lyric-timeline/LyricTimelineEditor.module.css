@@ -5,9 +5,7 @@
 }
 
 .workspace {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 14px;
+  width: 100%;
   min-width: 0;
   min-height: 0;
   height: 100%;
@@ -15,13 +13,16 @@
 
 .sidePanel,
 .timelineSection {
+  height: 100%;
   min-width: 0;
   min-height: 0;
 }
 
 .sidePanel {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  overflow-y: auto;
   align-items: start;
   gap: 12px;
 }
@@ -110,7 +111,6 @@
   display: grid;
   align-content: start;
   gap: 10px;
-  min-height: 100%;
   padding: 12px;
   border: 1px solid var(--gray-a5);
   border-radius: 6px;
@@ -150,6 +150,7 @@
 
 .timelineCanvas {
   position: relative;
+  display: flex;
   min-height: 100%;
   user-select: none;
   background-image: linear-gradient(
@@ -161,42 +162,37 @@
 
 .ruler {
   position: sticky;
-  top: 0;
+  left: 0;
   z-index: 4;
-  height: 40px;
-  border-bottom: 1px solid var(--gray-a5);
-  background: color-mix(in srgb, var(--gray-1) 92%, transparent);
+  flex: 0 0 80px;
+  border-right: 1px solid var(--gray-a5);
+  background: var(--gray-1);
   cursor: crosshair;
   user-select: none;
 }
 
 .tick {
   position: absolute;
-  top: 0;
-  height: 40px;
-  padding: 6px 0 0 6px;
-  border-left: 1px solid var(--gray-a6);
-  border-top: 0;
-  border-right: 0;
-  border-bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 4px 6px;
+  border-top: 1px solid var(--gray-a6);
   color: var(--gray-11);
-  background: transparent;
   font-family: var(--code-font-family);
   font-size: 11px;
-  user-select: none;
   white-space: nowrap;
 }
 
 .track {
   position: relative;
-  height: 220px;
-  min-height: 220px;
+  flex: 1;
+  min-width: 0;
   background-image: linear-gradient(
-    to right,
+    to bottom,
     var(--gray-a3) 1px,
     transparent 1px
   );
-  background-size: var(--timeline-grid-width) 100%;
+  background-size: 100% var(--timeline-grid-height);
   cursor: crosshair;
 }
 
@@ -206,10 +202,10 @@
 
 .playhead {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 5;
-  width: 2px;
+  height: 2px;
   background: var(--red-9);
   pointer-events: none;
 }
@@ -217,24 +213,24 @@
 .playhead::before {
   content: "";
   position: absolute;
-  top: 39px;
-  left: 50%;
+  top: 50%;
+  left: 75px;
   width: 10px;
   height: 10px;
   border-radius: 999px;
   background: var(--red-9);
-  transform: translateX(-50%);
+  transform: translateY(-50%);
 }
 
 .block {
   position: absolute;
-  top: 64px;
+  left: 16px;
+  right: 16px;
   z-index: 3;
   display: grid;
-  grid-template-columns: 8px minmax(0, 1fr) 8px;
+  grid-template-rows: 6px minmax(0, 1fr) 6px;
   align-items: stretch;
-  height: 84px;
-  min-width: 24px;
+  min-height: 10px;
   overflow: hidden;
   border: 1px solid var(--accent-a7);
   border-radius: 6px;
@@ -265,7 +261,7 @@
 }
 
 .block[data-can-manage="false"] {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   cursor: pointer;
 }
 
@@ -274,7 +270,9 @@
   align-content: center;
   gap: 2px;
   min-width: 0;
-  padding: 6px 8px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 8px;
 }
 
 .blockMain,
@@ -303,11 +301,11 @@
 }
 
 .handle {
-  width: 10px;
+  width: 100%;
   padding: 0;
   border: 0;
   background: var(--accent-a6);
-  cursor: ew-resize;
+  cursor: ns-resize;
 }
 
 .handle:hover {
@@ -315,11 +313,11 @@
 }
 
 .handleStart {
-  border-right: 1px solid var(--accent-a7);
+  border-bottom: 1px solid var(--accent-a7);
 }
 
 .handleEnd {
-  border-left: 1px solid var(--accent-a7);
+  border-top: 1px solid var(--accent-a7);
 }
 
 .smallScreenNotice {

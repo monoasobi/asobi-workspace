@@ -11,15 +11,13 @@ import {
   type RefObject,
   type SetStateAction,
 } from "react";
+import { snapTimelineDelta } from "./timelineSnap";
 import {
-  clamp,
   getDisplayEnd,
   getDisplayStart,
   roundTime,
 } from "../time";
 
-const BLOCK_TOP = 64;
-const BLOCK_HEIGHT = 84;
 const DRAG_THRESHOLD = 3;
 
 type SelectionBox = {
@@ -43,10 +41,11 @@ type MoveSelectionState = {
   indexes: number[];
   lyrics: LyricLine[];
   moved: boolean;
-  startX: number;
+  startY: number;
 };
 
 interface UseTimelineSelectionParams {
+  currentTime: number;
   canManage: boolean;
   draftLyrics: LyricLine[];
   draftSync: number;
@@ -79,6 +78,7 @@ const isSameIndexes = (a: number[], b: number[]) =>
 
 export const useTimelineSelection = ({
   canManage,
+  currentTime,
   draftLyrics,
   draftSync,
   pixelsPerSecond,
@@ -167,7 +167,7 @@ export const useTimelineSelection = ({
       indexes,
       lyrics: draftLyrics,
       moved: false,
-      startX: event.clientX,
+      startY: event.clientY,
     };
   };
 
@@ -201,13 +201,13 @@ export const useTimelineSelection = ({
       const nextIndexes = draftLyrics.reduce<number[]>((indexes, line, index) => {
         const displayStart = getDisplayStart(line, draftSync);
         const displayEnd = getDisplayEnd(line, draftSync);
-        const left = (displayStart - timelineStart) * pixelsPerSecond;
-        const right = (displayEnd - timelineStart) * pixelsPerSecond;
+        const top = (displayStart - timelineStart) * pixelsPerSecond;
+        const bottom = Math.max(top + 10, (displayEnd - timelineStart) * pixelsPerSecond);
         const blockBox = {
-          left,
-          top: BLOCK_TOP,
-          right,
-          bottom: BLOCK_TOP + BLOCK_HEIGHT,
+          left: 16,
+          top,
+          right: (trackRef.current?.clientWidth ?? 0) - 16,
+          bottom,
         };
 
         if (overlaps(selectionBox, blockBox)) {
@@ -229,6 +229,7 @@ export const useTimelineSelection = ({
       selectIndexes,
       selectedLineIndexes,
       timelineStart,
+      trackRef,
     ],
   );
 
@@ -237,8 +238,8 @@ export const useTimelineSelection = ({
       const move = moveSelectionRef.current;
       if (!move) return;
 
-      const deltaX = event.clientX - move.startX;
-      if (Math.abs(deltaX) < DRAG_THRESHOLD && !move.moved) return;
+      const deltaY = event.clientY - move.startY;
+      if (Math.abs(deltaY) < DRAG_THRESHOLD && !move.moved) return;
 
       event.preventDefault();
       move.moved = true;
@@ -265,8 +266,14 @@ export const useTimelineSelection = ({
 
         return Math.min(max, nextLine.start - line.end);
       }, Number.POSITIVE_INFINITY);
-      const deltaSeconds = roundTime(
-        clamp(deltaX / pixelsPerSecond, minDelta, maxDelta),
+      const deltaSeconds = snapTimelineDelta(
+        deltaY / pixelsPerSecond,
+        move.indexes.flatMap((index) => [move.lyrics[index].start, move.lyrics[index].end]),
+        currentTime - draftSync,
+        pixelsPerSecond,
+        minDelta,
+        maxDelta,
+        event.metaKey || event.ctrlKey,
       );
 
       setDraftLyrics(
@@ -281,7 +288,7 @@ export const useTimelineSelection = ({
         ),
       );
     },
-    [pixelsPerSecond, setDraftLyrics],
+    [currentTime, draftSync, pixelsPerSecond, setDraftLyrics],
   );
 
   const stopDragging = useCallback(() => {

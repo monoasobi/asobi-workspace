@@ -4,6 +4,7 @@ import type { AdminRole } from "@appTypes/admin";
 import type { LyricLine } from "@appTypes/lyric";
 import type { Music } from "@appTypes/music";
 import { useLyricPlayer } from "@components/common/YouTubeLyricsPlayer/useLyricPlayer";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@components/common/Resizable";
 import { Callout } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
 import {
@@ -79,7 +80,7 @@ export const LyricTimelineEditor = ({
     () => getTimelineEnd(draftLyrics, draftSync, duration),
     [draftLyrics, draftSync, duration],
   );
-  const timelineWidth = Math.max(
+  const timelineHeight = Math.max(
     960,
     (timelineEnd - timelineStart) * pixelsPerSecond,
   );
@@ -137,6 +138,8 @@ export const LyricTimelineEditor = ({
 
   const { handleLineTimeChange, handleResizeMouseDown } = useTimelineResize({
     draftLyrics,
+    currentTime,
+    draftSync,
     pixelsPerSecond,
     setDraftLyrics,
   });
@@ -149,6 +152,7 @@ export const LyricTimelineEditor = ({
     selectLine,
   } = useTimelineSelection({
     canManage,
+    currentTime,
     draftLyrics,
     draftSync,
     pixelsPerSecond,
@@ -186,7 +190,7 @@ export const LyricTimelineEditor = ({
     const rect = timeline.getBoundingClientRect();
     const time =
       timelineStart +
-      (timeline.scrollLeft + event.clientX - rect.left) / pixelsPerSecond;
+      (timeline.scrollTop + event.clientY - rect.top) / pixelsPerSecond;
     handleSeekDisplayTime(time);
   };
 
@@ -245,52 +249,58 @@ export const LyricTimelineEditor = ({
       </div>
 
       <div className={styles.workspace}>
-        <TimelineSidePanel
-          player={player}
-          dirty={dirty}
-          canManage={canManage}
-          isSaving={isSaving || isRefreshing}
-          message={message}
-          onSave={save}
-          onReset={() => {
-            setDraftLyrics(getNormalizedLyrics(lyricTrack.lyricJson));
-            player.resetOffset();
-            setMessage(null);
-          }}
-          srtExport={{
-            music,
-            lyrics: canManage ? draftLyrics : lyricTrack.lyricJson,
-          }}
-        />
-
-        <TimelineCanvas
-          activeLineIndex={activeLineIndex}
-          currentTime={currentTime}
-          draftLyrics={draftLyrics}
-          draftSync={draftSync}
-          editingLineIndex={editingLineIndex}
-          pixelsPerSecond={pixelsPerSecond}
-          selectedLineIndexes={selectedLineIndexes}
-          selectionRect={selectionRect}
-          timelineEnd={timelineEnd}
-          timelineRef={timelineRef}
-          timelineStart={timelineStart}
-          trackRef={trackRef}
-          timelineWidth={timelineWidth}
-          onConsumeLineClick={consumeLineClick}
-          onDeleteLine={deleteLine}
-          onEditLine={setEditingLineIndex}
-          onLineTimeChange={handleLineTimeChange}
-          onLineMouseDown={handleLineMouseDown}
-          onResizeMouseDown={handleResizeMouseDown}
-          onRulerClick={handleRulerClick}
-          onSelectLine={selectLine}
-          onSplitLine={splitLine}
-          onTrackMouseDown={handleTrackMouseDown}
-          onUpdateLine={updateLine}
-          canManage={canManage}
-          onWheel={handleWheel}
-        />
+        <ResizablePanelGroup orientation="horizontal">
+          <ResizablePanel defaultSize="50%" minSize="320px">
+            <TimelineSidePanel
+              player={player}
+              dirty={dirty}
+              canManage={canManage}
+              isSaving={isSaving || isRefreshing}
+              message={message}
+              onSave={save}
+              onReset={() => {
+                setDraftLyrics(getNormalizedLyrics(lyricTrack.lyricJson));
+                player.resetOffset();
+                setMessage(null);
+              }}
+              srtExport={{
+                music,
+                lyrics: canManage ? draftLyrics : lyricTrack.lyricJson,
+              }}
+            />
+          </ResizablePanel>
+          <ResizableHandle aria-label="영상과 타임라인 너비 조절" />
+          <ResizablePanel defaultSize="50%" minSize="320px">
+            <TimelineCanvas
+              activeLineIndex={activeLineIndex}
+              currentTime={currentTime}
+              draftLyrics={draftLyrics}
+              draftSync={draftSync}
+              editingLineIndex={editingLineIndex}
+              pixelsPerSecond={pixelsPerSecond}
+              selectedLineIndexes={selectedLineIndexes}
+              selectionRect={selectionRect}
+              timelineEnd={timelineEnd}
+              timelineRef={timelineRef}
+              timelineStart={timelineStart}
+              trackRef={trackRef}
+              timelineHeight={timelineHeight}
+              onConsumeLineClick={consumeLineClick}
+              onDeleteLine={deleteLine}
+              onEditLine={setEditingLineIndex}
+              onLineTimeChange={handleLineTimeChange}
+              onLineMouseDown={handleLineMouseDown}
+              onResizeMouseDown={handleResizeMouseDown}
+              onRulerClick={handleRulerClick}
+              onSelectLine={selectLine}
+              onSplitLine={splitLine}
+              onTrackMouseDown={handleTrackMouseDown}
+              onUpdateLine={updateLine}
+              canManage={canManage}
+              onWheel={handleWheel}
+            />
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );

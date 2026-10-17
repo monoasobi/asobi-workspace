@@ -32,6 +32,9 @@ export const TimelineSidePanel = ({
     <TimelineYouTubePreview player={player} />
 
     <div className={styles.controlPanel}>
+      <Text size="1" color="gray">
+        가사 이동·길이 조절 시 재생 위치에 스냅됩니다. Cmd/Ctrl을 누르면 스냅이 해제됩니다.
+      </Text>
       <label className={styles.field}>
         <Text size="1" color="gray" weight="bold">
           sync

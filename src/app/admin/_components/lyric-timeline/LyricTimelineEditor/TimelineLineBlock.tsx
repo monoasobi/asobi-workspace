@@ -15,9 +15,9 @@ interface TimelineLineBlockProps {
   isActive: boolean;
   isEditing: boolean;
   isSelected: boolean;
-  left: number;
+  top: number;
   line: LyricLine;
-  width: number;
+  height: number;
   onConsumeClick: (index: number) => boolean;
   onDelete: (index: number) => void;
   onEdit: (index: number | null) => void;
@@ -44,9 +44,9 @@ export const TimelineLineBlock = ({
   isActive,
   isEditing,
   isSelected,
-  left,
+  top,
   line,
-  width,
+  height,
   onConsumeClick,
   onDelete,
   onEdit,
@@ -81,7 +81,7 @@ export const TimelineLineBlock = ({
           data-active={isActive}
           data-can-manage={canManage}
           data-selected={isSelected}
-          style={{ left, width }}
+          style={{ top, height }}
           role="button"
           tabIndex={0}
           onMouseDown={(event) => {
