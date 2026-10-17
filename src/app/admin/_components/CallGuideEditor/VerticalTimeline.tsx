@@ -81,6 +81,14 @@ export function VerticalTimeline({
     ...lines.map((line) => line.start + sync),
     ...cues.map((cue) => cue.start + sync),
   );
+  const snapTargets = useMemo(
+    () =>
+      effectiveLines.flatMap((line, lineIndex) => [
+        { time: line.start, kind: "start" as const, lineIndex },
+        { time: line.end, kind: "end" as const, lineIndex },
+      ]),
+    [effectiveLines],
+  );
   const y = (time: number) => (time + sync - origin) * scale;
   const { drag, preview, start, move, finish, cancel } = useTimelineDrag({
     canvas,
@@ -90,6 +98,7 @@ export function VerticalTimeline({
     sync,
     origin,
     limit: playback.duration || bottom,
+    snapTargets,
     onSelect,
     onCreate,
     onChange,
@@ -168,8 +177,8 @@ export function VerticalTimeline({
           ))}
         </NativeSelect>
         <span className="text-xs text-muted-foreground">
-          ⌘/Ctrl + 드래그·스크롤: 확대/축소 / 가사 Shift 선택 / 빈 콜 영역
-          드래그: 추가 / 블록 드래그: 이동
+          콜 이동·길이 조절: 스냅 (실선: 시작 / 점선: 끝) / ⌘·Ctrl: 스냅 해제 /
+          빈 곳 ⌘·Ctrl + 드래그·스크롤: 확대·축소 / 가사 Shift 선택
         </span>
       </div>
       <ScrollArea className="min-h-0 flex-1" viewportRef={viewport}>
@@ -320,6 +329,7 @@ export function VerticalTimeline({
           {shown.map((cue) => (
             <div
               key={cue.id}
+              data-call-drag
               className="absolute"
               style={{
                 top: y(cue.start),
@@ -406,6 +416,32 @@ export function VerticalTimeline({
               )}
             </div>
           ))}
+          {drag &&
+            snapTargets.map((target) => {
+              const snapped = drag.snap?.time === target.time;
+              return (
+                <div
+                  key={`${target.lineIndex}:${target.kind}`}
+                  aria-hidden="true"
+                  className={cn(
+                    "pointer-events-none absolute inset-x-0 z-20 border-t",
+                    target.kind === "end" && "border-dashed",
+                    snapped ? "border-primary" : "border-foreground/15",
+                  )}
+                  style={{ top: y(target.time) }}
+                >
+                  {snapped &&
+                    drag.snap?.lineIndex === target.lineIndex &&
+                    drag.snap.kind === target.kind && (
+                      <span className="absolute right-1 bottom-0 rounded bg-background px-1 text-[10px] font-medium text-primary">
+                        가사 {target.lineIndex + 1}{" "}
+                        {target.kind === "start" ? "시작" : "끝"} ·{" "}
+                        {(target.time + sync).toFixed(2)}초
+                      </span>
+                    )}
+                </div>
+              );
+            })}
           {drag?.kind === "create" && (
             <div
               className="pointer-events-none absolute left-1/2 right-0 border-2 border-primary bg-primary/15"

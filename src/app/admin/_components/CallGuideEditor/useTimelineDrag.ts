@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState, type PointerEvent, type RefObject } from "react";
+import { snapCueBounds, type LyricSnapTarget } from "./timelineSnap";
 import { moveCue, resizeCue, roundTime, type CallCue } from "@/lib/callGuide";
 type Drag = {
   pointer: number;
@@ -9,6 +10,7 @@ type Drag = {
   cue?: CallCue;
   start: number;
   end: number;
+  snap?: LyricSnapTarget;
 };
 const previewCue = (drag: Drag | null) =>
   drag?.cue && drag.kind !== "create"
@@ -30,6 +32,7 @@ export function useTimelineDrag({
   sync,
   origin,
   limit,
+  snapTargets,
   onSelect,
   onCreate,
   onChange,
@@ -41,6 +44,7 @@ export function useTimelineDrag({
   sync: number;
   origin: number;
   limit: number;
+  snapTargets: readonly LyricSnapTarget[];
   onSelect: (id: string) => void;
   onCreate: (start: number, end: number) => void;
   onChange: (cue: CallCue) => void;
@@ -138,6 +142,34 @@ export function useTimelineDrag({
           Math.max(cue.start + 0.01, Math.min(limit - sync, cue.end + delta)),
         );
     }
+    if (!(event.metaKey || event.ctrlKey)) {
+      if (state.kind === "create") {
+        const edge = next.end >= next.start ? "end" : "start";
+        const snapped = snapCueBounds(
+          Math.min(next.start, next.end),
+          Math.max(next.start, next.end),
+          edge,
+          snapTargets,
+          scale,
+          -sync,
+          limit - sync,
+        );
+        next.end = edge === "end" ? snapped.end : snapped.start;
+        next.snap = snapped.snap;
+      } else
+        Object.assign(
+          next,
+          snapCueBounds(
+            next.start,
+            next.end,
+            state.kind,
+            snapTargets,
+            scale,
+            -sync,
+            limit - sync,
+          ),
+        );
+    } else next.snap = undefined;
     latest.current = next;
     setDrag(next);
   }

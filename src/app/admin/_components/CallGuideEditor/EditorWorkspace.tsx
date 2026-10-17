@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Copy, ClipboardPaste } from "lucide-react";
 import { NextIntlClientProvider } from "next-intl";
 import { messages } from "@/i18n/messages";
 import { locales, localeNames, type Locale } from "@/i18n/config";
@@ -15,6 +16,7 @@ import type { LyricTrack, CallSection } from "@/types/lyric";
 import type { Music } from "@/types/music";
 import {
   roundTime,
+  moveCue,
   defaultPulsePattern,
   snapshotLine,
   type CallCue,
@@ -54,6 +56,8 @@ export function EditorWorkspace({
   onLoopChange: (value: boolean) => void;
 }) {
   useEditorShortcuts(playback);
+  const [copiedCue, setCopiedCue] = useState<CallCue | null>(null);
+  const [copyMessage, setCopyMessage] = useState("");
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
   const [inspectingCue, setInspectingCue] = useState<
     string | null | undefined
@@ -105,7 +109,7 @@ export function EditorWorkspace({
     if (disabled || guide.cues.length >= 500) return;
     const next: CallCue = {
       id: crypto.randomUUID(),
-      type: "clap",
+      type: fromLyrics ? "singalong" : "clap",
       label: "",
       start: roundTime(start),
       end: roundTime(end),
@@ -116,7 +120,7 @@ export function EditorWorkspace({
             .map(snapshotLine)
         : [],
       pulseTimes: [],
-      pattern: defaultPulsePattern(music.bpm),
+      pattern: fromLyrics ? undefined : defaultPulsePattern(music.bpm),
     };
     onChange({ ...guide, cues: [...guide.cues, next] });
     setInspectingCue(undefined);
@@ -127,6 +131,30 @@ export function EditorWorkspace({
     setInspectingCue(undefined);
     onSelect(id);
     onLoopChange(false);
+  }
+  function paste() {
+    if (disabled || !copiedCue || guide.cues.length >= 500) return;
+    const target = roundTime(Math.max(0, clock.read().time) - track.sync);
+    const next = {
+      ...moveCue(
+        structuredClone(copiedCue),
+        roundTime(target - copiedCue.start),
+      ),
+      id: crypto.randomUUID(),
+    };
+    if (playback.duration > 0 && next.end + track.sync > playback.duration) {
+      setCopyMessage(
+        "콜 전체가 곡 길이 안에 들어오는 위치로 이동한 뒤 붙여넣어 주세요.",
+      );
+      return;
+    }
+    onChange({ ...guide, cues: [...guide.cues, next] });
+    select(next.id);
+    setCopyMessage(
+      next.type === "singalong"
+        ? "떼창을 붙여넣었습니다. 연결 가사와 강조 범위도 복사됩니다. 다른 가사에 적용하려면 ‘선택 블록에 가사 연결’을 사용하세요."
+        : "현재 재생 위치에 콜을 붙여넣었습니다. 전체 저장으로 반영됩니다.",
+    );
   }
   const selectedSource = selectedLines.map((index) => track.lyric[index]);
   return (
@@ -240,6 +268,36 @@ export function EditorWorkspace({
         >
           가이드 추가
         </Button>
+        <div
+          className="flex items-center gap-1"
+          role="group"
+          aria-label="콜 복사와 붙여넣기"
+        >
+          <Button
+            size="xs"
+            variant="outline"
+            disabled={!cue}
+            onClick={() => {
+              if (!cue) return;
+              setCopiedCue(structuredClone(cue));
+              setCopyMessage(
+                "선택한 콜을 복사했습니다. 원하는 위치로 이동한 뒤 붙여넣어 주세요.",
+              );
+            }}
+          >
+            <Copy className="size-3" />콜 복사
+          </Button>
+          <Button
+            size="xs"
+            variant="outline"
+            disabled={disabled || !copiedCue || guide.cues.length >= 500}
+            onClick={paste}
+            title="복사한 콜을 현재 재생 위치에 붙여넣기"
+          >
+            <ClipboardPaste className="size-3" />
+            현재 위치에 붙여넣기
+          </Button>
+        </div>
         <Button
           size="xs"
           variant="ghost"
@@ -248,6 +306,14 @@ export function EditorWorkspace({
           가사·가이드 설정
         </Button>
       </div>
+      {copyMessage && (
+        <p
+          role="status"
+          className="shrink-0 border-b px-3 py-2 text-xs text-muted-foreground"
+        >
+          {copyMessage}
+        </p>
+      )}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         {preview ? (
           <NextIntlClientProvider

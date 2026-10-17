@@ -88,9 +88,12 @@ export function useTimelineZoom(
       if (pointer !== undefined && node!.hasPointerCapture(pointer))
         node!.releasePointerCapture(pointer);
     }
+    // On call blocks, Cmd/Ctrl belongs to precise dragging rather than zoom.
     function down(event: PointerEvent) {
       suppressClick.current = false;
       if (
+        (event.target instanceof Element &&
+          !!event.target.closest("[data-call-drag]")) ||
         !(event.metaKey || event.ctrlKey) ||
         event.button !== 0 ||
         event.isPrimary === false ||
