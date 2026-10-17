@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useMemo, useRef } from "react";
+import { Fragment, useCallback, useId, useMemo, useRef } from "react";
 import { LocateFixed, Music2, Pause } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import type {
   LyricLocale,
   LyricTrack,
 } from "@/types/lyric";
+import { LyricGuideCard } from "./LyricGuideCard";
 import { LyricRow } from "./GuidePreview/LyricRow";
 import { groupLyrics } from "./GuidePreview/groupLyrics";
 import { cn } from "@/lib/utils";
@@ -174,8 +175,18 @@ export function GuidePreview({
               {t("translationPending")}
             </p>
           )}
+          {track?.guides
+            ?.filter((item) => item.beforeLineId === null)
+            .map((item) => (
+              <LyricGuideCard key={item.id} guide={item} locale={locale} />
+            ))}
           {display.rows.length ? (
             groups.map((group) => {
+              const chants = group.sections.filter(
+                (section) =>
+                  section.type === "chant" ||
+                  (section.type === "custom" && section.customEffects?.text),
+              );
               const borderColors = [
                 ...new Set(
                   group.sections
@@ -217,33 +228,68 @@ export function GuidePreview({
                       className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] opacity-0"
                     />
                   )}
+                  {chants.length > 0 && (
+                    <span
+                      aria-hidden="true"
+                      data-chant-position
+                      className="pointer-events-none absolute top-0 right-1 z-10 -translate-y-1/2 flex w-[clamp(3rem,12cqi,4rem)] flex-col items-center justify-center gap-2 sm:right-2"
+                    >
+                      {chants.map((section) => (
+                        <span
+                          key={section.id}
+                          data-chant-pulse={section.id}
+                          style={{
+                            display: activeSectionIds.has(section.id)
+                              ? undefined
+                              : "none",
+                          }}
+                          className="block max-w-full break-words text-center text-[clamp(0.875rem,0.75rem+0.625cqi,1.25rem)] font-extrabold leading-tight text-cyan-600 dark:text-cyan-400 opacity-0"
+                        >
+                          {section.labels?.[locale] || section.label}
+                        </span>
+                      ))}
+                    </span>
+                  )}
                   {group.indices.map((index) => (
-                    <LyricRow
-                      key={display.rows[index].id ?? index}
-                      line={display.rows[index]}
-                      index={index}
-                      locale={locale}
-                      sections={sectionByLine[index]}
-                      active={index === activeIndex}
-                      badges={group.sections.filter((section) => {
-                        const followsCurrent =
-                          activeSectionIds.has(section.id) &&
-                          (sectionByLine[activeIndex] ?? []).some(
-                            (item) => item.id === section.id,
-                          );
-                        const anchor = followsCurrent
-                          ? activeIndex
-                          : group.indices.find((row) =>
-                              sectionByLine[row].some(
-                                (item) => item.id === section.id,
-                              ),
+                    <Fragment key={display.rows[index].id ?? index}>
+                      {track?.guides
+                        ?.filter(
+                          (item) =>
+                            item.beforeLineId === display.rows[index].id,
+                        )
+                        .map((item) => (
+                          <LyricGuideCard
+                            key={item.id}
+                            guide={item}
+                            locale={locale}
+                          />
+                        ))}
+                      <LyricRow
+                        line={display.rows[index]}
+                        index={index}
+                        locale={locale}
+                        sections={sectionByLine[index]}
+                        active={index === activeIndex}
+                        badges={group.sections.filter((section) => {
+                          const followsCurrent =
+                            activeSectionIds.has(section.id) &&
+                            (sectionByLine[activeIndex] ?? []).some(
+                              (item) => item.id === section.id,
                             );
-                        return anchor === index;
-                      })}
-                      activeSectionIds={activeSectionIds}
-                      ready={ready}
-                      onSeek={jump}
-                    />
+                          const anchor = followsCurrent
+                            ? activeIndex
+                            : group.indices.find((row) =>
+                                sectionByLine[row].some(
+                                  (item) => item.id === section.id,
+                                ),
+                              );
+                          return anchor === index;
+                        })}
+                        activeSectionIds={activeSectionIds}
+                        ready={ready}
+                        onSeek={jump}
+                      />
+                    </Fragment>
                   ))}
                 </div>
               );

@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MusicExperience } from "@/components/player/MusicExperience";
+import { resolveLyricPresentation } from "@/lib/lyricPresentation";
 import { resolveGuide, roundTime } from "@/lib/callGuide";
 import type { GuideDocument } from "@/server/queries/guide";
 import { useGuideHistory } from "./CallGuideEditor/useGuideHistory";
@@ -65,7 +66,13 @@ export function CallGuideEditor({
     () => resolveGuide(guide, track.lyric),
     [guide, track.lyric],
   );
+  const presentation = useMemo(
+    () => resolveLyricPresentation(guide, track.lyric),
+    [guide, track.lyric],
+  );
   const invalid =
+    guide.guides?.some((item) => !item.labels.ko.trim()) ||
+    Object.keys(presentation.issues).length > 0 ||
     Object.keys(resolved.issues).length > 0 ||
     guide.cues.some((cue) => cue.start + track.sync < 0);
   useEffect(() => {
@@ -99,7 +106,7 @@ export function CallGuideEditor({
       }));
       notifyCatalogUpdated();
       setMessage(
-        "콜과 가사 싱크를 저장했습니다. 공개 화면에도 바로 반영됩니다.",
+        "콜·가이드·가사 표시 설정을 저장했습니다. 공개 화면에도 바로 반영됩니다.",
       );
     } catch (error) {
       setMessage(
@@ -236,7 +243,7 @@ export function CallGuideEditor({
                 await navigator.clipboard.writeText(
                   JSON.stringify({ guide, syncOffset }, null, 2),
                 );
-                setMessage("콜·싱크 초안을 복사했습니다.");
+                setMessage("콜·가이드·가사 표시 초안을 복사했습니다.");
               } catch {
                 setMessage("클립보드 권한을 확인해 주세요.");
               }

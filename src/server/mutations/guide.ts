@@ -4,6 +4,7 @@ import { callGuides, musicSettings } from "@/server/db/schema";
 import { z } from "zod";
 import { requireAdminWriteAccess } from "@/server/auth/access";
 import { readGuide } from "@/server/queries/guide";
+import { resolveLyricPresentation } from "@/lib/lyricPresentation";
 import { guideSchema, resolveGuide, type CallGuide } from "@/lib/callGuide";
 
 export async function saveGuide(
@@ -30,7 +31,9 @@ export async function saveGuide(
         error:
           "가사·설정 또는 콜이 다른 곳에서 변경되었습니다. 초안을 복사해 보관하고 새로고침해 주세요.",
       };
-    const { issues } = resolveGuide(guide, current.track.lyric);
+    const { issues: cueIssues } = resolveGuide(guide, current.track.lyric);
+    const presentation = resolveLyricPresentation(guide, current.track.lyric);
+    const issues = { ...cueIssues, ...presentation.issues };
     if (Object.keys(issues).length)
       return { status: 400, error: Object.values(issues)[0] };
     const effectiveSync = current.sourceSync + (offset ?? current.syncOffset);

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { messages } from "@/i18n/messages";
 import { locales, localeNames, type Locale } from "@/i18n/config";
@@ -21,6 +21,8 @@ import {
   type CallGuide,
 } from "@/lib/callGuide";
 import { VerticalTimeline } from "./VerticalTimeline";
+import { LyricInspector } from "./LyricInspector";
+import { resolveLyricPresentation } from "@/lib/lyricPresentation";
 import { CueInspector } from "./CueInspector";
 import { useEditorShortcuts } from "./useEditorShortcuts";
 
@@ -53,6 +55,23 @@ export function EditorWorkspace({
 }) {
   useEditorShortcuts(playback);
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
+  const [inspectingCue, setInspectingCue] = useState<
+    string | null | undefined
+  >();
+  const inspectingLyrics =
+    inspectingCue !== undefined && inspectingCue === selected;
+  const presentation = useMemo(
+    () => resolveLyricPresentation(guide, track.lyric),
+    [guide, track.lyric],
+  );
+  const previewTrack = useMemo(
+    () => ({
+      ...track,
+      lyric: presentation.lines,
+      guides: presentation.guides,
+    }),
+    [track, presentation],
+  );
   const [preview, setPreview] = useState(false);
   const [previewLocale, setPreviewLocale] = useState<Locale>("ko");
   const loopSeeking = useRef(false);
@@ -78,7 +97,7 @@ export function EditorWorkspace({
   function update(next: CallCue) {
     if (!disabled)
       onChange({
-        version: 2,
+        ...guide,
         cues: guide.cues.map((item) => (item.id === next.id ? next : item)),
       });
   }
@@ -99,11 +118,13 @@ export function EditorWorkspace({
       pulseTimes: [],
       pattern: defaultPulsePattern(music.bpm),
     };
-    onChange({ version: 2, cues: [...guide.cues, next] });
+    onChange({ ...guide, cues: [...guide.cues, next] });
+    setInspectingCue(undefined);
     onSelect(next.id);
     onLoopChange(false);
   }
   function select(id: string) {
+    setInspectingCue(undefined);
     onSelect(id);
     onLoopChange(false);
   }
@@ -194,6 +215,38 @@ export function EditorWorkspace({
         >
           현재 위치에 콜 추가
         </Button>
+        <Button
+          size="xs"
+          variant="outline"
+          disabled={
+            disabled ||
+            (guide.guides?.length ?? 0) >= 500 ||
+            (!!selectedSource.length && !selectedSource.at(-1)?.id)
+          }
+          onClick={() => {
+            onChange({
+              ...guide,
+              guides: [
+                ...(guide.guides ?? []),
+                {
+                  id: crypto.randomUUID(),
+                  beforeLineId: selectedSource.at(-1)?.id ?? null,
+                  labels: { ko: "", ja: "", en: "" },
+                },
+              ],
+            });
+            setInspectingCue(selected);
+          }}
+        >
+          가이드 추가
+        </Button>
+        <Button
+          size="xs"
+          variant="ghost"
+          onClick={() => setInspectingCue(selected)}
+        >
+          가사·가이드 설정
+        </Button>
       </div>
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         {preview ? (
@@ -204,7 +257,7 @@ export function EditorWorkspace({
           >
             <GuidePreview
               music={music}
-              track={track}
+              track={previewTrack}
               sections={sections}
               clock={clock}
               ready={playback.ready}
@@ -215,6 +268,9 @@ export function EditorWorkspace({
         ) : (
           <VerticalTimeline
             lines={track.lyric}
+            effectiveLines={presentation.lines}
+            guides={guide.guides ?? []}
+            trimWarnings={{ ...presentation.warnings, ...presentation.issues }}
             cues={guide.cues}
             sync={track.sync}
             playback={playback}
@@ -222,13 +278,26 @@ export function EditorWorkspace({
             selectedLines={selectedLines}
             disabled={disabled}
             onSelect={select}
-            onLines={setSelectedLines}
+            onLines={(indexes) => {
+              setSelectedLines(indexes);
+              setInspectingCue(selected);
+            }}
             onCreate={create}
             onChange={update}
           />
         )}
-        <ScrollArea className="h-[38%] min-h-0 shrink-0 border-t lg:h-auto lg:w-[360px] lg:border-t-0 lg:border-l">
-          {cue ? (
+        <ScrollArea className="h-[38%] min-h-0 min-w-0 shrink-0 border-t lg:h-auto lg:w-[360px] lg:border-t-0 lg:border-l">
+          {inspectingLyrics ? (
+            <LyricInspector
+              line={selectedSource.at(-1)}
+              lines={track.lyric}
+              guide={guide}
+              cue={cue}
+              sync={track.sync}
+              disabled={disabled}
+              onChange={onChange}
+            />
+          ) : cue ? (
             <CueInspector
               cue={cue}
               lines={track.lyric}
@@ -246,7 +315,7 @@ export function EditorWorkspace({
               onDelete={() => {
                 if (disabled) return;
                 onChange({
-                  version: 2,
+                  ...guide,
                   cues: guide.cues.filter((item) => item.id !== cue.id),
                 });
                 onSelect(null);

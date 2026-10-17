@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useSyncExternalStore,
   type RefObject,
@@ -68,11 +69,33 @@ export function useGuideTimeline(
       : [],
   );
 
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const row = viewport?.querySelector<HTMLElement>(
+      `[data-line-index="${activeIndex}"]`,
+    );
+    const block = row?.closest<HTMLElement>("[data-call-block]");
+    const position = block?.querySelector<HTMLElement>("[data-chant-position]");
+    if (!viewport || !row || !block || !position) return;
+    // Move the stable block-owned wrapper; leave the text animation untouched.
+    const align = () => {
+      const rowRect = (
+        row.querySelector<HTMLElement>("[data-lyric-content]") ?? row
+      ).getBoundingClientRect();
+      position.style.top = `${rowRect.top - block.getBoundingClientRect().top - block.clientTop + rowRect.height / 2}px`;
+    };
+    align();
+    const observer = new ResizeObserver(align);
+    observer.observe(viewport);
+    observer.observe(block);
+    observer.observe(row);
+    return () => observer.disconnect();
+  }, [activeIndex, lines, sections, viewportRef]);
+
   useEffect(() => {
     let previousTime = clock.read().time - offset;
     let animation: Animation | null = null;
     let chantAnimations: Animation[] = [];
-    let animatedLine = -1;
     let animatedBlock: HTMLElement | null = null;
     const blockAt = (index: number) =>
       viewportRef.current
@@ -84,7 +107,6 @@ export function useGuideTimeline(
       chantAnimations.forEach((item) => item.cancel());
       chantAnimations = [];
       animation = null;
-      animatedLine = -1;
       animatedBlock = null;
     };
     reduced.addEventListener("change", cancel);
@@ -102,14 +124,8 @@ export function useGuideTimeline(
         return;
       }
       const lineIndex = activeLineAt(lines, starts, time);
-      if (animatedBlock && animatedLine !== lineIndex) {
-        if (blockAt(lineIndex) !== animatedBlock) cancel();
-        else {
-          chantAnimations.forEach((item) => item.cancel());
-          chantAnimations = [];
-          animatedLine = lineIndex;
-        }
-      }
+      // Text belongs to the call block, so lyric changes must not interrupt it.
+      if (animatedBlock && blockAt(lineIndex) !== animatedBlock) cancel();
       const hitIndex = upperBound(hits, time) - 1;
       const hit = hits[hitIndex];
       if (hit === undefined || hit <= previous || time - hit > 0.14) return;
@@ -119,7 +135,6 @@ export function useGuideTimeline(
       const overlay = block.querySelector<HTMLElement>("[data-guide-pulse]");
       if (!overlay) return;
       cancel();
-      animatedLine = lineIndex;
       animatedBlock = block;
       const pulsing = (sectionByLine[lineIndex] ?? []).filter(
         (section) =>
@@ -131,31 +146,37 @@ export function useGuideTimeline(
       const chanting = new Set(
         pulsing
           .filter(
-            (section) => section.type === "chant" || section.type === "custom",
+            (section) =>
+              section.type === "chant" ||
+              (section.type === "custom" && section.customEffects?.text),
           )
           .map((section) => section.id),
       );
       const colors = [
         ...new Set(
-          pulsing.map((section) =>
-            section.type === "chant" || section.type === "custom"
-              ? "var(--cyan-500)"
-              : "var(--yellow-600)",
-          ),
+          pulsing
+            .filter(
+              (section) =>
+                section.type !== "custom" || section.customEffects?.flash,
+            )
+            .map((section) =>
+              section.type === "chant" || section.type === "custom"
+                ? "var(--cyan-500)"
+                : "var(--yellow-600)",
+            ),
         ),
       ];
-      if (!colors.length) return;
       const fills = colors.map(
         (color) => `color-mix(in oklch, ${color} 14%, transparent)`,
       );
-      overlay.style.backgroundImage = `linear-gradient(110deg, ${fills.length === 1 ? `${fills[0]}, ${fills[0]}` : fills.join(", ")})`;
+      overlay.style.backgroundImage = colors.length
+        ? `linear-gradient(110deg, ${fills.length === 1 ? `${fills[0]}, ${fills[0]}` : fills.join(", ")})`
+        : "none";
       const border = colors
         .map((color, index) => `inset 0 0 0 ${(index + 1) * 2}px ${color}`)
         .join(", ");
       block
-        .querySelectorAll<HTMLElement>(
-          `[data-line-index="${lineIndex}"] [data-chant-pulse]`,
-        )
+        .querySelectorAll<HTMLElement>("[data-chant-pulse]")
         .forEach((text) => {
           if (!chanting.has(text.dataset.chantPulse ?? "")) return;
           chantAnimations.push(
@@ -180,18 +201,19 @@ export function useGuideTimeline(
             ),
           );
         });
-      animation = overlay.animate(
-        [
-          { opacity: reduced.matches ? 0.5 : 1, boxShadow: border },
-          {
-            opacity: reduced.matches ? 0.5 : 1,
-            boxShadow: border,
-            offset: 0.35,
-          },
-          { opacity: 0, boxShadow: border },
-        ],
-        { duration: reduced.matches ? 180 : 380, easing: "ease-out" },
-      );
+      if (colors.length)
+        animation = overlay.animate(
+          [
+            { opacity: reduced.matches ? 0.5 : 1, boxShadow: border },
+            {
+              opacity: reduced.matches ? 0.5 : 1,
+              boxShadow: border,
+              offset: 0.35,
+            },
+            { opacity: 0, boxShadow: border },
+          ],
+          { duration: reduced.matches ? 180 : 380, easing: "ease-out" },
+        );
     });
     return () => {
       unsubscribe();

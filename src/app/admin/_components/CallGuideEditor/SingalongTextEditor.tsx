@@ -56,7 +56,7 @@ export function SingalongTextEditor({
     });
   }
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       <p className="text-xs text-muted-foreground">
         연결된 가사의 일본어 원문·한국어 독음·영어 독음에서 떼창할 부분을 차례로
         드래그하면 한 줄에 여러 범위를 추가할 수 있습니다. 언어별 범위는
@@ -72,7 +72,7 @@ export function SingalongTextEditor({
         return (
           <section
             key={snapshot.id}
-            className="space-y-3 rounded-lg border p-3"
+            className="min-w-0 space-y-3 rounded-lg border p-3"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-sm font-medium">연결 가사 {index + 1}</h3>
@@ -192,7 +192,7 @@ function TextSelectionField({
     if (end <= text.length && start < end) onChange({ start, end, text });
   }
   return (
-    <div className="space-y-1">
+    <div className="min-w-0 space-y-1">
       <h4 className="text-xs font-medium">{lyricTextLabels[field]}</h4>
       <p
         ref={textRef}
@@ -202,7 +202,7 @@ function TextSelectionField({
         onPointerUp={selectText}
         onKeyUp={selectText}
         aria-label={`${lyricTextLabels[field]} 떼창 범위 선택`}
-        className="cursor-text select-text whitespace-pre-wrap break-words rounded border p-2 text-sm focus-visible:outline-2 focus-visible:outline-ring"
+        className="cursor-text select-text whitespace-pre-wrap [overflow-wrap:anywhere] rounded border p-2 text-sm focus-visible:outline-2 focus-visible:outline-ring"
       >
         {text ? (
           <HighlightedText
@@ -218,7 +218,7 @@ function TextSelectionField({
           내용이 변경되었습니다. 다시 선택하거나 강조를 해제해 주세요.
         </p>
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-muted-foreground [overflow-wrap:anywhere]">
         {selections.length && !stale
           ? `선택: ${selections.map((selection) => text.slice(selection.start, selection.end)).join(" / ")}`
           : "선택된 강조 없음"}
@@ -231,10 +231,16 @@ function TextSelectionField({
               size="xs"
               variant="outline"
               disabled={disabled}
+              className="h-auto min-h-6 min-w-0 max-w-full items-start whitespace-normal py-1 text-left"
               onClick={() => onRemove(selection)}
               aria-label={`${selection.text.slice(selection.start, selection.end)} 강조 삭제`}
             >
-              {selection.text.slice(selection.start, selection.end)} ×
+              <span className="min-w-0 [overflow-wrap:anywhere]">
+                {selection.text.slice(selection.start, selection.end)}
+              </span>
+              <span aria-hidden="true" className="shrink-0">
+                ×
+              </span>
             </Button>
           ))}
         </div>

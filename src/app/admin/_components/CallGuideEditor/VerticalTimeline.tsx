@@ -1,4 +1,7 @@
 "use client";
+import { CallIcon } from "@/components/common/CallIcon";
+import { Info } from "lucide-react";
+import type { CallGuide } from "@/lib/callGuide";
 import {
   callLabels,
   callStyles,
@@ -21,7 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { LyricLine } from "@/types/lyric";
 import { Minus, Plus } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { useTimelineDrag } from "./useTimelineDrag";
 import { useTimelinePlayback } from "./useTimelinePlayback";
 import {
@@ -32,6 +35,9 @@ import {
 
 export function VerticalTimeline({
   lines,
+  effectiveLines,
+  guides,
+  trimWarnings,
   cues,
   sync,
   playback,
@@ -44,6 +50,9 @@ export function VerticalTimeline({
   onChange,
 }: {
   lines: LyricLine[];
+  effectiveLines: LyricLine[];
+  guides: NonNullable<CallGuide["guides"]>;
+  trimWarnings: Record<string, string>;
   cues: CallCue[];
   sync: number;
   playback: Playback;
@@ -166,7 +175,7 @@ export function VerticalTimeline({
       <ScrollArea className="min-h-0 flex-1" viewportRef={viewport}>
         <div className="sticky top-0 z-20 grid grid-cols-[60px_1fr_1fr] border-b bg-background p-2 text-xs">
           <span>시간</span>
-          <span>원본 가사 · 읽기 전용</span>
+          <span>가사 · 종료 보정 / 안내 가이드</span>
           <span>콜 트랙</span>
         </div>
         <div
@@ -219,47 +228,95 @@ export function VerticalTimeline({
             }}
           />
           {lines.map((line, index) => (
-            <button
-              type="button"
-              key={line.id ?? index}
-              title={`${line.jp}\n${textField === "jp" ? "" : line[textField] || "자료 없음"}\n${(line.start + sync).toFixed(2)}초`}
-              aria-pressed={selectedLines.includes(index)}
-              className={cn(
-                "absolute left-0 w-[calc(50%-6px)] overflow-hidden rounded border bg-card px-2 text-left text-xs",
-                selectedLines.includes(index) &&
-                  "border-cyan-500 bg-cyan-100 dark:bg-cyan-900",
-              )}
-              style={{
-                top: y(line.start),
-                height: Math.max(4, (line.end - line.start) * scale),
-              }}
-              onClick={(event) => {
-                if (event.shiftKey)
-                  onLines(
-                    Array.from(
-                      { length: Math.abs(index - selectionAnchor.current) + 1 },
-                      (_, i) => Math.min(index, selectionAnchor.current) + i,
-                    ),
-                  );
-                else {
-                  selectionAnchor.current = index;
-                  onLines([index]);
-                }
-              }}
-            >
-              <span lang="ja" className="block truncate">
-                {line.jp}
-              </span>
-              {textField !== "jp" && (
-                <span
-                  lang={lyricTextLang[textField]}
-                  className="mt-1 block truncate text-muted-foreground"
+            <Fragment key={line.id ?? index}>
+              {effectiveLines[index].end < line.end && (
+                <div
+                  aria-label="표시에서 잘리는 원본 가사 꼬리"
+                  className="pointer-events-none absolute left-0 w-[calc(50%-6px)] rounded-b border border-dashed bg-muted/40 px-2 text-xs text-muted-foreground/50"
+                  style={{
+                    top: y(effectiveLines[index].end),
+                    height: (line.end - effectiveLines[index].end) * scale,
+                  }}
                 >
-                  {line[textField] || "자료 없음"}
-                </span>
+                  <span>표시 종료 보정 · 간주로 표시</span>
+                </div>
               )}
-            </button>
+              <button
+                type="button"
+                key={line.id ?? index}
+                title={`${line.jp}\n${textField === "jp" ? "" : line[textField] || "자료 없음"}\n${(line.start + sync).toFixed(2)}초`}
+                aria-pressed={selectedLines.includes(index)}
+                className={cn(
+                  "absolute left-0 w-[calc(50%-6px)] overflow-hidden rounded border bg-card px-2 text-left text-xs",
+                  selectedLines.includes(index) &&
+                    "border-cyan-500 bg-cyan-100 dark:bg-cyan-900",
+                )}
+                style={{
+                  top: y(line.start),
+                  height: Math.max(
+                    4,
+                    (effectiveLines[index].end - line.start) * scale,
+                  ),
+                }}
+                onClick={(event) => {
+                  if (event.shiftKey)
+                    onLines(
+                      Array.from(
+                        {
+                          length: Math.abs(index - selectionAnchor.current) + 1,
+                        },
+                        (_, i) => Math.min(index, selectionAnchor.current) + i,
+                      ),
+                    );
+                  else {
+                    selectionAnchor.current = index;
+                    onLines([index]);
+                  }
+                }}
+              >
+                {line.id && trimWarnings[line.id] && (
+                  <span className="block text-destructive">
+                    ⚠ 종료 보정 재확인
+                  </span>
+                )}
+                <span lang="ja" className="block truncate">
+                  {line.jp}
+                </span>
+                {textField !== "jp" && (
+                  <span
+                    lang={lyricTextLang[textField]}
+                    className="mt-1 block truncate text-muted-foreground"
+                  >
+                    {line[textField] || "자료 없음"}
+                  </span>
+                )}
+              </button>
+            </Fragment>
           ))}
+          {guides.map((note) => {
+            const index =
+              note.beforeLineId === null
+                ? -1
+                : lines.findIndex((line) => line.id === note.beforeLineId);
+            if (note.beforeLineId !== null && index < 0) return null;
+            const time =
+              index < 0 ? (lines[0]?.start ?? 0) : lines[index].start;
+            return (
+              <button
+                key={note.id}
+                type="button"
+                title={note.labels.ko || "가이드 내용 입력"}
+                className="absolute left-0 z-10 flex h-6 w-[calc(50%-6px)] -translate-y-1/2 items-center gap-1 rounded border border-dashed bg-background px-2 text-left text-xs shadow-xs"
+                style={{ top: y(time) }}
+                onClick={() => onLines(index < 0 ? [] : [index])}
+              >
+                <Info aria-hidden="true" className="size-3 shrink-0" />
+                <span className="truncate">
+                  가이드 · {note.labels.ko || "내용을 입력해 주세요"}
+                </span>
+              </button>
+            );
+          })}
           {shown.map((cue) => (
             <div
               key={cue.id}
@@ -288,6 +345,7 @@ export function VerticalTimeline({
                 onClick={() => onSelect(cue.id)}
               >
                 <span className="relative z-10">
+                  <CallIcon type={cue.type} emoji={cue.emoji} />{" "}
                   {callLabels[cue.type]}
                   {(cue.type === "chant" || cue.type === "custom"
                     ? (cue.labels?.ko ?? cue.label)

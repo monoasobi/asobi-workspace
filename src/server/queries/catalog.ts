@@ -8,6 +8,7 @@ import {
   lyricTracks,
   callGuides,
 } from "@/server/db/schema";
+import { resolveLyricPresentation } from "@/lib/lyricPresentation";
 import { parseGuide, resolveGuide } from "@/lib/callGuide";
 import type { CatalogEntry } from "@/types/catalog";
 
@@ -65,34 +66,37 @@ export async function getPublicCatalog(): Promise<CatalogEntry[]> {
     .leftJoin(callGuides, eq(musics.id, callGuides.musicId))
     .where(and(isNull(musics.deletedAt), eq(musicSettings.publish, true)))
     .orderBy(asc(musics.id));
-  return rows.map((row) => ({
-    sections: resolveGuide(
-      parseGuide(row.guideJson),
-      linesSchema.parse(row.lyricJson ?? []),
-    ).sections,
-    music: {
-      id: row.id,
-      title: row.title,
-      korTitle: row.korTitle,
-      enTitle: row.enTitle,
-      youtubeId: z
-        .string()
-        .regex(/^[A-Za-z0-9_-]{11}$/)
-        .parse(row.youtubeId),
-      fanLightColor: row.fanLightColor ?? undefined,
-    },
-    track:
-      row.trackId === null && row.guideJson === null
-        ? undefined
-        : {
-            id: row.id,
-            sync:
-              z
-                .number()
-                .finite()
-                .parse(row.sync ?? 0) +
-              z.number().finite().parse(row.syncOffset),
-            lyric: linesSchema.parse(row.lyricJson ?? []),
-          },
-  }));
+  return rows.map((row) => {
+    const source = linesSchema.parse(row.lyricJson ?? []);
+    const guide = parseGuide(row.guideJson);
+    const presentation = resolveLyricPresentation(guide, source);
+    return {
+      sections: resolveGuide(guide, source).sections,
+      music: {
+        id: row.id,
+        title: row.title,
+        korTitle: row.korTitle,
+        enTitle: row.enTitle,
+        youtubeId: z
+          .string()
+          .regex(/^[A-Za-z0-9_-]{11}$/)
+          .parse(row.youtubeId),
+        fanLightColor: row.fanLightColor ?? undefined,
+      },
+      track:
+        row.trackId === null && row.guideJson === null
+          ? undefined
+          : {
+              id: row.id,
+              sync:
+                z
+                  .number()
+                  .finite()
+                  .parse(row.sync ?? 0) +
+                z.number().finite().parse(row.syncOffset),
+              lyric: presentation.lines,
+              guides: presentation.guides,
+            },
+    };
+  });
 }

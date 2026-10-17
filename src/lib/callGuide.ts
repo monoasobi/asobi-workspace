@@ -13,6 +13,22 @@ const common = {
   id: z.string().min(1).max(100),
   type: z.enum(["clap", "chant", "singalong", "custom"]),
   label: z.string().max(200),
+  emoji: z
+    .string()
+    .max(32)
+    .refine(
+      (value) =>
+        !value ||
+        (Array.from(
+          new Intl.Segmenter("ko", { granularity: "grapheme" }).segment(value),
+        ).length === 1 &&
+          /\p{Extended_Pictographic}|\p{Regional_Indicator}|[0-9#*]\uFE0F?\u20E3/u.test(
+            value,
+          )),
+      "이모지 하나를 선택해 주세요.",
+    )
+    .optional(),
+  customEffects: z.object({ text: z.boolean(), flash: z.boolean() }).optional(),
   labels: z
     .object({
       ko: z.string().max(200),
@@ -62,13 +78,65 @@ const cueSchema = z.object({
     .optional(),
 });
 export const guideSchema = z
-  .object({ version: z.literal(2), cues: z.array(cueSchema).max(500) })
-  .superRefine(({ cues }, ctx) => {
+  .object({
+    version: z.literal(2),
+    cues: z.array(cueSchema).max(500),
+    guides: z
+      .array(
+        z
+          .object({
+            id: z.string().min(1).max(100),
+            beforeLineId: z.string().min(1).max(200).nullable().optional(),
+            afterLineId: z.string().min(1).max(200).nullable().optional(),
+            labels: z.object({
+              ko: z.string().trim().min(1).max(2000),
+              ja: z.string().max(2000),
+              en: z.string().max(2000),
+            }),
+          })
+          .refine(
+            (item) =>
+              item.beforeLineId !== undefined || item.afterLineId !== undefined,
+            "가이드 위치를 지정해 주세요.",
+          )
+          .transform(({ beforeLineId, afterLineId, ...item }) => ({
+            ...item,
+            // Read old anchors without writes; their guide now sits above the same lyric.
+            beforeLineId:
+              beforeLineId !== undefined ? beforeLineId : afterLineId!,
+          })),
+      )
+      .max(500)
+      .optional(),
+    lyricEnds: z
+      .array(z.object({ source: sourceLine, end: time }))
+      .max(500)
+      .optional(),
+  })
+  .superRefine(({ cues, guides, lyricEnds }, ctx) => {
+    if (
+      new Set(guides?.map((item) => item.id)).size !== (guides?.length ?? 0) ||
+      new Set(lyricEnds?.map((item) => item.source.id)).size !==
+        (lyricEnds?.length ?? 0)
+    )
+      ctx.addIssue({
+        code: "custom",
+        message: "중복된 가이드 또는 가사 종료 보정입니다.",
+      });
     if (new Set(cues.map((cue) => cue.id)).size !== cues.length)
       ctx.addIssue({ code: "custom", message: "중복된 콜 ID입니다." });
   });
 export type CallGuide = z.infer<typeof guideSchema>;
 export type CallCue = CallGuide["cues"][number];
+// Existing custom cues with timing used both effects; keep them readable unchanged.
+export function customCueEffects(cue: {
+  customEffects?: { text: boolean; flash: boolean };
+  pattern?: unknown;
+  pulseTimes: readonly number[];
+}) {
+  const enabled = !!cue.pattern || cue.pulseTimes.length > 0;
+  return cue.customEffects ?? { text: enabled, flash: enabled };
+}
 export function cueTextSelections(
   cue: CallCue,
 ): NonNullable<CallCue["textSelections"]> {
@@ -106,6 +174,8 @@ export function changeCueType(
   return {
     ...cue,
     type,
+    customEffects:
+      type === "custom" ? { text: false, flash: false } : undefined,
     selection: type === "singalong" ? cue.selection : undefined,
     textSelections: type === "singalong" ? cue.textSelections : undefined,
     pulseTimes:
@@ -149,7 +219,13 @@ export function snapshotLine(line: LyricLine) {
   return { id: line.id, jp: line.jp, start: line.start, end: line.end };
 }
 export function cuePulses(cue: CallCue): number[] {
-  if (cue.type === "singalong") return [];
+  if (
+    cue.type === "singalong" ||
+    (cue.type === "custom" &&
+      !customCueEffects(cue).text &&
+      !customCueEffects(cue).flash)
+  )
+    return [];
   if (!cue.pattern) return cue.pulseTimes;
   const { bpm, subdivision, firstOffset, steps } = cue.pattern;
   const interval = 60 / bpm / subdivision;
@@ -210,6 +286,9 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
       issue = "구간은 최소 0.01초여야 합니다.";
     else if (
       cue.type !== "singalong" &&
+      (cue.type !== "custom" ||
+        customCueEffects(cue).text ||
+        customCueEffects(cue).flash) &&
       cue.pattern &&
       (cue.pulseTimes.length ||
         cue.pattern.firstOffset >= cue.end - cue.start ||
@@ -230,8 +309,14 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
         "펄스는 블록 안에 중복 없이 오름차순으로 지정해 주세요. 최대 2,000개입니다.";
     else if (cue.type === "custom" && !(cue.labels?.ko || cue.label).trim())
       issue = "커스텀 표시 문구를 입력해 주세요.";
-    else if ((cue.type === "clap" || cue.type === "chant") && !pulses.length)
-      issue = "박수·챈트의 타이밍을 하나 이상 선택해 주세요.";
+    else if (
+      (cue.type === "clap" ||
+        cue.type === "chant" ||
+        (cue.type === "custom" &&
+          (customCueEffects(cue).text || customCueEffects(cue).flash))) &&
+      !pulses.length
+    )
+      issue = "박자 효과의 타이밍을 하나 이상 선택해 주세요.";
     else if (
       cue.type === "singalong" &&
       (!cue.lines.length ||
@@ -277,10 +362,12 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
     sections.push({
       id: cue.id,
       type: cue.type,
+      emoji: cue.type === "custom" ? cue.emoji : undefined,
       label: cue.label || undefined,
       labels:
         cue.type === "chant" || cue.type === "custom" ? cue.labels : undefined,
       notes: cue.notes,
+      customEffects: cue.type === "custom" ? customCueEffects(cue) : undefined,
       start: cue.start,
       end: cue.end,
       firstLine: first,

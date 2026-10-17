@@ -3,6 +3,7 @@ import type { LyricTextField } from "@/lib/lyricText";
 
 export interface LyricLine {
   instrumental?: boolean;
+  originalEnd?: number;
   id?: string;
   start: number;
   end: number;
@@ -17,6 +18,11 @@ export interface LyricTrack {
   id: number;
   sync: number;
   lyric: LyricLine[];
+  guides?: {
+    id: string;
+    beforeLineId: string | null;
+    labels: Record<LyricLocale, string>;
+  }[];
 }
 
 export interface CallSection {
@@ -27,8 +33,10 @@ export interface CallSection {
   firstLine: number;
   lastLine: number;
   label?: string;
+  emoji?: string;
   labels?: Record<LyricLocale, string>;
   notes?: Record<LyricLocale, string>;
+  customEffects?: { text: boolean; flash: boolean };
   // Seconds on the lyric timeline; track sync is added when reading player time.
   pulseTimes: number[];
   // Optional selected text offsets, not pre-split lyric segments.
