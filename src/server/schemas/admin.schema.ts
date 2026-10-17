@@ -133,3 +133,8 @@ export type NovelInput = z.infer<typeof novelSchema>;
 export type ComicInput = z.infer<typeof comicSchema>;
 export type LyricTrackInput = z.infer<typeof lyricTrackSchema>;
 export type BookInput = z.infer<typeof bookSchema>;
+
+export const lyricEnglishSchema = z.object({
+  expectedUpdatedAt: z.string(),
+  lines: z.array(z.object({ en: z.string(), enReading: z.string() })),
+});

@@ -185,3 +185,20 @@ const replaceBookDetails = async (bookId: number, input: BookInput) => {
     })),
   );
 };
+
+export const updateLyricEnglish = async (
+  musicId: number,
+  input: { expectedUpdatedAt: string; lines: { en: string; enReading: string }[] },
+) => db.transaction(async tx => {
+  const [current] = await tx.select().from(lyricTracks).where(eq(lyricTracks.musicId, musicId));
+  if (!current) return { status: "missing" } as const;
+  const stored = current.lyricJson as LyricLine[];
+  if (current.updatedAt !== input.expectedUpdatedAt || stored.length !== input.lines.length) {
+    return { status: "conflict" } as const;
+  }
+  const [updated] = await tx.update(lyricTracks).set({
+    lyricJson: stored.map((line, index) => ({ ...line, ...input.lines[index] })),
+    updatedAt: now(),
+  }).where(and(eq(lyricTracks.musicId, musicId), eq(lyricTracks.updatedAt, input.expectedUpdatedAt))).returning();
+  return updated ? { status: "saved", lyricTrack: updated } as const : { status: "conflict" } as const;
+});

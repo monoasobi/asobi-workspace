@@ -1,6 +1,7 @@
 "use client";
 
 import { AlbumArtwork } from "@/components/common/AlbumArtwork";
+import { AdminLyricEnglishEditor } from "./AdminLyricEnglishEditor";
 import { AdminSrtExport } from "./AdminSrtExport";
 import type { LyricLine } from "@appTypes/lyric";
 import type { AdminRole } from "@appTypes/admin";
@@ -60,6 +61,7 @@ export const AdminDocumentPanel = ({
   isRefreshing,
 }: AdminDocumentPanelProps) => {
   const canManage = role === "admin";
+  const [lyricTab, setLyricTab] = useState("document");
   const savedMusicId = useRef<number | null>(null);
   const isMusic = selectedNode.type === "music" || selectedNode.type === "newMusic";
   const editedMusic = selectedNode.type === "music"
@@ -275,11 +277,19 @@ export const AdminDocumentPanel = ({
           </Flex>
         )}
 
+      {selectedLyric && canManage && (
+        <Flex gap="2" px="3" py="2" role="tablist" aria-label="가사 편집">
+          <Button id="lyric-document-tab" role="tab" aria-selected={lyricTab === "document"} aria-controls="lyric-document-panel" variant={lyricTab === "document" ? "solid" : "soft"} onClick={() => setLyricTab("document")}>가사 문서</Button>
+          <Button id="lyric-english-tab" role="tab" aria-selected={lyricTab === "english"} aria-controls="lyric-english-panel" variant={lyricTab === "english" ? "solid" : "soft"} onClick={() => setLyricTab("english")}>영어 해석·독음</Button>
+        </Flex>
+      )}
+
       <ScrollArea
         className={styles.documentScroll}
         type="auto"
         scrollbars="vertical"
       >
+        <div id="lyric-document-panel" hidden={lyricTab !== "document"}>
         {config && isEditing ? (
           <AdminEditorForm
             formId={formId}
@@ -333,6 +343,18 @@ export const AdminDocumentPanel = ({
               </section>
             )}
             {message && <AdminEditorMessage message={message} />}
+          </div>
+        )}
+        </div>
+        {selectedLyric && canManage && (
+          <div id="lyric-english-panel" role="tabpanel" aria-labelledby="lyric-english-tab" hidden={lyricTab !== "english"}>
+            <AdminLyricEnglishEditor
+              musicId={selectedLyric.musicId}
+              lyrics={selectedLyric.englishLyrics}
+              updatedAt={selectedLyric.updatedAt}
+              isRefreshing={isRefreshing}
+              onSaved={() => onSaved()}
+            />
           </div>
         )}
       </ScrollArea>

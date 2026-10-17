@@ -51,6 +51,8 @@ export const getAdminDashboard = async () => {
     lyricTracks: lyricTracks.map((track) => ({
       musicId: track.musicId,
       sync: track.sync,
+      updatedAt: track.updatedAt,
+      englishLyrics: track.lyricJson as LyricLine[],
       lineCount: Array.isArray(track.lyricJson) ? track.lyricJson.length : 0,
       lyricJson: (track.lyricJson as LyricLine[]).map(withoutEnglish),
     })),

@@ -1,6 +1,6 @@
 import type { LyricLine } from "@appTypes/lyric";
 
-// English is shared storage for loudasobi, not a MONOASOBI display/edit field.
+// Keep English out of public views and the general JSON/timeline editor.
 export function withoutEnglish(line: LyricLine): LyricLine {
   const result = { ...line };
   delete result.en;
