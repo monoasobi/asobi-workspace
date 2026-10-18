@@ -6,6 +6,20 @@ export const getDisplayStart = (line: LyricLine, offset: number) =>
 export const getDisplayEnd = (line: LyricLine, offset: number) =>
   line.end + offset;
 
+export const getActiveLineIndex = (
+  lyrics: readonly Pick<LyricLine, "start" | "end">[] | undefined,
+  currentTime: number,
+  offset: number,
+) => {
+  // Match the editor's 0.01s precision; shared boundaries belong to the next line.
+  const time = Math.round(currentTime * 100);
+  return lyrics?.findIndex(
+    (line) =>
+      time >= Math.round((line.start + offset) * 100) &&
+      time < Math.round((line.end + offset) * 100),
+  ) ?? -1;
+};
+
 export const formatTime = (seconds: number, precise = false) => {
   if (!Number.isFinite(seconds)) return precise ? "0:00.00" : "0:00";
   const sign = seconds < 0 ? "-" : "";

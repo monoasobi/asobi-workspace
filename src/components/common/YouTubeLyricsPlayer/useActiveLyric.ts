@@ -2,7 +2,7 @@
 
 import type { LyricLine } from "@appTypes/lyric";
 import { useMemo } from "react";
-import { getDisplayStart, getDisplayEnd } from "./time";
+import { getActiveLineIndex } from "./time";
 
 export const useActiveLyric = (
   lyrics: LyricLine[] | undefined,
@@ -10,12 +10,7 @@ export const useActiveLyric = (
   offset: number,
 ) => {
   const activeLineIndex = useMemo(
-    () =>
-      lyrics?.findIndex(
-        (line) =>
-          currentTime >= getDisplayStart(line, offset) &&
-          currentTime < getDisplayEnd(line, offset),
-      ) ?? -1,
+    () => getActiveLineIndex(lyrics, currentTime, offset),
     [lyrics, currentTime, offset],
   );
 

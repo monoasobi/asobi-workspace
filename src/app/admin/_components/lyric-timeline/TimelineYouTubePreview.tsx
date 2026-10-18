@@ -40,7 +40,9 @@ export const TimelineYouTubePreview = ({ player }: { player: LyricPlayer }) => {
   return (
     <div className={styles.preview}>
       <div className={styles.previewFrame}>
-        <ReactPlayer {...player.playerProps} />
+        <div className={styles.previewIframeWrapper}>
+          <ReactPlayer {...player.playerProps} />
+        </div>
         <div className={styles.previewBlocker} onClick={togglePlay} />
         <div className={styles.previewOverlay}>
           <LyricOverlay
