@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { AlbumArtwork } from "@/components/common/AlbumArtwork";
 import { useLocale, useTranslations } from "next-intl";
 import { useLayoutEffect, useRef } from "react";
 import type { CatalogEntry } from "@/types/catalog";
@@ -127,11 +127,9 @@ export function SongList({
                   isPending && "text-muted-foreground",
                 )}
               >
-                <Image
-                  src={`/images/albumart/${music.id}.webp`}
-                  alt=""
-                  width={72}
-                  height={72}
+                <AlbumArtwork
+                  key={music.albumArtKey ?? music.id}
+                  albumArtKey={music.albumArtKey}
                   className={cn(
                     "size-[72px] rounded-sm border object-cover max-[359px]:hidden",
                     isPending && "opacity-40 grayscale",

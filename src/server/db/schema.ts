@@ -15,6 +15,7 @@ export const musics = sqliteTable("musics", {
   title: text("title").notNull(),
   korTitle: text("kor_title").notNull(),
   enTitle: text("en_title").notNull(),
+  albumArtKey: text("album_art_key"),
   deletedAt: text("deleted_at"),
 });
 export const musicSettings = sqliteTable("loudasobi_music_settings", {

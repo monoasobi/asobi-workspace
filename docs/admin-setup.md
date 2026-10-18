@@ -22,8 +22,10 @@
 - 팬라이트 영문 키와 hex 사전은 src/lib/fanlights.ts에 있습니다.
 - 곡 BPM은 전용 설정의 nullable `bpm`(20~400)에 저장합니다. 새 박수/콜 패턴은 곡 BPM(미지정 시 120), 1박 단위 8칸·모든 박 선택으로 시작하며 기존 패턴은 바꾸지 않습니다. MONOASOBI의 `0006_loudasobi_bpm` 마이그레이션을 앱 배포 전에 적용해야 합니다.
 - 공개 변경은 공개 화면을 다시 열거나 새로고침하면 반영됩니다. 이미 열려 있는 화면을 실시간으로 회수하는 기능은 없습니다.
-- MONOASOBI의 환경 변수 중 `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, 선택적 `ADMIN_VIEWER_PASSWORDS`만 사용합니다.
-- 로컬 값은 Git에서 제외되는 `.env.local`에 보관합니다. 배포 환경에도 동일한 키를 **서버 환경 변수**로 설정해야 합니다. NEXT_PUBLIC_ 접두사는 사용하지 않습니다.
+- MONOASOBI와 같은 `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, 선택적 `ADMIN_VIEWER_PASSWORDS`를 사용합니다.
+- 앨범아트는 공유 `musics.album_art_key`를 읽고 `${NEXT_PUBLIC_MONOASOBI_URL}/api/content/${album_art_key}`를 브라우저에서 직접 요청합니다. 라우다소비에는 별도 이미지 API나 R2 연결이 필요하지 않습니다. 도메인 설정 또는 키가 없거나 이미지를 불러오지 못하면 기본 디스크 아이콘을 표시합니다.
+- `.env.local`과 배포 환경에 `NEXT_PUBLIC_MONOASOBI_URL=https://monoasobi.vercel.app`을 설정합니다. 공개 도메인이므로 클라이언트에 노출해도 되는 값입니다. 도메인이 바뀌면 이 값을 변경하고 재배포합니다. `NEXT_PUBLIC_` 값은 빌드 시 반영되므로 배포 빌드 전에 설정해야 하며, 로컬에서는 개발 서버를 재시작합니다.
+- 로컬 값은 Git에서 제외되는 `.env.local`에 보관합니다. 배포 환경에도 동일한 키를 설정합니다. DB·인증 비밀값은 **서버 환경 변수**로만 설정하며 NEXT_PUBLIC_ 접두사를 사용하지 않습니다.
 - 기존과 같은 admin/viewer 권한, 8시간 HMAC 세션, HttpOnly·SameSite=Lax·운영 Secure 쿠키를 사용합니다.
 - 쿠키 이름과 서명 용도는 loudasobi 전용입니다. MONOASOBI 로그인과 별개이며, 다른 사이트의 쿠키로 로그인할 수 없습니다.
 - 로그인·로그아웃은 동일 출처 요청만 허용합니다. 리버스 프록시는 원래 공개 요청 URL을 보존해야 합니다.

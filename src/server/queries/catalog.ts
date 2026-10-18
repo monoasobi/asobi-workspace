@@ -52,6 +52,7 @@ export async function getPublicCatalog(): Promise<CatalogEntry[]> {
       title: musics.title,
       korTitle: musics.korTitle,
       enTitle: musics.enTitle,
+      albumArtKey: musics.albumArtKey,
       youtubeId: musicSettings.youtubeId,
       fanLightColor: musicSettings.fanLightColor,
       trackId: lyricTracks.musicId,
@@ -81,6 +82,7 @@ export async function getPublicCatalog(): Promise<CatalogEntry[]> {
         title: row.title,
         korTitle: row.korTitle,
         enTitle: row.enTitle,
+        albumArtKey: row.albumArtKey,
         youtubeId: z
           .string()
           .regex(/^[A-Za-z0-9_-]{11}$/)
