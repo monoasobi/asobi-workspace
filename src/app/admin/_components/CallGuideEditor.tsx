@@ -1,4 +1,6 @@
 "use client";
+import { recordRecentGuideTexts } from "@/lib/recentGuideTexts";
+import { RecentTextProvider } from "./CallGuideEditor/TextSuggestions";
 import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -19,6 +21,7 @@ import {
   NativeSelectOption,
 } from "@/components/ui/native-select";
 import { callLabels } from "@/components/player/GuidePreview/guideStyles";
+import { SongGuideEditor } from "./CallGuideEditor/SongGuideEditor";
 import { EditorThemeMenu } from "./CallGuideEditor/EditorThemeMenu";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -67,8 +70,8 @@ export function CallGuideEditor({
     [guide, track.lyric],
   );
   const presentation = useMemo(
-    () => resolveLyricPresentation(guide, track.lyric),
-    [guide, track.lyric],
+    () => resolveLyricPresentation(guide, track.lyric, track.sync),
+    [guide, track.lyric, track.sync],
   );
   const invalid =
     guide.guides?.some((item) => !item.labels.ko.trim()) ||
@@ -99,6 +102,11 @@ export function CallGuideEditor({
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "저장하지 못했습니다.");
+      recordRecentGuideTexts(
+        saved.music.id,
+        result.document.guide,
+        saved.guide,
+      );
       setSaved(result.document);
       history.update(() => ({
         guide: result.document.guide,
@@ -141,212 +149,229 @@ export function CallGuideEditor({
       </main>
     );
   return (
-    <main
-      className="flex h-dvh flex-col overflow-hidden bg-background text-foreground"
-      onKeyDown={(event) => {
-        if (
-          readOnly ||
-          busy ||
-          (event.target as HTMLElement).closest(
-            "input, textarea, select, [contenteditable=true]",
+    <RecentTextProvider musicId={saved.music.id} saved={saved.guide}>
+      <main
+        className="flex h-dvh flex-col overflow-hidden bg-background text-foreground"
+        onKeyDown={(event) => {
+          if (
+            readOnly ||
+            busy ||
+            (event.target as HTMLElement).closest(
+              "input, textarea, select, [contenteditable=true]",
+            )
           )
-        )
-          return;
-        if (
-          (event.metaKey || event.ctrlKey) &&
-          event.key.toLowerCase() === "z"
-        ) {
-          event.preventDefault();
-          if (event.shiftKey) history.redo();
-          else history.undo();
-        }
-      }}
-    >
-      <header className="flex shrink-0 flex-wrap items-center gap-3 border-b bg-card px-4 py-3">
-        <Button
-          size="icon"
-          variant="ghost"
-          aria-label="곡 설정으로 돌아가기"
-          title="곡 설정으로 돌아가기"
-          disabled={busy}
-          onClick={leave}
-        >
-          <ArrowLeft className="size-4" />
-        </Button>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="truncate text-base font-semibold">
-              {saved.music.title}
-            </h1>
-            <Badge variant="outline">
-              {saved.publish ? "공개 곡" : "비공개 곡"}
-            </Badge>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            콜 편집 <span aria-hidden>·</span>{" "}
-            {readOnly
-              ? "열람 전용"
-              : dirty
-                ? "저장하지 않은 변경"
-                : "모든 변경 저장됨"}
-          </p>
-        </div>
-        <NativeSelect
-          aria-label={`블록 선택 (${guide.cues.length})`}
-          className="w-full sm:w-64"
-          value={
-            guide.cues.some((cue) => cue.id === selectedCue) ? selectedCue! : ""
+            return;
+          if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === "z"
+          ) {
+            event.preventDefault();
+            if (event.shiftKey) history.redo();
+            else history.undo();
           }
-          onChange={(event) => selectCue(event.target.value || null)}
-        >
-          <NativeSelectOption value="">
-            블록 선택 ({guide.cues.length})
-          </NativeSelectOption>
-          {guide.cues.map((item) => (
-            <NativeSelectOption key={item.id} value={item.id}>
-              {(item.start + track.sync).toFixed(2)}초 · {callLabels[item.type]}{" "}
-              {resolved.issues[item.id] ? "⚠" : ""}{" "}
-              {item.type === "chant" || item.type === "custom"
-                ? (item.labels?.ko ?? item.label)
-                : item.label}
+        }}
+      >
+        <header className="flex shrink-0 flex-wrap items-center gap-3 border-b bg-card px-4 py-3">
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label="곡 설정으로 돌아가기"
+            title="곡 설정으로 돌아가기"
+            disabled={busy}
+            onClick={leave}
+          >
+            <ArrowLeft className="size-4" />
+          </Button>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h1 className="truncate text-base font-semibold">
+                {saved.music.title}
+              </h1>
+              <Badge variant="outline">
+                {saved.publish ? "공개 곡" : "비공개 곡"}
+              </Badge>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              콜 편집 <span aria-hidden>·</span>{" "}
+              {readOnly
+                ? "열람 전용"
+                : dirty
+                  ? "저장하지 않은 변경"
+                  : "모든 변경 저장됨"}
+            </p>
+          </div>
+          <NativeSelect
+            aria-label={`블록 선택 (${guide.cues.length})`}
+            className="w-full sm:w-64"
+            value={
+              guide.cues.some((cue) => cue.id === selectedCue)
+                ? selectedCue!
+                : ""
+            }
+            onChange={(event) => selectCue(event.target.value || null)}
+          >
+            <NativeSelectOption value="">
+              블록 선택 ({guide.cues.length})
             </NativeSelectOption>
-          ))}
-        </NativeSelect>
-        <div className="flex items-center gap-1 border-r pr-3">
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label="실행 취소"
-            title="실행 취소 · ⌘/Ctrl+Z"
-            disabled={readOnly || busy || !history.canUndo}
-            onClick={history.undo}
-          >
-            <Undo2 className="size-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label="다시 실행"
-            title="다시 실행 · ⌘/Ctrl+Shift+Z"
-            disabled={readOnly || busy || !history.canRedo}
-            onClick={history.redo}
-          >
-            <Redo2 className="size-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label="초안 복사"
-            title="초안 복사"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(
-                  JSON.stringify({ guide, syncOffset }, null, 2),
-                );
-                setMessage("콜·가이드·가사 표시 초안을 복사했습니다.");
-              } catch {
-                setMessage("클립보드 권한을 확인해 주세요.");
-              }
-            }}
-          >
-            <Copy className="size-4" />
-          </Button>
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button size="sm" variant="outline">
-              <SlidersHorizontal className="size-4" />
-              싱크 보정 {syncOffset >= 0 ? "+" : ""}
-              {syncOffset.toFixed(2)}초
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="w-80 space-y-2 p-4"
-            aria-label="전체 싱크 보정"
-          >
-            <h2 className="font-semibold">전체 싱크 보정</h2>
-            <fieldset
-              disabled={readOnly || busy}
-              className="flex flex-wrap items-end gap-2"
+            {guide.cues.map((item) => (
+              <NativeSelectOption key={item.id} value={item.id}>
+                {(item.start + track.sync).toFixed(2)}초 ·{" "}
+                {callLabels[item.type]} {resolved.issues[item.id] ? "⚠" : ""}{" "}
+                {item.type === "chant" || item.type === "custom"
+                  ? (item.labels?.ko ?? item.label)
+                  : item.label}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+          <div className="flex items-center gap-1 border-r pr-3">
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="실행 취소"
+              title="실행 취소 · ⌘/Ctrl+Z"
+              disabled={readOnly || busy || !history.canUndo}
+              onClick={history.undo}
             >
-              <div className="w-44">
-                <NumberField
-                  label="가사 싱크 추가 보정 (초)"
-                  value={syncOffset}
-                  min={-3600}
-                  max={3600}
-                  onChange={(value) =>
-                    history.update((draft) => ({ ...draft, syncOffset: value }))
-                  }
-                />
-              </div>
-              {[-0.1, -0.01, 0.01, 0.1].map((delta) => (
-                <Button
-                  key={delta}
-                  size="xs"
-                  variant="outline"
-                  disabled={Math.abs(syncOffset + delta) > 3600}
-                  onClick={() =>
-                    history.update((draft) => ({
-                      ...draft,
-                      syncOffset: roundTime(draft.syncOffset + delta),
-                    }))
-                  }
-                >
-                  {delta > 0 ? "+" : ""}
-                  {delta.toFixed(2)}
-                </Button>
-              ))}
-              <span className="pb-1 text-xs text-muted-foreground">
-                원본 {saved.sourceSync}초 + 보정 = {roundTime(track.sync)}초 ·
-                가사와 콜 전체에 적용 / 개별 블록 위치 조절과 별개
-              </span>
-            </fieldset>
-          </PopoverContent>
-        </Popover>
-        <EditorThemeMenu />
-        <Button
-          size="sm"
-          disabled={readOnly || busy || !dirty || invalid}
-          onClick={save}
-        >
-          <Save className="size-4" />
-          {busy ? "저장 중…" : "전체 저장"}
-        </Button>
-      </header>
-      {(message || invalid || !saved.music.youtubeId) && (
-        <p role="status" className="shrink-0 border-b px-4 py-2 text-xs">
-          {message ||
-            (!saved.music.youtubeId
-              ? "전용 YouTube ID가 없어 재생은 불가능합니다. 곡 설정에서 연결해 주세요."
-              : "저장 전 재확인이 필요한 블록이 있습니다. 블록 설정에서 확인해 주세요.")}
-        </p>
-      )}
-      <MusicExperience
-        music={saved.music}
-        track={track}
-        sections={resolved.sections}
-        editorOnly
-        editor={(playback) => (
-          <EditorWorkspace
-            selected={selectedCue}
-            onSelect={selectCue}
-            loop={loop}
-            onLoopChange={setLoop}
-            music={saved.music}
-            track={track}
-            guide={guide}
-            sections={resolved.sections}
-            issues={resolved.issues}
-            playback={playback}
+              <Undo2 className="size-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="다시 실행"
+              title="다시 실행 · ⌘/Ctrl+Shift+Z"
+              disabled={readOnly || busy || !history.canRedo}
+              onClick={history.redo}
+            >
+              <Redo2 className="size-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="초안 복사"
+              title="초안 복사"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(
+                    JSON.stringify({ guide, syncOffset }, null, 2),
+                  );
+                  setMessage("콜·가이드·가사 표시 초안을 복사했습니다.");
+                } catch {
+                  setMessage("클립보드 권한을 확인해 주세요.");
+                }
+              }}
+            >
+              <Copy className="size-4" />
+            </Button>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline">
+                <SlidersHorizontal className="size-4" />
+                싱크 보정 {syncOffset >= 0 ? "+" : ""}
+                {syncOffset.toFixed(2)}초
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="w-80 space-y-2 p-4"
+              aria-label="전체 싱크 보정"
+            >
+              <h2 className="font-semibold">전체 싱크 보정</h2>
+              <fieldset
+                disabled={readOnly || busy}
+                className="flex flex-wrap items-end gap-2"
+              >
+                <div className="w-44">
+                  <NumberField
+                    label="가사 싱크 추가 보정 (초)"
+                    value={syncOffset}
+                    min={-3600}
+                    max={3600}
+                    onChange={(value) =>
+                      history.update((draft) => ({
+                        ...draft,
+                        syncOffset: value,
+                      }))
+                    }
+                  />
+                </div>
+                {[-0.1, -0.01, 0.01, 0.1].map((delta) => (
+                  <Button
+                    key={delta}
+                    size="xs"
+                    variant="outline"
+                    disabled={Math.abs(syncOffset + delta) > 3600}
+                    onClick={() =>
+                      history.update((draft) => ({
+                        ...draft,
+                        syncOffset: roundTime(draft.syncOffset + delta),
+                      }))
+                    }
+                  >
+                    {delta > 0 ? "+" : ""}
+                    {delta.toFixed(2)}
+                  </Button>
+                ))}
+                <span className="pb-1 text-xs text-muted-foreground">
+                  원본 {saved.sourceSync}초 + 보정 = {roundTime(track.sync)}초 ·
+                  가사와 콜 전체에 적용 / 개별 블록 위치 조절과 별개
+                </span>
+              </fieldset>
+            </PopoverContent>
+          </Popover>
+          <SongGuideEditor
+            value={guide.songGuide}
             disabled={readOnly || busy}
-            onChange={(next) =>
-              history.update((draft) => ({ ...draft, guide: next }))
+            onChange={(songGuide) =>
+              history.update((draft) => ({
+                ...draft,
+                guide: { ...draft.guide, songGuide },
+              }))
             }
           />
+          <EditorThemeMenu />
+          <Button
+            size="sm"
+            disabled={readOnly || busy || !dirty || invalid}
+            onClick={save}
+          >
+            <Save className="size-4" />
+            {busy ? "저장 중…" : "전체 저장"}
+          </Button>
+        </header>
+        {(message || invalid || !saved.music.youtubeId) && (
+          <p role="status" className="shrink-0 border-b px-4 py-2 text-xs">
+            {message ||
+              (!saved.music.youtubeId
+                ? "전용 YouTube ID가 없어 재생은 불가능합니다. 곡 설정에서 연결해 주세요."
+                : "저장 전 재확인이 필요한 블록이 있습니다. 블록 설정에서 확인해 주세요.")}
+          </p>
         )}
-      />
-    </main>
+        <MusicExperience
+          music={saved.music}
+          track={track}
+          sections={resolved.sections}
+          editorOnly
+          editor={(playback) => (
+            <EditorWorkspace
+              selected={selectedCue}
+              onSelect={selectCue}
+              loop={loop}
+              onLoopChange={setLoop}
+              music={saved.music}
+              track={track}
+              guide={guide}
+              sections={resolved.sections}
+              issues={resolved.issues}
+              playback={playback}
+              disabled={readOnly || busy}
+              onChange={(next) =>
+                history.update((draft) => ({ ...draft, guide: next }))
+              }
+            />
+          )}
+        />
+      </main>
+    </RecentTextProvider>
   );
 }

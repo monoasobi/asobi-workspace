@@ -93,7 +93,7 @@ export function useTimelineZoom(
       suppressClick.current = false;
       if (
         (event.target instanceof Element &&
-          !!event.target.closest("[data-call-drag]")) ||
+          !!event.target.closest("[data-call-drag], [data-lyric-resize]")) ||
         !(event.metaKey || event.ctrlKey) ||
         event.button !== 0 ||
         event.isPrimary === false ||

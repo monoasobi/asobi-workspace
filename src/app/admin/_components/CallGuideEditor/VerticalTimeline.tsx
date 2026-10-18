@@ -24,7 +24,15 @@ import {
 import { cn } from "@/lib/utils";
 import type { LyricLine } from "@/types/lyric";
 import { Minus, Plus } from "lucide-react";
-import { Fragment, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useLyricResize } from "./useLyricResize";
 import { useTimelineDrag } from "./useTimelineDrag";
 import { useTimelinePlayback } from "./useTimelinePlayback";
 import {
@@ -48,6 +56,7 @@ export function VerticalTimeline({
   onLines,
   onCreate,
   onChange,
+  onLyricChange,
 }: {
   lines: LyricLine[];
   effectiveLines: LyricLine[];
@@ -63,6 +72,7 @@ export function VerticalTimeline({
   onLines: (indexes: number[]) => void;
   onCreate: (start: number, end: number) => void;
   onChange: (cue: CallCue) => void;
+  onLyricChange: (index: number, start: number, end: number) => void;
 }) {
   const [textField, setTextField] = useState<LyricTextField>("jpReading");
   const viewport = useRef<HTMLDivElement>(null);
@@ -74,13 +84,67 @@ export function VerticalTimeline({
       10,
       playback.duration || 180,
       ...lines.map((line) => line.end + sync),
+      ...effectiveLines.map((line) => line.end + sync),
       ...cues.map((cue) => cue.end + sync),
     ) + (playback.duration ? 0 : 10);
   const origin = Math.min(
     0,
     ...lines.map((line) => line.start + sync),
+    ...effectiveLines.map((line) => line.start + sync),
     ...cues.map((cue) => cue.start + sync),
   );
+  const centeredOnMount = useRef(false);
+  const centerPlayhead = useCallback(() => {
+    const node = viewport.current;
+    const content = canvas.current;
+    if (
+      !node ||
+      !content ||
+      node.clientHeight === 0 ||
+      content.offsetHeight === 0
+    )
+      return false;
+    const canvasTop =
+      content.getBoundingClientRect().top -
+      node.getBoundingClientRect().top +
+      node.scrollTop;
+    node.scrollTo({
+      top: Math.max(
+        0,
+        canvasTop +
+          (playback.clock.read().time - origin) * scale -
+          node.clientHeight / 2,
+      ),
+      behavior: "instant",
+    });
+    return true;
+  }, [playback.clock, origin, scale]);
+  useEffect(() => {
+    if (centeredOnMount.current) return;
+    // Radix initializes its viewport/content after mounting. Wait for layout to
+    // settle, and only finish restoration once the viewport has a real size.
+    let frame = 0;
+    const observer = new ResizeObserver(schedule);
+    function schedule() {
+      if (centeredOnMount.current) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => {
+          if (centerPlayhead()) {
+            centeredOnMount.current = true;
+            observer.disconnect();
+          }
+        });
+      });
+    }
+    if (viewport.current) observer.observe(viewport.current);
+    if (canvas.current) observer.observe(canvas.current);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [centerPlayhead]);
   const snapTargets = useMemo(
     () =>
       effectiveLines.flatMap((line, lineIndex) => [
@@ -103,6 +167,31 @@ export function VerticalTimeline({
     onCreate,
     onChange,
   });
+  const callTargets = useMemo(
+    () =>
+      cues.flatMap((cue, lineIndex) => [
+        { time: cue.start, kind: "start" as const, lineIndex },
+        { time: cue.end, kind: "end" as const, lineIndex },
+      ]),
+    [cues],
+  );
+  const lyricResize = useLyricResize({
+    canvas,
+    viewport,
+    lines: effectiveLines,
+    scale,
+    sync,
+    limit: playback.duration || bottom,
+    disabled,
+    targets: callTargets,
+    onSelect: onLines,
+    onChange: onLyricChange,
+  });
+  const shownLines = effectiveLines.map((line, index) =>
+    lyricResize.drag?.index === index
+      ? { ...line, start: lyricResize.drag.start, end: lyricResize.drag.end }
+      : line,
+  );
   const { playhead, cueNodes } = useTimelinePlayback(
     playback.clock,
     cues,
@@ -150,17 +239,7 @@ export function VerticalTimeline({
         >
           <Plus className="size-4" />
         </Button>
-        <Button
-          size="xs"
-          variant="outline"
-          onClick={() => {
-            const node = viewport.current;
-            if (node)
-              node.scrollTop =
-                (playback.clock.read().time - origin) * scale -
-                node.clientHeight / 2;
-          }}
-        >
+        <Button size="xs" variant="outline" onClick={centerPlayhead}>
           재생 위치로
         </Button>
         <NativeSelect
@@ -177,24 +256,36 @@ export function VerticalTimeline({
           ))}
         </NativeSelect>
         <span className="text-xs text-muted-foreground">
-          콜 이동·길이 조절: 스냅 (실선: 시작 / 점선: 끝) / ⌘·Ctrl: 스냅 해제 /
-          빈 곳 ⌘·Ctrl + 드래그·스크롤: 확대·축소 / 가사 Shift 선택
+          콜 이동·가사/콜 길이 조절: 스냅 (실선: 시작 / 점선: 끝) / ⌘·Ctrl: 스냅
+          해제 / 빈 곳 ⌘·Ctrl + 드래그·스크롤: 확대·축소 / 가사 Shift 선택
         </span>
       </div>
       <ScrollArea className="min-h-0 flex-1" viewportRef={viewport}>
         <div className="sticky top-0 z-20 grid grid-cols-[60px_1fr_1fr] border-b bg-background p-2 text-xs">
           <span>시간</span>
-          <span>가사 · 종료 보정 / 안내 가이드</span>
+          <span>가사 · 표시 보정 / 안내 가이드</span>
           <span>콜 트랙</span>
         </div>
         <div
           ref={canvas}
           className="relative ml-15 mr-2"
           style={{ height: (bottom - origin) * scale }}
-          onPointerMove={move}
-          onPointerUp={finish}
-          onPointerCancel={cancel}
-          onLostPointerCapture={cancel}
+          onPointerMove={(event) => {
+            move(event);
+            lyricResize.move(event);
+          }}
+          onPointerUp={(event) => {
+            finish(event);
+            lyricResize.finish(event);
+          }}
+          onPointerCancel={() => {
+            cancel();
+            lyricResize.cancel();
+          }}
+          onLostPointerCapture={() => {
+            cancel();
+            lyricResize.cancel();
+          }}
         >
           {Array.from({ length: Math.ceil((bottom - origin) / 2) }, (_, i) => {
             const time = origin + i * 2;
@@ -238,17 +329,16 @@ export function VerticalTimeline({
           />
           {lines.map((line, index) => (
             <Fragment key={line.id ?? index}>
-              {effectiveLines[index].end < line.end && (
+              {(shownLines[index].start !== line.start ||
+                shownLines[index].end !== line.end) && (
                 <div
-                  aria-label="표시에서 잘리는 원본 가사 꼬리"
-                  className="pointer-events-none absolute left-0 w-[calc(50%-6px)] rounded-b border border-dashed bg-muted/40 px-2 text-xs text-muted-foreground/50"
+                  aria-label="원본 가사 구간"
+                  className="pointer-events-none absolute left-0 z-10 w-[calc(50%-6px)] border-y border-dashed border-cyan-600/60"
                   style={{
-                    top: y(effectiveLines[index].end),
-                    height: (line.end - effectiveLines[index].end) * scale,
+                    top: y(line.start),
+                    height: (line.end - line.start) * scale,
                   }}
-                >
-                  <span>표시 종료 보정 · 간주로 표시</span>
-                </div>
+                />
               )}
               <button
                 type="button"
@@ -261,10 +351,10 @@ export function VerticalTimeline({
                     "border-cyan-500 bg-cyan-100 dark:bg-cyan-900",
                 )}
                 style={{
-                  top: y(line.start),
+                  top: y(shownLines[index].start),
                   height: Math.max(
                     4,
-                    (effectiveLines[index].end - line.start) * scale,
+                    (shownLines[index].end - shownLines[index].start) * scale,
                   ),
                 }}
                 onClick={(event) => {
@@ -285,7 +375,7 @@ export function VerticalTimeline({
               >
                 {line.id && trimWarnings[line.id] && (
                   <span className="block text-destructive">
-                    ⚠ 종료 보정 재확인
+                    ⚠ 표시 보정 재확인
                   </span>
                 )}
                 <span lang="ja" className="block truncate">
@@ -300,6 +390,23 @@ export function VerticalTimeline({
                   </span>
                 )}
               </button>
+              {selectedLines.includes(index) &&
+                line.id &&
+                !disabled &&
+                (["start", "end"] as const).map((edge) => (
+                  <button
+                    key={edge}
+                    type="button"
+                    data-lyric-resize
+                    aria-label={`가사 ${index + 1} ${edge === "start" ? "시작" : "종료"} 시간 드래그`}
+                    title="드래그: 콜에 스냅 · ⌘/Ctrl: 미세 조절"
+                    className="absolute left-0 z-20 h-2 w-[calc(50%-6px)] -translate-y-1/2 cursor-ns-resize touch-none rounded bg-cyan-500"
+                    style={{ top: y(shownLines[index][edge]) }}
+                    onPointerDown={(event) =>
+                      lyricResize.start(event, index, edge)
+                    }
+                  />
+                ))}
             </Fragment>
           ))}
           {guides.map((note) => {
@@ -309,7 +416,9 @@ export function VerticalTimeline({
                 : lines.findIndex((line) => line.id === note.beforeLineId);
             if (note.beforeLineId !== null && index < 0) return null;
             const time =
-              index < 0 ? (lines[0]?.start ?? 0) : lines[index].start;
+              index < 0
+                ? (effectiveLines[0]?.start ?? 0)
+                : shownLines[index].start;
             return (
               <button
                 key={note.id}
@@ -439,6 +548,30 @@ export function VerticalTimeline({
                         {(target.time + sync).toFixed(2)}초
                       </span>
                     )}
+                </div>
+              );
+            })}
+          {lyricResize.drag &&
+            callTargets.map((target) => {
+              const snapped = lyricResize.drag?.snap === target;
+              return (
+                <div
+                  key={`call:${target.lineIndex}:${target.kind}`}
+                  aria-hidden
+                  className={cn(
+                    "pointer-events-none absolute inset-x-0 z-20 border-t",
+                    target.kind === "end" && "border-dashed",
+                    snapped ? "border-cyan-500" : "border-foreground/15",
+                  )}
+                  style={{ top: y(target.time) }}
+                >
+                  {snapped && (
+                    <span className="absolute right-1 bottom-0 rounded bg-background px-1 text-[10px] font-medium text-cyan-600">
+                      콜 {target.lineIndex + 1}{" "}
+                      {target.kind === "start" ? "시작" : "끝"} ·{" "}
+                      {(target.time + sync).toFixed(2)}초
+                    </span>
+                  )}
                 </div>
               );
             })}

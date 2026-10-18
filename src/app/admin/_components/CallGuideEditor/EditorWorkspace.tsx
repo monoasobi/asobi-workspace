@@ -24,7 +24,10 @@ import {
 } from "@/lib/callGuide";
 import { VerticalTimeline } from "./VerticalTimeline";
 import { LyricInspector } from "./LyricInspector";
-import { resolveLyricPresentation } from "@/lib/lyricPresentation";
+import {
+  setLyricBounds,
+  resolveLyricPresentation,
+} from "@/lib/lyricPresentation";
 import { CueInspector } from "./CueInspector";
 import { useEditorShortcuts } from "./useEditorShortcuts";
 
@@ -65,16 +68,17 @@ export function EditorWorkspace({
   const inspectingLyrics =
     inspectingCue !== undefined && inspectingCue === selected;
   const presentation = useMemo(
-    () => resolveLyricPresentation(guide, track.lyric),
-    [guide, track.lyric],
+    () => resolveLyricPresentation(guide, track.lyric, track.sync),
+    [guide, track.lyric, track.sync],
   );
   const previewTrack = useMemo(
     () => ({
       ...track,
       lyric: presentation.lines,
       guides: presentation.guides,
+      songGuide: guide.songGuide,
     }),
-    [track, presentation],
+    [track, presentation, guide.songGuide],
   );
   const [preview, setPreview] = useState(false);
   const [previewLocale, setPreviewLocale] = useState<Locale>("ko");
@@ -196,7 +200,11 @@ export function EditorWorkspace({
             disabled || !selectedLines.length || guide.cues.length >= 500
           }
           onClick={() =>
-            create(selectedSource[0].start, selectedSource.at(-1)!.end, true)
+            create(
+              presentation.lines[selectedLines[0]].start,
+              presentation.lines[selectedLines.at(-1)!].end,
+              true,
+            )
           }
         >
           선택 가사로 콜 추가 ({selectedLines.length})
@@ -350,6 +358,9 @@ export function EditorWorkspace({
             }}
             onCreate={create}
             onChange={update}
+            onLyricChange={(index, start, end) =>
+              onChange(setLyricBounds(guide, track.lyric[index], start, end))
+            }
           />
         )}
         <ScrollArea className="h-[38%] min-h-0 min-w-0 shrink-0 border-t lg:h-auto lg:w-[360px] lg:border-t-0 lg:border-l">
@@ -360,6 +371,7 @@ export function EditorWorkspace({
               guide={guide}
               cue={cue}
               sync={track.sync}
+              duration={playback.duration}
               disabled={disabled}
               onChange={onChange}
             />

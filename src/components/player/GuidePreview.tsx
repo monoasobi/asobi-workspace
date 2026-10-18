@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useId, useMemo, useRef } from "react";
-import { LocateFixed, Music2, Pause } from "lucide-react";
+import { Info, LocateFixed, Music2, Pause } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -47,6 +47,12 @@ export function GuidePreview({
 }) {
   const locale = useLocale() as LyricLocale;
   const t = useTranslations();
+  const songGuideLocale = ([locale, "ko", "ja", "en"] as const).find(
+    (language) => track?.songGuide?.[language]?.trim(),
+  );
+  const songGuide = songGuideLocale
+    ? track?.songGuide?.[songGuideLocale]
+    : undefined;
   const viewportRef = useRef<HTMLDivElement>(null);
   const followId = useId();
   const display = useMemo(
@@ -153,6 +159,22 @@ export function GuidePreview({
           </div>
         </div>
       </header>
+      {songGuide && (
+        <div className="relative z-20 shrink-0 bg-background px-3 pt-2 pb-1 sm:px-6">
+          <aside className="mx-auto flex max-w-[720px] items-start gap-2 rounded-lg border bg-muted/60 px-3 py-2 shadow-sm">
+            <Info
+              aria-hidden="true"
+              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+            />
+            <p
+              lang={songGuideLocale}
+              className="min-w-0 whitespace-pre-wrap text-sm font-semibold leading-relaxed [overflow-wrap:anywhere]"
+            >
+              {songGuide}
+            </p>
+          </aside>
+        </div>
+      )}
       <ScrollArea
         {...follow.manualHandlers}
         className="min-h-0 flex-1"

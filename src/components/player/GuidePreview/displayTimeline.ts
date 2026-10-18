@@ -8,6 +8,7 @@ export function displayTimeline(source: LyricLine[], sections: CallSection[]) {
       ...source.flatMap((line) => [
         line.start,
         line.end,
+        ...(line.originalStart === undefined ? [] : [line.originalStart]),
         ...(line.originalEnd === undefined ? [] : [line.originalEnd]),
       ]),
       ...sections.flatMap((cue) => [cue.start, cue.end]),
@@ -30,9 +31,12 @@ export function displayTimeline(source: LyricLine[], sections: CallSection[]) {
       sections.some((cue) => cue.start < end && cue.end > start) ||
       source.some(
         (line) =>
-          line.originalEnd !== undefined &&
-          line.end < end &&
-          line.originalEnd > start,
+          (line.originalEnd !== undefined &&
+            line.end < end &&
+            line.originalEnd > start) ||
+          (line.originalStart !== undefined &&
+            line.originalStart < end &&
+            line.start > start),
       )
     )
       rows.push({

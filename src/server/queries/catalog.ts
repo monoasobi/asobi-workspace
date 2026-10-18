@@ -69,7 +69,11 @@ export async function getPublicCatalog(): Promise<CatalogEntry[]> {
   return rows.map((row) => {
     const source = linesSchema.parse(row.lyricJson ?? []);
     const guide = parseGuide(row.guideJson);
-    const presentation = resolveLyricPresentation(guide, source);
+    const presentation = resolveLyricPresentation(
+      guide,
+      source,
+      (row.sync ?? 0) + row.syncOffset,
+    );
     return {
       sections: resolveGuide(guide, source).sections,
       music: {
@@ -96,6 +100,7 @@ export async function getPublicCatalog(): Promise<CatalogEntry[]> {
                 z.number().finite().parse(row.syncOffset),
               lyric: presentation.lines,
               guides: presentation.guides,
+              songGuide: guide.songGuide,
             },
     };
   });

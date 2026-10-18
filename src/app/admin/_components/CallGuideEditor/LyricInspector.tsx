@@ -1,4 +1,5 @@
 "use client";
+import { TextSuggestions } from "./TextSuggestions";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -11,13 +12,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { roundTime, type CallCue, type CallGuide } from "@/lib/callGuide";
 import {
-  snapshotLine,
-  roundTime,
-  type CallCue,
-  type CallGuide,
-} from "@/lib/callGuide";
-import { resolveLyricPresentation } from "@/lib/lyricPresentation";
+  lyricResizeLimits,
+  setLyricBounds,
+  resolveLyricPresentation,
+} from "@/lib/lyricPresentation";
 import type { LyricLine } from "@/types/lyric";
 import { NumberField } from "./NumberField";
 
@@ -27,6 +27,7 @@ export function LyricInspector({
   guide,
   cue,
   sync,
+  duration,
   disabled,
   onChange,
 }: {
@@ -35,23 +36,31 @@ export function LyricInspector({
   guide: CallGuide;
   cue?: CallCue;
   sync: number;
+  duration: number;
   disabled: boolean;
   onChange: (guide: CallGuide) => void;
 }) {
-  const presentation = resolveLyricPresentation(guide, lines);
+  const presentation = resolveLyricPresentation(guide, lines, sync);
   const trim = guide.lyricEnds?.find((item) => item.source.id === line?.id);
-  function setEnd(end: number) {
-    if (disabled || !line?.id) return;
-    const others = (guide.lyricEnds ?? []).filter(
-      (item) => item.source.id !== line.id,
-    );
-    onChange({
-      ...guide,
-      lyricEnds:
-        end === line.end
-          ? others
-          : [...others, { source: snapshotLine(line), end: roundTime(end) }],
-    });
+  const displayStart = trim?.start ?? line?.start ?? 0;
+  const displayEnd = trim?.end ?? line?.end ?? 0;
+  const index = lines.findIndex((item) => item.id === line?.id);
+  const limits = lyricResizeLimits(
+    presentation.lines,
+    index,
+    -sync,
+    duration ? duration - sync : 86400,
+  );
+  function setBounds(start: number, end: number) {
+    if (
+      disabled ||
+      !line?.id ||
+      start < limits.min ||
+      end > limits.max ||
+      roundTime(end - start) < 0.01
+    )
+      return;
+    onChange(setLyricBounds(guide, line, start, end));
   }
   function updateNote(
     id: string,
@@ -76,7 +85,8 @@ export function LyricInspector({
           <p className="text-sm font-medium">{line.jp}</p>
           <p className="text-xs text-muted-foreground">
             원본 {(line.start + sync).toFixed(2)} ~{" "}
-            {(line.end + sync).toFixed(2)}초 · 표시 종료만 줄입니다.
+            {(line.end + sync).toFixed(2)}초 · 타임라인 위아래 손잡이로 표시
+            구간을 조절합니다.
           </p>
           {line.id &&
             (presentation.warnings[line.id] ||
@@ -86,37 +96,90 @@ export function LyricInspector({
               </p>
             )}
           <NumberField
-            label="라우드아소비 표시 종료 (재생 초)"
-            value={roundTime((trim?.end ?? line.end) + sync)}
-            min={line.start + sync + 0.01}
-            max={line.end + sync}
-            onChange={(value) => setEnd(value - sync)}
+            label="라우드아소비 표시 시작 (재생 초)"
+            value={roundTime(displayStart + sync)}
+            min={limits.min + sync}
+            max={displayEnd + sync - 0.01}
+            onChange={(value) => setBounds(value - sync, displayEnd)}
           />
           <div className="flex flex-wrap gap-1">
             <Button
               size="xs"
               variant="outline"
               disabled={
-                !cue || cue.start < line.start + 0.01 || cue.start >= line.end
+                !cue || cue.end < limits.min || cue.end > displayEnd - 0.01
               }
-              onClick={() => cue && setEnd(cue.start)}
+              onClick={() => cue && setBounds(cue.end, displayEnd)}
             >
-              선택 콜 시작에 맞추기
+              시작을 선택 콜 끝에 맞추기
             </Button>
             <Button
               size="xs"
               variant="ghost"
-              disabled={!trim}
-              onClick={() => setEnd(line.end)}
+              disabled={
+                displayStart === line.start ||
+                line.start < limits.min ||
+                line.start > displayEnd - 0.01
+              }
+              onClick={() => setBounds(line.start, displayEnd)}
             >
-              원본으로 복원
+              시작 복원
+            </Button>
+          </div>
+          <NumberField
+            label="라우드아소비 표시 종료 (재생 초)"
+            value={roundTime(displayEnd + sync)}
+            min={displayStart + sync + 0.01}
+            max={limits.max + sync}
+            onChange={(value) => setBounds(displayStart, value - sync)}
+          />
+          <div className="flex flex-wrap gap-1">
+            <Button
+              size="xs"
+              variant="outline"
+              disabled={
+                !cue ||
+                cue.start < displayStart + 0.01 ||
+                cue.start > limits.max
+              }
+              onClick={() => cue && setBounds(displayStart, cue.start)}
+            >
+              종료를 선택 콜 시작에 맞추기
+            </Button>
+            <Button
+              size="xs"
+              variant="ghost"
+              disabled={
+                displayEnd === line.end ||
+                line.end > limits.max ||
+                line.end < displayStart + 0.01
+              }
+              onClick={() => setBounds(displayStart, line.end)}
+            >
+              종료 복원
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            <Button
+              size="xs"
+              variant="ghost"
+              disabled={
+                !trim || line.start < limits.min || line.end > limits.max
+              }
+              onClick={() => setBounds(line.start, line.end)}
+            >
+              전체 원본으로 복원
             </Button>
             {trim && line.id && presentation.warnings[line.id] && (
               <Button
                 size="xs"
                 variant="outline"
-                disabled={trim.end < line.start + 0.01 || trim.end >= line.end}
-                onClick={() => setEnd(trim.end)}
+                disabled={
+                  displayStart < limits.min ||
+                  displayEnd > limits.max ||
+                  displayEnd - displayStart < 0.01
+                }
+                onClick={() => setBounds(displayStart, displayEnd)}
               >
                 현재 원본으로 보정 재확인
               </Button>
@@ -132,7 +195,7 @@ export function LyricInspector({
         <Accordion type="single" collapsible>
           <AccordionItem value="trims">
             <AccordionTrigger>
-              종료 보정 목록 ({guide.lyricEnds.length})
+              표시 구간 보정 목록 ({guide.lyricEnds.length})
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-2">
@@ -142,7 +205,9 @@ export function LyricInspector({
                     className="rounded border p-2 text-xs"
                   >
                     <p>
-                      {item.source.jp} → {(item.end + sync).toFixed(2)}초
+                      {item.source.jp} →{" "}
+                      {((item.start ?? item.source.start) + sync).toFixed(2)} ~{" "}
+                      {(item.end + sync).toFixed(2)}초
                     </p>
                     {(presentation.warnings[item.source.id] ||
                       presentation.issues[item.source.id]) && (
@@ -267,6 +332,12 @@ export function LyricInspector({
                     />
                   </div>
                 ))}
+                <TextSuggestions
+                  kind="guide"
+                  value={note.labels}
+                  disabled={disabled}
+                  onSelect={(labels) => updateNote(note.id, { labels })}
+                />
                 {!note.labels.ko.trim() && (
                   <p className="text-xs text-destructive">
                     한국어 가이드 내용을 입력해 주세요.

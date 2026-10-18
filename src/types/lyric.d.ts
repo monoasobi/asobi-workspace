@@ -3,6 +3,7 @@ import type { LyricTextField } from "@/lib/lyricText";
 
 export interface LyricLine {
   instrumental?: boolean;
+  originalStart?: number;
   originalEnd?: number;
   id?: string;
   start: number;
@@ -18,6 +19,7 @@ export interface LyricTrack {
   id: number;
   sync: number;
   lyric: LyricLine[];
+  songGuide?: Record<LyricLocale, string>;
   guides?: {
     id: string;
     beforeLineId: string | null;

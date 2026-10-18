@@ -81,6 +81,13 @@ export const guideSchema = z
   .object({
     version: z.literal(2),
     cues: z.array(cueSchema).max(500),
+    songGuide: z
+      .object({
+        ko: z.string().trim().max(2000),
+        ja: z.string().trim().max(2000),
+        en: z.string().trim().max(2000),
+      })
+      .optional(),
     guides: z
       .array(
         z
@@ -109,7 +116,9 @@ export const guideSchema = z
       .max(500)
       .optional(),
     lyricEnds: z
-      .array(z.object({ source: sourceLine, end: time }))
+      .array(
+        z.object({ source: sourceLine, start: time.optional(), end: time }),
+      )
       .max(500)
       .optional(),
   })

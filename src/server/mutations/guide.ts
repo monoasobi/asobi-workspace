@@ -32,11 +32,15 @@ export async function saveGuide(
           "가사·설정 또는 콜이 다른 곳에서 변경되었습니다. 초안을 복사해 보관하고 새로고침해 주세요.",
       };
     const { issues: cueIssues } = resolveGuide(guide, current.track.lyric);
-    const presentation = resolveLyricPresentation(guide, current.track.lyric);
+    const effectiveSync = current.sourceSync + (offset ?? current.syncOffset);
+    const presentation = resolveLyricPresentation(
+      guide,
+      current.track.lyric,
+      effectiveSync,
+    );
     const issues = { ...cueIssues, ...presentation.issues };
     if (Object.keys(issues).length)
       return { status: 400, error: Object.values(issues)[0] };
-    const effectiveSync = current.sourceSync + (offset ?? current.syncOffset);
     if (guide.cues.some((cue) => cue.start + effectiveSync < 0))
       return {
         status: 400,

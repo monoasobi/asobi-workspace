@@ -1,4 +1,5 @@
 "use client";
+import { TextSuggestions } from "./TextSuggestions";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CallIcon } from "@/components/common/CallIcon";
 import { CustomEmojiField } from "./CustomEmojiField";
@@ -210,6 +211,14 @@ export function CueInspector({
                 />
               </div>
             ))}
+            <TextSuggestions
+              kind="call"
+              value={cue.labels ?? { ko: cue.label, ja: "", en: "" }}
+              disabled={disabled}
+              onSelect={(labels) =>
+                onChange({ ...cue, labels, label: labels.ko })
+              }
+            />
             <p className="text-xs text-muted-foreground">
               {cue.type === "custom"
                 ? "가사에 없는 의성어·떼창 문구나 콜 가이드의 역주를 입력하세요. 박자 없이도 구간 동안 표시됩니다."
@@ -230,6 +239,12 @@ export function CueInspector({
               onChange={(event) =>
                 onChange({ ...cue, label: event.target.value })
               }
+            />
+            <TextSuggestions
+              kind="badge"
+              value={{ ko: cue.label, ja: "", en: "" }}
+              disabled={disabled}
+              onSelect={(value) => onChange({ ...cue, label: value.ko })}
             />
           </div>
         )}
@@ -265,6 +280,12 @@ export function CueInspector({
                     />
                   </div>
                 ))}
+                <TextSuggestions
+                  kind="note"
+                  value={cue.notes ?? { ko: "", ja: "", en: "" }}
+                  disabled={disabled}
+                  onSelect={(notes) => onChange({ ...cue, notes })}
+                />
                 <p className="text-xs text-muted-foreground">
                   이 콜 블록에 속한 설명으로, 현재 가사 위에 표시됩니다. 번역이
                   비어 있으면 한국어 메모를 표시합니다.
