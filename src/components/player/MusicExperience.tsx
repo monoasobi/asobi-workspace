@@ -5,6 +5,7 @@ import { type ReactNode } from "react";
 import type { LyricTrack, CallSection } from "@/types/lyric";
 import { GuidePreview } from "./GuidePreview";
 import { PlayerBar } from "./PlayerBar";
+import { usePlaybackShortcuts } from "./MusicExperience/usePlaybackShortcuts";
 import { usePlayback, type Playback } from "./MusicExperience/usePlayback";
 import type { Music } from "@/types/music";
 
@@ -22,6 +23,7 @@ export function MusicExperience({
   editorOnly?: boolean;
 }) {
   const { attachPlayer, ...playback } = usePlayback();
+  usePlaybackShortcuts(playback);
   const offset = track?.sync ?? 0;
   return (
     <>
