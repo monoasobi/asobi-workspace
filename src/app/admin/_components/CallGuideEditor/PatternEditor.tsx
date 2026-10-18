@@ -11,6 +11,7 @@ import type { Playback } from "@/components/player/MusicExperience/usePlayback";
 import {
   cuePulses,
   defaultPulsePattern,
+  resizeCue,
   roundTime,
   type CallCue,
 } from "@/lib/callGuide";
@@ -39,6 +40,9 @@ export function PatternEditor({
     ) - sync;
   const pattern = cue.pattern;
   const pulses = cuePulses(cue);
+  const trimmedEnd = pulses.length
+    ? Math.min(cue.end, roundTime(Math.max(cue.start, ...pulses) + 0.01))
+    : cue.end;
   const patch = (change: Partial<NonNullable<CallCue["pattern"]>>) =>
     pattern &&
     onChange({ ...cue, pattern: { ...pattern, ...change }, pulseTimes: [] });
@@ -274,6 +278,20 @@ export function PatternEditor({
           </div>
         </>
       )}
+      <div className="space-y-1">
+        <Button
+          type="button"
+          size="xs"
+          variant="outline"
+          disabled={disabled || trimmedEnd >= cue.end}
+          onClick={() => onChange(resizeCue(cue, "end", trimmedEnd))}
+        >
+          마지막 펄스 직후로 자르기
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          마지막 펄스를 유지하도록 0.01초 뒤에서 구간을 끝냅니다.
+        </p>
+      </div>
       <p className="text-xs text-muted-foreground">
         펄스 {pulses.length}개 · 저장 전 변경은 미리보기에만 적용됩니다.
       </p>
