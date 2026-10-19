@@ -1,6 +1,7 @@
 "use client";
 
 import { LyricOverlay } from "./LyricOverlay";
+import { usePlayerFullscreen } from "./VideoPlayer/usePlayerFullscreen";
 import type { LyricPlayer } from "./YouTubeLyricsPlayer/useLyricPlayer";
 import { formatTime } from "./YouTubeLyricsPlayer/time";
 import {
@@ -8,6 +9,8 @@ import {
   PlayIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
 } from "@heroicons/react/24/solid";
 import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
@@ -29,6 +32,7 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
     activeLine,
   } = player;
   const volumeWrapperRef = useRef<HTMLDivElement>(null);
+  const { containerRef, buttonRef, isExpanded, toggleFullscreen } = usePlayerFullscreen();
   const [showVolumeTooltip, setShowVolumeTooltip] = useState(false);
 
   const handleVolumeButtonClick = () => {
@@ -57,7 +61,14 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
   const volumePct = effectiveVolume * 100;
 
   return (
-    <div className={styles.videoSection}>
+    <div
+      ref={containerRef}
+      className={styles.videoSection}
+      data-expanded={isExpanded}
+      role={isExpanded ? "dialog" : undefined}
+      aria-modal={isExpanded ? true : undefined}
+      aria-label={isExpanded ? "영상 및 가사 전체화면" : undefined}
+    >
       <div className={styles.videoFrame}>
         <div className={styles.iframeWrapper}>
           <ReactPlayer {...player.playerProps} />
@@ -110,6 +121,7 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
         <input
           className={styles.seekInput}
           type="range"
+          aria-label="재생 위치"
           min={0}
           max={duration || 0}
           step={0.1}
@@ -133,6 +145,8 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
             <input
               className={styles.verticalVolumeInput}
               type="range"
+              aria-label="볼륨"
+              tabIndex={showVolumeTooltip ? 0 : -1}
               min={0}
               max={1}
               step={0.01}
@@ -144,6 +158,17 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
             />
           </div>
         </div>
+        <button
+          ref={buttonRef}
+          className={styles.controlBtn}
+          type="button"
+          onClick={toggleFullscreen}
+          aria-label={isExpanded ? "전체화면 닫기" : "전체화면"}
+          aria-pressed={isExpanded}
+          title={isExpanded ? "전체화면 닫기" : "전체화면"}
+        >
+          {isExpanded ? <ArrowsPointingInIcon /> : <ArrowsPointingOutIcon />}
+        </button>
       </div>
     </div>
   );
