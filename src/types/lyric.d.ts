@@ -36,9 +36,17 @@ export interface CallSection {
   lastLine: number;
   label?: string;
   emoji?: string;
+  icon?: string;
   labels?: Record<LyricLocale, string>;
   notes?: Record<LyricLocale, string>;
   customEffects?: { text: boolean; flash: boolean };
+  singalongText?: {
+    placement: "inline" | "standalone";
+    lineId?: string;
+    jp: string;
+    jpReading: string;
+    enReading: string;
+  };
   // Seconds on the lyric timeline; track sync is added when reading player time.
   pulseTimes: number[];
   // Optional selected text offsets, not pre-split lyric segments.

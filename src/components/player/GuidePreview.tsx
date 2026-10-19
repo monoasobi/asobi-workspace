@@ -161,10 +161,10 @@ export function GuidePreview({
       </header>
       {songGuide && (
         <div className="relative z-20 shrink-0 bg-background px-3 pt-2 pb-1 sm:px-6">
-          <aside className="mx-auto flex max-w-[720px] items-start gap-2 rounded-lg border bg-muted/60 px-3 py-2 shadow-sm">
+          <aside className="relative mx-auto max-w-[720px] rounded-lg border border-primary/30 bg-primary/10 px-9 py-2 text-center text-primary shadow-sm">
             <Info
               aria-hidden="true"
-              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+              className="absolute top-3 left-3 size-4"
             />
             <p
               lang={songGuideLocale}
@@ -190,7 +190,7 @@ export function GuidePreview({
             className="mb-4 text-center text-xs text-muted-foreground"
             role="status"
           >
-            {sections.length ? t("guideHelp") : t("guidePending")}
+            {t("guideHelp")}
           </p>
           {missingTranslation && (
             <p className="mb-4 text-center text-xs text-muted-foreground">
@@ -218,7 +218,7 @@ export function GuidePreview({
                         ({
                           clap: "var(--yellow-600)",
                           chant: "var(--cyan-500)",
-                          custom: "var(--cyan-500)",
+                          custom: "var(--navy-500)",
                           singalong: "var(--magenta-500)",
                         })[section.type],
                     ),
@@ -265,7 +265,12 @@ export function GuidePreview({
                               ? undefined
                               : "none",
                           }}
-                          className="block max-w-full break-words text-center text-[clamp(0.875rem,0.75rem+0.625cqi,1.25rem)] font-extrabold leading-tight text-cyan-600 dark:text-cyan-400 opacity-0"
+                          className={cn(
+                            "block max-w-full break-words text-center text-[clamp(0.875rem,0.75rem+0.625cqi,1.25rem)] font-extrabold leading-tight opacity-0",
+                            section.type === "custom"
+                              ? "text-navy-600 dark:text-navy-400"
+                              : "text-cyan-600 dark:text-cyan-400",
+                          )}
                         >
                           {section.labels?.[locale] || section.label}
                         </span>

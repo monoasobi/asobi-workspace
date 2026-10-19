@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { CallSection, LyricLine } from "@/types/lyric";
 import { lyricTextFields, singalongTextFields } from "./lyricText";
+import { isCallIconName, legacyCallIcon } from "./callIcons";
 
 const time = z.number().finite().min(-3600).max(86400);
 const sourceLine = z.object({
@@ -13,6 +14,14 @@ const common = {
   id: z.string().min(1).max(100),
   type: z.enum(["clap", "chant", "singalong", "custom"]),
   label: z.string().max(200),
+  icon: z
+    .string()
+    .max(100)
+    .refine(
+      (value) => !value || isCallIconName(value),
+      "Lucide 아이콘을 선택해 주세요.",
+    )
+    .optional(),
   emoji: z
     .string()
     .max(32)
@@ -29,6 +38,14 @@ const common = {
     )
     .optional(),
   customEffects: z.object({ text: z.boolean(), flash: z.boolean() }).optional(),
+  singalongText: z
+    .object({
+      placement: z.enum(["inline", "standalone"]),
+      jp: z.string().max(200),
+      jpReading: z.string().max(200),
+      enReading: z.string().max(200),
+    })
+    .optional(),
   labels: z
     .object({
       ko: z.string().max(200),
@@ -180,9 +197,28 @@ export function changeCueType(
   bpm?: number,
 ): CallCue {
   if (cue.type === type) return cue;
+  const customText = cue.labels?.ja || cue.labels?.ko || cue.label;
+  const singalongText =
+    type === "singalong"
+      ? (cue.singalongText ??
+        (cue.type === "custom" && customText.trim()
+          ? {
+              placement:
+                cue.lines.length === 1
+                  ? ("inline" as const)
+                  : ("standalone" as const),
+              jp: customText,
+              jpReading: cue.labels?.ko || cue.label,
+              enReading: cue.labels?.en || "",
+            }
+          : undefined))
+      : undefined;
   return {
     ...cue,
     type,
+    singalongText,
+    label: singalongText ? "" : cue.label,
+    labels: singalongText ? undefined : cue.labels,
     customEffects:
       type === "custom" ? { text: false, flash: false } : undefined,
     selection: type === "singalong" ? cue.selection : undefined,
@@ -327,7 +363,20 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
     )
       issue = "박자 효과의 타이밍을 하나 이상 선택해 주세요.";
     else if (
+      cue.singalongText &&
+      !singalongTextFields.some((field) => cue.singalongText![field].trim())
+    )
+      issue = "추가 문구의 독음을 하나 이상 입력해 주세요.";
+    else if (cue.singalongText && cue.type !== "singalong")
+      issue = "추가 문구는 떼창에서만 사용할 수 있습니다.";
+    else if (
+      cue.singalongText?.placement === "inline" &&
+      cue.lines.length !== 1
+    )
+      issue = "괄호 문구를 붙일 가사 한 줄을 연결해 주세요.";
+    else if (
       cue.type === "singalong" &&
+      cue.singalongText?.placement !== "standalone" &&
       (!cue.lines.length ||
         selected.length !== cue.lines.length ||
         selected.some(
@@ -371,7 +420,20 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
     sections.push({
       id: cue.id,
       type: cue.type,
+      singalongText: cue.singalongText
+        ? {
+            ...cue.singalongText,
+            lineId:
+              cue.singalongText.placement === "inline"
+                ? cue.lines[0].id
+                : undefined,
+          }
+        : undefined,
       emoji: cue.type === "custom" ? cue.emoji : undefined,
+      icon:
+        cue.type === "custom"
+          ? (cue.icon ?? legacyCallIcon(cue.emoji))
+          : undefined,
       label: cue.label || undefined,
       labels:
         cue.type === "chant" || cue.type === "custom" ? cue.labels : undefined,

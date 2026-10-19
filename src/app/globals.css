@@ -358,8 +358,8 @@
   --popover-foreground: var(--black-500);
   --primary: var(--magenta-600);
   --primary-foreground: var(--white-500);
-  --secondary: var(--cyan-500);
-  --secondary-foreground: var(--black-500);
+  --secondary: var(--magenta-100);
+  --secondary-foreground: var(--magenta-700);
   --muted: var(--gray-100);
   --muted-foreground: var(--charcoal-600);
   --accent: var(--magenta-100);
@@ -396,8 +396,8 @@
   --popover-foreground: var(--white-500);
   --primary: var(--magenta-400);
   --primary-foreground: var(--black-500);
-  --secondary: var(--cyan-400);
-  --secondary-foreground: var(--black-500);
+  --secondary: var(--magenta-900);
+  --secondary-foreground: var(--magenta-200);
   --muted: var(--charcoal-800);
   --muted-foreground: var(--gray-500);
   --accent: var(--magenta-900);

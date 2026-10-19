@@ -15,6 +15,7 @@ export function usePlaybackShortcuts({ ready, toggle }: Playback) {
         return;
       const target = event.target;
       if (target instanceof Element) {
+        if (target.closest("[data-icon-picker]")) return;
         const input = target.closest("input");
         if (
           (target instanceof HTMLElement && target.isContentEditable) ||

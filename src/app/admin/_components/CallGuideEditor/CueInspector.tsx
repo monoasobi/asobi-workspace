@@ -2,7 +2,8 @@
 import { TextSuggestions } from "./TextSuggestions";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CallIcon } from "@/components/common/CallIcon";
-import { CustomEmojiField } from "./CustomEmojiField";
+import { CustomIconField } from "./CustomIconField";
+import { legacyCallIcon } from "@/lib/callIcons";
 import {
   Accordion,
   AccordionContent,
@@ -104,7 +105,11 @@ export function CueInspector({
                   )
                 }
               >
-                <CallIcon type={value as CallCue["type"]} emoji={cue.emoji} />
+                <CallIcon
+                  type={value as CallCue["type"]}
+                  icon={cue.icon}
+                  emoji={cue.emoji}
+                />
                 {label}
               </Button>
             ))}
@@ -303,10 +308,10 @@ export function CueInspector({
           />
         )}
         {cue.type === "custom" && (
-          <CustomEmojiField
-            value={cue.emoji}
+          <CustomIconField
+            value={cue.icon ?? legacyCallIcon(cue.emoji)}
             disabled={disabled}
-            onChange={(emoji) => onChange({ ...cue, emoji })}
+            onChange={(icon) => onChange({ ...cue, icon, emoji: undefined })}
           />
         )}
         {cue.type === "custom" && (

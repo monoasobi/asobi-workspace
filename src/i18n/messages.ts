@@ -9,6 +9,7 @@ const ko = {
   otherSongs: "기타 곡",
   songSort: "곡 정렬",
   recommendedSort: "추천 정렬",
+  albumSort: "앨범 단위 정렬",
   releaseSort: "발매일순 정렬",
   instrumental: "♬",
   toggleSongs: "곡 목록 열기 또는 닫기",
@@ -50,7 +51,6 @@ const ko = {
   followPaused: "자동 따라가기 · 일시 중단",
   allLyrics: "전체 가사",
   guideHelp: "가사를 누르면 해당 위치부터 재생합니다.",
-  guidePending: "콜 가이드 준비 중 · 현재는 가사만 제공합니다.",
   translationPending:
     "일부 가사의 번역 또는 음독을 준비 중입니다. 제공된 자료만 표시합니다.",
   noLyrics: "이 곡의 가사는 아직 연결하지 않았습니다.",
@@ -73,6 +73,7 @@ const ja: Messages = {
   otherSongs: "その他の曲",
   songSort: "曲の並び順",
   recommendedSort: "おすすめ順",
+  albumSort: "アルバム順",
   releaseSort: "リリース順",
   instrumental: "♬",
   toggleSongs: "曲一覧を開く・閉じる",
@@ -114,7 +115,6 @@ const ja: Messages = {
   followPaused: "自動スクロール · 一時停止",
   allLyrics: "歌詞一覧",
   guideHelp: "歌詞を押すと、その位置から再生します。",
-  guidePending: "コールガイド準備中 · 現在は歌詞のみ表示しています。",
   translationPending:
     "一部の歌詞の翻訳・読み方は準備中です。登録済みの内容のみ表示します。",
   noLyrics: "この曲の歌詞はまだ登録されていません。",
@@ -137,6 +137,7 @@ const en: Messages = {
   otherSongs: "Other songs",
   songSort: "Song order",
   recommendedSort: "Recommended",
+  albumSort: "Album order",
   releaseSort: "Release order",
   instrumental: "♬",
   toggleSongs: "Open or close song list",
@@ -178,7 +179,6 @@ const en: Messages = {
   followPaused: "Auto-scroll · Paused",
   allLyrics: "All lyrics",
   guideHelp: "Select a lyric to play from that point.",
-  guidePending: "Call guide coming soon · Only lyrics are currently available.",
   translationPending:
     "Some translations or pronunciation guides are not available yet. Only available content is shown.",
   noLyrics: "Lyrics are not available for this song yet.",

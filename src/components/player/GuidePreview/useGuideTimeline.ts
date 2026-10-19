@@ -27,7 +27,11 @@ export function useGuideTimeline(
     );
     for (const section of sections) {
       lines.forEach((line, index) => {
-        if (section.start < line.end && section.end > line.start)
+        if (
+          section.singalongText?.placement === "inline"
+            ? section.singalongText.lineId === line.id
+            : section.start < line.end && section.end > line.start
+        )
           mapped[index].push(section);
       });
     }
@@ -160,9 +164,11 @@ export function useGuideTimeline(
                 section.type !== "custom" || section.customEffects?.flash,
             )
             .map((section) =>
-              section.type === "chant" || section.type === "custom"
-                ? "var(--cyan-500)"
-                : "var(--yellow-600)",
+              section.type === "custom"
+                ? "var(--navy-500)"
+                : section.type === "chant"
+                  ? "var(--cyan-500)"
+                  : "var(--yellow-600)",
             ),
         ),
       ];

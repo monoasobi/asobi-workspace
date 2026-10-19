@@ -28,7 +28,12 @@ export function displayTimeline(source: LyricLine[], sections: CallSection[]) {
   }
   for (const { start, end } of gaps) {
     if (
-      sections.some((cue) => cue.start < end && cue.end > start) ||
+      sections.some(
+        (cue) =>
+          cue.singalongText?.placement !== "inline" &&
+          cue.start < end &&
+          cue.end > start,
+      ) ||
       source.some(
         (line) =>
           (line.originalEnd !== undefined &&

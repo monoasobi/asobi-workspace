@@ -2,7 +2,9 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightedText } from "@/components/player/HighlightedText";
-import { cueTextSelections, type CallCue } from "@/lib/callGuide";
+import { cueTextSelections, snapshotLine, type CallCue } from "@/lib/callGuide";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   singalongTextFields,
   lyricTextLabels,
@@ -57,101 +59,225 @@ export function SingalongTextEditor({
   }
   return (
     <div className="min-w-0 space-y-4">
-      <p className="text-xs text-muted-foreground">
-        연결된 가사의 일본어 원문·한국어 독음·영어 독음에서 떼창할 부분을 차례로
-        드래그하면 한 줄에 여러 범위를 추가할 수 있습니다. 언어별 범위는
-        독립적이며 자동 번역하지 않습니다. 가사 내용은 MONOASOBI에서 수정합니다.
-      </p>
-      {!cue.lines.length && (
-        <p className="text-sm">
-          왼쪽 가사를 선택하고 ‘선택 블록에 가사 연결’을 눌러 주세요.
-        </p>
-      )}
-      {cue.lines.map((snapshot, index) => {
-        const line = lines.find((line) => line.id === snapshot.id);
-        return (
-          <section
-            key={snapshot.id}
-            className="min-w-0 space-y-3 rounded-lg border p-3"
+      <div
+        role="group"
+        aria-label="떼창 표시 방식"
+        className="flex flex-wrap gap-2"
+      >
+        <Button
+          type="button"
+          size="sm"
+          variant={!cue.singalongText ? "secondary" : "outline"}
+          aria-pressed={!cue.singalongText}
+          disabled={disabled}
+          onClick={() => onChange({ ...cue, singalongText: undefined })}
+        >
+          기존 가사 강조
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={cue.singalongText ? "secondary" : "outline"}
+          aria-pressed={!!cue.singalongText}
+          disabled={disabled}
+          onClick={() =>
+            onChange({
+              ...cue,
+              selection: undefined,
+              textSelections: undefined,
+              lines: cue.lines.slice(0, 1),
+              singalongText: cue.singalongText ?? {
+                placement: cue.lines.length ? "inline" : "standalone",
+                jp: "",
+                jpReading: "",
+                enReading: "",
+              },
+            })
+          }
+        >
+          추가 문구
+        </Button>
+      </div>
+      {cue.singalongText ? (
+        <div className="space-y-3 rounded-lg border p-3">
+          <Label htmlFor="singalong-placement">표시 위치</Label>
+          <select
+            id="singalong-placement"
+            disabled={disabled}
+            className="w-full rounded-md border bg-background p-2 text-sm"
+            value={cue.singalongText.placement}
+            onChange={(event) =>
+              onChange({
+                ...cue,
+                lines:
+                  event.target.value === "standalone"
+                    ? []
+                    : cue.lines.slice(0, 1),
+                singalongText: {
+                  ...cue.singalongText!,
+                  placement: event.target.value as "inline" | "standalone",
+                },
+              })
+            }
           >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-medium">연결 가사 {index + 1}</h3>
-              <Button
-                type="button"
-                size="xs"
-                variant="outline"
-                disabled={
-                  disabled ||
-                  !line ||
-                  !singalongTextFields.some((field) => line[field]?.trim())
-                }
-                onClick={() => {
-                  if (disabled || !line) return;
-                  const ranges = singalongTextFields.flatMap((field) => {
-                    const text = line[field];
-                    return text?.trim()
-                      ? [
-                          {
-                            lineId: snapshot.id,
-                            field,
-                            start: 0,
-                            end: text.length,
-                            text,
-                          },
-                        ]
-                      : [];
-                  });
-                  onChange({
-                    ...cue,
-                    selection: undefined,
-                    textSelections: [
-                      ...selections.filter(
-                        (range) => range.lineId !== snapshot.id,
-                      ),
-                      ...ranges,
-                    ],
-                  });
+            <option value="inline">가사 끝에 괄호로 표시</option>
+            <option value="standalone">별도 문구로 표시 (간주 등)</option>
+          </select>
+          {cue.singalongText.placement === "inline" && (
+            <>
+              <Label htmlFor="singalong-anchor">문구를 붙일 가사</Label>
+              <select
+                id="singalong-anchor"
+                disabled={disabled}
+                value={cue.lines[0]?.id ?? ""}
+                className="w-full min-w-0 rounded-md border bg-background p-2 text-sm"
+                onChange={(event) => {
+                  const line = lines.find(
+                    (line) => line.id === event.target.value,
+                  );
+                  onChange({ ...cue, lines: line ? [snapshotLine(line)] : [] });
                 }}
               >
-                모든 언어 강조
-              </Button>
-            </div>
-            {!line && (
-              <p className="text-xs text-destructive">
-                원본 줄이 없습니다. 가사를 다시 연결해 주세요.
-              </p>
-            )}
-            {singalongTextFields.map((field) => (
-              <TextSelectionField
-                key={field}
-                field={field}
-                text={line?.[field] ?? ""}
+                <option value="">가사 한 줄을 선택하세요</option>
+                {lines
+                  .filter((line) => line.id)
+                  .map((line) => (
+                    <option key={line.id} value={line.id}>
+                      {line.jp}
+                    </option>
+                  ))}
+              </select>
+            </>
+          )}
+          {singalongTextFields.map((field) => (
+            <div key={field} className="space-y-1">
+              <Label htmlFor={`singalong-addition-${field}`}>
+                {field === "jp" ? "일본어 독음" : lyricTextLabels[field]}
+              </Label>
+              <Input
+                id={`singalong-addition-${field}`}
+                lang={lyricTextLang[field]}
+                maxLength={200}
                 disabled={disabled}
-                selections={selections.filter(
-                  (range) =>
-                    range.lineId === snapshot.id && range.field === field,
-                )}
-                onRemove={(removed) =>
+                value={cue.singalongText![field]}
+                onChange={(event) =>
                   onChange({
                     ...cue,
-                    selection: undefined,
-                    textSelections: selections.filter(
-                      (range) =>
-                        !(
-                          range.lineId === snapshot.id &&
-                          range.field === field &&
-                          range.start === removed.start &&
-                          range.end === removed.end
-                        ),
-                    ),
+                    singalongText: {
+                      ...cue.singalongText!,
+                      [field]: event.target.value,
+                    },
                   })
                 }
-                onChange={(range) => change(snapshot.id, field, range)}
               />
-            ))}
-          </section>
-        );
-      })}
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground">
+            선택한 언어의 독음만 표시합니다. 괄호는 자동으로 붙습니다. 원본
+            가사는 수정하지 않으며, 발성할 시작·끝 시간은 아래에서 별도로
+            조절합니다. 박자는 필요하지 않습니다.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p className="text-xs text-muted-foreground">
+            연결된 가사의 일본어 원문·한국어 독음·영어 독음에서 떼창할 부분을
+            차례로 드래그하면 한 줄에 여러 범위를 추가할 수 있습니다. 언어별
+            범위는 독립적이며 자동 번역하지 않습니다. 가사 내용은 MONOASOBI에서
+            수정합니다.
+          </p>
+          {!cue.lines.length && (
+            <p className="text-sm">
+              왼쪽 가사를 선택하고 ‘선택 블록에 가사 연결’을 눌러 주세요.
+            </p>
+          )}
+          {cue.lines.map((snapshot, index) => {
+            const line = lines.find((line) => line.id === snapshot.id);
+            return (
+              <section
+                key={snapshot.id}
+                className="min-w-0 space-y-3 rounded-lg border p-3"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-medium">연결 가사 {index + 1}</h3>
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="outline"
+                    disabled={
+                      disabled ||
+                      !line ||
+                      !singalongTextFields.some((field) => line[field]?.trim())
+                    }
+                    onClick={() => {
+                      if (disabled || !line) return;
+                      const ranges = singalongTextFields.flatMap((field) => {
+                        const text = line[field];
+                        return text?.trim()
+                          ? [
+                              {
+                                lineId: snapshot.id,
+                                field,
+                                start: 0,
+                                end: text.length,
+                                text,
+                              },
+                            ]
+                          : [];
+                      });
+                      onChange({
+                        ...cue,
+                        selection: undefined,
+                        textSelections: [
+                          ...selections.filter(
+                            (range) => range.lineId !== snapshot.id,
+                          ),
+                          ...ranges,
+                        ],
+                      });
+                    }}
+                  >
+                    모든 언어 강조
+                  </Button>
+                </div>
+                {!line && (
+                  <p className="text-xs text-destructive">
+                    원본 줄이 없습니다. 가사를 다시 연결해 주세요.
+                  </p>
+                )}
+                {singalongTextFields.map((field) => (
+                  <TextSelectionField
+                    key={field}
+                    field={field}
+                    text={line?.[field] ?? ""}
+                    disabled={disabled}
+                    selections={selections.filter(
+                      (range) =>
+                        range.lineId === snapshot.id && range.field === field,
+                    )}
+                    onRemove={(removed) =>
+                      onChange({
+                        ...cue,
+                        selection: undefined,
+                        textSelections: selections.filter(
+                          (range) =>
+                            !(
+                              range.lineId === snapshot.id &&
+                              range.field === field &&
+                              range.start === removed.start &&
+                              range.end === removed.end
+                            ),
+                        ),
+                      })
+                    }
+                    onChange={(range) => change(snapshot.id, field, range)}
+                  />
+                ))}
+              </section>
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }

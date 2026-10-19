@@ -75,6 +75,12 @@ export function VerticalTimeline({
   onLyricChange: (index: number, start: number, end: number) => void;
 }) {
   const [textField, setTextField] = useState<LyricTextField>("jpReading");
+  const readingField =
+    textField === "jp"
+      ? "jp"
+      : textField === "kr" || textField === "jpReading"
+        ? "jpReading"
+        : "enReading";
   const viewport = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const { scale, zoom } = useTimelineZoom(viewport, canvas);
@@ -333,7 +339,7 @@ export function VerticalTimeline({
                 shownLines[index].end !== line.end) && (
                 <div
                   aria-label="원본 가사 구간"
-                  className="pointer-events-none absolute left-0 z-10 w-[calc(50%-6px)] border-y border-dashed border-cyan-600/60"
+                  className="pointer-events-none absolute left-0 z-10 w-[calc(50%-6px)] border-y border-dashed border-magenta-600/60"
                   style={{
                     top: y(line.start),
                     height: (line.end - line.start) * scale,
@@ -348,7 +354,7 @@ export function VerticalTimeline({
                 className={cn(
                   "absolute left-0 w-[calc(50%-6px)] overflow-hidden rounded border bg-card px-2 text-left text-xs",
                   selectedLines.includes(index) &&
-                    "border-cyan-500 bg-cyan-100 dark:bg-cyan-900",
+                    "border-magenta-500 bg-magenta-100 dark:bg-magenta-900",
                 )}
                 style={{
                   top: y(shownLines[index].start),
@@ -400,7 +406,7 @@ export function VerticalTimeline({
                     data-lyric-resize
                     aria-label={`가사 ${index + 1} ${edge === "start" ? "시작" : "종료"} 시간 드래그`}
                     title="드래그: 콜에 스냅 · ⌘/Ctrl: 미세 조절"
-                    className="absolute left-0 z-20 h-2 w-[calc(50%-6px)] -translate-y-1/2 cursor-ns-resize touch-none rounded bg-cyan-500"
+                    className="absolute left-0 z-20 h-2 w-[calc(50%-6px)] -translate-y-1/2 cursor-ns-resize touch-none rounded bg-magenta-500"
                     style={{ top: y(shownLines[index][edge]) }}
                     onPointerDown={(event) =>
                       lyricResize.start(event, index, edge)
@@ -464,8 +470,29 @@ export function VerticalTimeline({
                 onClick={() => onSelect(cue.id)}
               >
                 <span className="relative z-10">
-                  <CallIcon type={cue.type} emoji={cue.emoji} />{" "}
+                  <CallIcon type={cue.type} icon={cue.icon} emoji={cue.emoji} />{" "}
                   {callLabels[cue.type]}
+                  {cue.singalongText?.[readingField].trim() && (
+                    <span className="mt-1 block truncate">
+                      <HighlightedText
+                        text={
+                          cue.singalongText.placement === "inline"
+                            ? `(${cue.singalongText[readingField]})`
+                            : cue.singalongText[readingField]
+                        }
+                        ranges={[
+                          {
+                            start: 0,
+                            end:
+                              cue.singalongText[readingField].length +
+                              (cue.singalongText.placement === "inline"
+                                ? 2
+                                : 0),
+                          },
+                        ]}
+                      />
+                    </span>
+                  )}
                   {(cue.type === "chant" || cue.type === "custom"
                     ? (cue.labels?.ko ?? cue.label)
                     : cue.label) &&
@@ -561,12 +588,12 @@ export function VerticalTimeline({
                   className={cn(
                     "pointer-events-none absolute inset-x-0 z-20 border-t",
                     target.kind === "end" && "border-dashed",
-                    snapped ? "border-cyan-500" : "border-foreground/15",
+                    snapped ? "border-magenta-500" : "border-foreground/15",
                   )}
                   style={{ top: y(target.time) }}
                 >
                   {snapped && (
-                    <span className="absolute right-1 bottom-0 rounded bg-background px-1 text-[10px] font-medium text-cyan-600">
+                    <span className="absolute right-1 bottom-0 rounded bg-background px-1 text-[10px] font-medium text-magenta-600">
                       콜 {target.lineIndex + 1}{" "}
                       {target.kind === "start" ? "시작" : "끝"} ·{" "}
                       {(target.time + sync).toFixed(2)}초
