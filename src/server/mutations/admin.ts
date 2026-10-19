@@ -17,8 +17,6 @@ import type {
 } from "@/server/schemas/admin.schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { preserveEnglish, withoutEnglish } from "@/lib/lyricEnglish";
-import type { LyricLine } from "@appTypes/lyric";
 
 const now = () => new Date().toISOString();
 
@@ -105,7 +103,7 @@ export const deleteComic = async (id: number) => {
 };
 
 export const createLyricTrack = async (input: LyricTrackInput) => {
-  const [created] = await db.insert(lyricTracks).values({ ...input, lyricJson: input.lyricJson.map(line => ({ ...withoutEnglish(line), id: line.id ?? randomUUID() })) }).returning();
+  const [created] = await db.insert(lyricTracks).values({ ...input, lyricJson: input.lyricJson.map(line => ({ ...line, id: line.id ?? randomUUID() })) }).returning();
   return created;
 };
 
@@ -116,12 +114,12 @@ export const updateLyricTrack = async (
   return db.transaction(async tx => {
     const [current] = await tx.select().from(lyricTracks).where(eq(lyricTracks.musicId, musicId));
     if (!current) return null;
-    const lines = preserveEnglish(input.lyricJson, current.lyricJson as LyricLine[])
+    const lines = input.lyricJson
       .map(line => ({ ...line, id: line.id ?? randomUUID() }));
     const [updated] = await tx.update(lyricTracks)
       .set({ sync: input.sync, lyricJson: lines, updatedAt: now() })
       .where(eq(lyricTracks.musicId, musicId)).returning();
-    return updated ? { ...updated, lyricJson: (updated.lyricJson as LyricLine[]).map(withoutEnglish) } : null;
+    return updated ?? null;
   });
 };
 
@@ -185,20 +183,3 @@ const replaceBookDetails = async (bookId: number, input: BookInput) => {
     })),
   );
 };
-
-export const updateLyricEnglish = async (
-  musicId: number,
-  input: { expectedUpdatedAt: string; lines: { en: string; enReading: string }[] },
-) => db.transaction(async tx => {
-  const [current] = await tx.select().from(lyricTracks).where(eq(lyricTracks.musicId, musicId));
-  if (!current) return { status: "missing" } as const;
-  const stored = current.lyricJson as LyricLine[];
-  if (current.updatedAt !== input.expectedUpdatedAt || stored.length !== input.lines.length) {
-    return { status: "conflict" } as const;
-  }
-  const [updated] = await tx.update(lyricTracks).set({
-    lyricJson: stored.map((line, index) => ({ ...line, ...input.lines[index] })),
-    updatedAt: now(),
-  }).where(and(eq(lyricTracks.musicId, musicId), eq(lyricTracks.updatedAt, input.expectedUpdatedAt))).returning();
-  return updated ? { status: "saved", lyricTrack: updated } as const : { status: "conflict" } as const;
-});

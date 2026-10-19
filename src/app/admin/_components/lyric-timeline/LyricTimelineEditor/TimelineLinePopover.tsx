@@ -166,6 +166,16 @@ export const TimelineLinePopover = ({
           onChange={(event) => onUpdateLine(index, { kr: event.target.value })}
         />
       </label>
+      {([ ["en", "영어 해석"], ["enReading", "영어 독음"] ] as const).map(([field, label]) => (
+        <label className={styles.popoverField} key={field}>
+          <Text size="1" color="gray">{label}</Text>
+          <TextArea
+            lang="en"
+            value={line[field] ?? ""}
+            onChange={(event) => onUpdateLine(index, { [field]: event.target.value })}
+          />
+        </label>
+      ))}
       <Flex gap="2">
         <label className={styles.popoverField}>
           <Text size="1" color="gray">
