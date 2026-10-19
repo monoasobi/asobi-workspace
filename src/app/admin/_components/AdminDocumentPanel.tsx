@@ -1,5 +1,7 @@
 "use client";
 
+import { useSetAtom } from "jotai";
+import { adminNavigationAtom } from "@/atoms/adminNavigation.atom";
 import { AlbumArtwork } from "@/components/common/AlbumArtwork";
 import { AdminSrtExport } from "./AdminSrtExport";
 import type { LyricLine } from "@appTypes/lyric";
@@ -26,7 +28,7 @@ import {
 } from "@radix-ui/themes";
 import Link from "next/link";
 import type { FormEvent } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlbumArtField } from "./AdminDocumentPanel/AlbumArtField";
 import { getAlbumArtSrc } from "@/lib/albumArt";
 import type { AdminDashboardData, SelectedNode } from "./AdminDashboard";
@@ -49,7 +51,8 @@ interface AdminDocumentPanelProps {
   role: AdminRole;
   selectedNode: SelectedNode;
   isRefreshing: boolean;
-  onSaved: (musicId?: number) => void;
+  onCancel?: () => void;
+  onSaved: (musicId?: number, savedNode?: SelectedNode) => void;
 }
 
 export const AdminDocumentPanel = ({
@@ -57,9 +60,12 @@ export const AdminDocumentPanel = ({
   role,
   selectedNode,
   onSaved,
+  onCancel,
   isRefreshing,
 }: AdminDocumentPanelProps) => {
   const canManage = role === "admin";
+  const setNavigation = useSetAtom(adminNavigationAtom);
+  const [isDirty, setIsDirty] = useState(false);
   const savedMusicId = useRef<number | null>(null);
   const isMusic = selectedNode.type === "music" || selectedNode.type === "newMusic";
   const editedMusic = selectedNode.type === "music"
@@ -89,10 +95,25 @@ export const AdminDocumentPanel = ({
     "-",
   )}`;
 
+  useEffect(() => {
+    setNavigation({ dirty: isEditing && isDirty, busy: isBusy });
+    return () => setNavigation({ dirty: false, busy: false });
+  }, [isBusy, isDirty, isEditing, setNavigation]);
+
+  useEffect(() => {
+    if (!isEditing || !isDirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isEditing, isDirty]);
+
   const handleCancel = () => {
+    setIsDirty(false);
+    setVisibilityFlags(getInitialVisibilityFlags(config));
     setMessage(null);
     setIsEditing(false);
     if (savedMusicId.current !== null) onSaved(savedMusicId.current);
+    else if (selectedNode.type === "newMusic") onCancel?.();
   };
 
   const handleSubmit = async (
@@ -128,8 +149,8 @@ export const AdminDocumentPanel = ({
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error(await getErrorMessage(response, "저장에 실패했습니다."));
+      const result = await response.json();
       if (isMusic) {
-        const result = await response.json();
         savedMusicId.current = result.music.id;
         const file = formData.get("albumArt");
         if (file instanceof File && file.size > 0) {
@@ -145,8 +166,14 @@ export const AdminDocumentPanel = ({
         }
       }
       setMessage({ tone: "success", text: config.method === "POST" ? "생성했습니다." : "저장했습니다." });
+      setIsDirty(false);
       setIsEditing(false);
-      onSaved(isMusic ? savedMusicId.current ?? undefined : undefined);
+      const savedNode: SelectedNode | undefined = selectedNode.type === "newNovel" ? { type: "novel", id: result.novel.id }
+        : selectedNode.type === "newComic" ? { type: "comic", id: result.comic.id }
+        : selectedNode.type === "newLyric" ? { type: "lyric", id: selectedNode.musicId }
+        : selectedNode.type === "newBook" ? { type: "book", id: result.book.id }
+        : undefined;
+      onSaved(isMusic ? savedMusicId.current ?? undefined : undefined, savedNode);
     } catch (error) {
       setMessage({ tone: "error", text: error instanceof Error ? error.message : "저장에 실패했습니다. 다시 시도해주세요." });
     } finally {
@@ -282,17 +309,16 @@ export const AdminDocumentPanel = ({
       >
         {config && isEditing ? (
           <AdminEditorForm
+            onChange={() => setIsDirty(true)}
             formId={formId}
             fields={visibleFields}
             message={message}
             visibilityFlags={visibilityFlags}
             onSubmit={(event) => handleSubmit(event, config)}
-            onVisibilityChange={(key, value) =>
-              setVisibilityFlags((prev) => ({
-                ...prev,
-                [key]: value,
-              }))
-            }
+            onVisibilityChange={(key, value) => {
+              setIsDirty(true);
+              setVisibilityFlags((prev) => ({ ...prev, [key]: value }));
+            }}
           >
             {isMusic && <AlbumArtField disabled={isBusy} currentSrc={editedMusic ? getAlbumArtSrc(editedMusic) : undefined} />}
           </AdminEditorForm>

@@ -44,17 +44,10 @@ export const getPublicCatalog = async (): Promise<PublicCatalogItem[]> => {
 export const getSidebarItems = async () => {
   const catalog = await getPublicCatalog();
 
-  return catalog
-    .map((item) => {
-      const novel = item.novels[0];
-      if (!novel) return null;
-
-      return {
-        music: item.music,
-        novel,
-      };
-    })
-    .filter((item): item is NonNullable<typeof item> => item !== null);
+  return catalog.map((item) => ({
+    music: item.music,
+    novel: item.novels[0],
+  }));
 };
 
 export const getNovelSummaryById = async (id: number) => {

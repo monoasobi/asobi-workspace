@@ -1,22 +1,17 @@
 "use client";
 
-import { AlbumArtwork } from "@/components/common/AlbumArtwork";
-import { getAlbumArtSrc } from "@/lib/albumArt";
 import type { AdminRole } from "@appTypes/admin";
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  Flex,
-  Heading,
-  ScrollArea,
-  Text,
-} from "@radix-ui/themes";
+import { Badge, Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
-import type { CSSProperties, UIEvent } from "react";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useHydrated } from "@/hooks/useHydrated";
+import { useAtomValue } from "jotai";
+import { adminNavigationAtom, confirmAdminNavigation } from "@/atoms/adminNavigation.atom";
+import { Loading } from "@/components/feedback/Loading";
 import { AdminDocumentPanel } from "./AdminDocumentPanel";
+import { AdminContentNav } from "./AdminDashboard/AdminContentNav";
+import { belongsToMusic, isValidSelectedNode, readSelection } from "./AdminDashboard/selection";
+import { getSelectedNodeKey } from "./AdminDocumentPanel/utils";
 import styles from "./AdminPage.module.css";
 
 export type AdminDashboardData = Awaited<
@@ -35,93 +30,61 @@ export type SelectedNode =
   | { type: "newLyric"; musicId: number }
   | { type: "newBook" };
 
-interface StoredAdminDashboardState {
-  selectedNode: SelectedNode;
-  expandedMusicIds: number[];
-  scrollTop: number;
-}
-
 interface AdminDashboardProps {
   data: AdminDashboardData;
   role: AdminRole;
+  musicId?: number;
+  creatingMusic?: boolean;
 }
 
-const ADMIN_DASHBOARD_STATE_KEY = "monoasobi-admin-dashboard-state";
+export const AdminDashboard = (props: AdminDashboardProps) => {
+  const hydrated = useHydrated();
+  return hydrated ? <AdminWorkspace {...props} /> : <Loading />;
+};
 
-export const AdminDashboard = ({ data, role }: AdminDashboardProps) => {
+const AdminWorkspace = ({ data, role, musicId, creatingMusic = false }: AdminDashboardProps) => {
   const router = useRouter();
   const [isRefreshing, startTransition] = useTransition();
-  const [isLoggingOutTransition, startLogoutTransition] = useTransition();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
+  const guard = useAtomValue(adminNavigationAtom);
   const canManage = role === "admin";
-  const treeScrollRef = useRef<HTMLDivElement>(null);
-  const [initialState] = useState(() =>
-    getInitialAdminDashboardState(data, canManage),
-  );
-  const [selectedNode, setSelectedNode] = useState<SelectedNode>(
-    initialState.selectedNode,
-  );
-  const [expandedMusicIds, setExpandedMusicIds] = useState<Set<number>>(
-    () => new Set(initialState.expandedMusicIds),
-  );
-  const [treeScrollTop, setTreeScrollTop] = useState(initialState.scrollTop);
-
-  const novelsByMusicId = new Map<number, typeof data.novels>();
-  const comicsByMusicId = new Map<number, typeof data.comics>();
-  const lyricByMusicId = new Map(
-    data.lyricTracks.map((track) => [track.musicId, track]),
-  );
-
-  for (const novel of data.novels) {
-    const novels = novelsByMusicId.get(novel.musicId) ?? [];
-    novels.push(novel);
-    novelsByMusicId.set(novel.musicId, novels);
-  }
-
-  for (const comic of data.comics) {
-    const comics = comicsByMusicId.get(comic.musicId) ?? [];
-    comics.push(comic);
-    comicsByMusicId.set(comic.musicId, comics);
-  }
-
-  const resolvedSelectedNode = useMemo(
-    () =>
-      isValidSelectedNode(selectedNode, data, canManage)
-        ? selectedNode
-        : getDefaultSelectedNode(data),
-    [canManage, data, selectedNode],
-  );
-  const persistedExpandedMusicIds = useMemo(() => {
-    const musicIds = new Set(data.musics.map((music) => music.id));
-    const next = [...expandedMusicIds].filter((musicId) =>
-      musicIds.has(musicId),
-    );
-
-    return next.length > 0 || !data.musics[0] ? next : [data.musics[0].id];
-  }, [data, expandedMusicIds]);
+  const music = data.musics.find((music) => music.id === musicId);
+  const storageKey = `monoasobi-admin-selection:${musicId ?? "empty"}`;
+  const fallback: SelectedNode = musicId !== undefined ? { type: "music", id: musicId } : { type: "newMusic" };
+  const [selectedNode, setSelectedNode] = useState<SelectedNode>(() => creatingMusic ? { type: "newMusic" } : readSelection(storageKey, fallback, data, canManage, musicId));
+  const resolvedNode = isValidSelectedNode(selectedNode, data, canManage) && belongsToMusic(selectedNode, data, musicId) ? selectedNode : fallback;
 
   useEffect(() => {
-    saveAdminDashboardState({
-      selectedNode: resolvedSelectedNode,
-      expandedMusicIds: persistedExpandedMusicIds,
-      scrollTop: treeScrollTop,
-    });
-  }, [persistedExpandedMusicIds, resolvedSelectedNode, treeScrollTop]);
+    if (resolvedNode.type === "newMusic") return;
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify(resolvedNode));
+    } catch {
+      // Navigation also works when storage is unavailable.
+    }
+  }, [storageKey, resolvedNode]);
 
-  useEffect(() => {
-    if (!initialState.scrollTop) return;
-    treeScrollRef.current?.scrollTo({ top: initialState.scrollTop });
-  }, [initialState.scrollTop]);
+  const isCreatingMusic = resolvedNode.type === "newMusic";
+  const musicHref = musicId !== undefined ? `/admin?musicId=${musicId}` : "/admin";
+
+  const select = (node: SelectedNode) => {
+    if (getSelectedNodeKey(node) === getSelectedNodeKey(resolvedNode)) return;
+    if (isRefreshing || !confirmAdminNavigation(guard)) return;
+    if (node.type === "newMusic") {
+      router.push(`${musicHref}${musicId !== undefined ? "&" : "?"}newMusic=1`);
+    } else {
+      setSelectedNode(node);
+    }
+  };
 
   const handleLogout = async () => {
-    if (isLoggingOut || isLoggingOutTransition || isRefreshing) return;
+    if (isLoggingOut || isRefreshing || !confirmAdminNavigation(guard)) return;
     setIsLoggingOut(true);
     setLogoutError("");
     try {
       const response = await fetch("/api/admin/auth/logout", { method: "POST" });
       if (!response.ok) throw new Error();
-      startLogoutTransition(() => router.refresh());
+      startTransition(() => router.refresh());
     } catch {
       setLogoutError("로그아웃에 실패했습니다. 다시 시도해 주세요.");
     } finally {
@@ -129,524 +92,48 @@ export const AdminDashboard = ({ data, role }: AdminDashboardProps) => {
     }
   };
 
-  const toggleMusic = (musicId: number) => {
-    setExpandedMusicIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(musicId)) {
-        next.delete(musicId);
-      } else {
-        next.add(musicId);
-      }
-      return next;
-    });
-  };
-
-  const handleTreeScroll = (event: UIEvent<HTMLDivElement>) => {
-    setTreeScrollTop(event.currentTarget.scrollTop);
-  };
-
   return (
     <div className={styles.container}>
-      <Flex className={styles.header} justify="between" align="center" gap="3">
-        <Flex direction="column" gap="1">
+      <Flex className={styles.header} justify="between" align="center" gap="3" wrap="wrap">
+        <Flex direction="column" gap="1" minWidth="0">
           <Flex align="center" gap="2">
-            <Heading size="5">Admin</Heading>
-            {role === "viewer" && (
-              <Badge color="gray" variant="soft">
-                Viewer
-              </Badge>
-            )}
+            <Heading size="5">{isCreatingMusic ? "곡 추가" : "곡 관리"}</Heading>
+            <Badge color={canManage ? undefined : "gray"}>{canManage ? "관리자" : "열람 전용"}</Badge>
           </Flex>
+          <Text size="2" color="gray">{isCreatingMusic ? "새 곡의 정보와 앨범아트를 등록해 주세요." : music ? `${music.title} · ${music.korTitle}` : "좌측 곡 목록에서 관리할 곡을 선택해 주세요."}</Text>
         </Flex>
-        <Button
-          type="button"
-          variant="soft"
-          color="gray"
-          loading={isLoggingOut || isLoggingOutTransition}
-          disabled={isRefreshing}
-          onClick={handleLogout}
-        >
-          로그아웃
-        </Button>
+        <Flex gap="2" wrap="wrap">
+          {canManage && !isCreatingMusic && <Button size="2" variant="soft" disabled={isRefreshing || guard.busy} onClick={() => select({ type: "newMusic" })}>+ 곡 추가</Button>}
+          <Button variant="soft" color="gray" loading={isLoggingOut} disabled={isRefreshing || guard.busy} onClick={handleLogout}>로그아웃</Button>
+        </Flex>
       </Flex>
-
       {logoutError && <Text role="alert" color="red" size="2">{logoutError}</Text>}
-      <section className={styles.console} aria-busy={isRefreshing}>
-        <Card className={styles.consoleSidebar}>
-          <ScrollArea
-            ref={treeScrollRef}
-            className={styles.treeScroll}
-            type="auto"
-            scrollbars="vertical"
-            onScroll={handleTreeScroll}
-          >
-            <div className={styles.tree}>
-              <TreeSection
-                label="Music"
-                count={data.musics.length}
-                action={
-                  canManage ? (
-                    <Button
-                      type="button"
-                      size="1"
-                      variant="soft"
-                      onClick={() => setSelectedNode({ type: "newMusic" })}
-                    >
-                      + Music
-                    </Button>
-                  ) : undefined
-                }
-              >
-                {data.musics.map((music) => {
-                  const novels = novelsByMusicId.get(music.id) ?? [];
-                  const comics = comicsByMusicId.get(music.id) ?? [];
-                  const lyricTrack = lyricByMusicId.get(music.id);
-                  const isExpanded = expandedMusicIds.has(music.id);
-
-                  return (
-                    <div className={styles.treeDocument} key={music.id}>
-                      <MusicTreeButton
-                        musicId={music.id}
-                        artworkSrc={getAlbumArtSrc(music)}
-                        label={music.title}
-                        meta={`${music.korTitle} / ${music.enTitle}`}
-                        isExpanded={isExpanded}
-                        isActive={
-                          resolvedSelectedNode.type === "music" &&
-                          resolvedSelectedNode.id === music.id
-                        }
-                        onToggle={() => toggleMusic(music.id)}
-                        onSelect={() =>
-                          setSelectedNode({ type: "music", id: music.id })
-                        }
-                      />
-                      {isExpanded && (
-                        <div className={styles.treeChildren}>
-                          <div className={styles.treeActions}>
-                            {canManage && novels.length === 0 && (
-                              <Button
-                                type="button"
-                                size="1"
-                                variant="soft"
-                                onClick={() =>
-                                  setSelectedNode({
-                                    type: "newNovel",
-                                    musicId: music.id,
-                                  })
-                                }
-                              >
-                                + Novel
-                              </Button>
-                            )}
-                            {canManage && comics.length === 0 && (
-                              <Button
-                                type="button"
-                                size="1"
-                                variant="soft"
-                                onClick={() =>
-                                  setSelectedNode({
-                                    type: "newComic",
-                                    musicId: music.id,
-                                  })
-                                }
-                              >
-                                + Comic
-                              </Button>
-                            )}
-                            {canManage && !lyricTrack && (
-                              <Button
-                                type="button"
-                                size="1"
-                                variant="soft"
-                                onClick={() =>
-                                  setSelectedNode({
-                                    type: "newLyric",
-                                    musicId: music.id,
-                                  })
-                                }
-                              >
-                                + Lyric
-                              </Button>
-                            )}
-                          </div>
-                          {novels.map((novel) => (
-                            <TreeButton
-                              key={novel.id}
-                              depth={2}
-                              badge={`NOVEL #${novel.id}`}
-                              kind="child"
-                              label={novel.title}
-                              meta={novel.writer}
-                              isActive={
-                                resolvedSelectedNode.type === "novel" &&
-                                resolvedSelectedNode.id === novel.id
-                              }
-                              onClick={() =>
-                                setSelectedNode({
-                                  type: "novel",
-                                  id: novel.id,
-                                })
-                              }
-                            />
-                          ))}
-                          {comics.map((comic) => (
-                            <TreeButton
-                              key={comic.id}
-                              depth={2}
-                              badge={`COMIC #${comic.id}`}
-                              kind="child"
-                              label={comic.title}
-                              meta={`${comic.writer} / ${comic.length}p`}
-                              isActive={
-                                resolvedSelectedNode.type === "comic" &&
-                                resolvedSelectedNode.id === comic.id
-                              }
-                              onClick={() =>
-                                setSelectedNode({
-                                  type: "comic",
-                                  id: comic.id,
-                                })
-                              }
-                            />
-                          ))}
-                          {lyricTrack && (
-                            <TreeButton
-                              depth={2}
-                              badge="LYRIC"
-                              kind="child"
-                              label={music.title}
-                              meta={`${lyricTrack.lineCount} lines`}
-                              isActive={
-                                resolvedSelectedNode.type === "lyric" &&
-                                resolvedSelectedNode.id === music.id
-                              }
-                              onClick={() =>
-                                setSelectedNode({
-                                  type: "lyric",
-                                  id: music.id,
-                                })
-                              }
-                            />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </TreeSection>
-
-              <TreeSection
-                label="Books"
-                count={data.books.length}
-                action={
-                  canManage ? (
-                    <Button
-                      type="button"
-                      size="1"
-                      variant="soft"
-                      onClick={() => setSelectedNode({ type: "newBook" })}
-                    >
-                      + Book
-                    </Button>
-                  ) : undefined
-                }
-              >
-                {data.books.map((book) => (
-                  <TreeButton
-                    key={book.id}
-                    depth={1}
-                    badge={`BOOK #${book.id}`}
-                    kind="book"
-                    label={book.name}
-                    meta={`${book.novels.length} novels`}
-                    isActive={
-                      resolvedSelectedNode.type === "book" &&
-                      resolvedSelectedNode.id === book.id
-                    }
-                    onClick={() =>
-                      setSelectedNode({ type: "book", id: book.id })
-                    }
-                  />
-                ))}
-              </TreeSection>
-            </div>
-          </ScrollArea>
-        </Card>
-
+      <section className={styles.console} data-creating={isCreatingMusic} aria-busy={isRefreshing}>
+        {!isCreatingMusic && <Card className={styles.consoleSidebar}>
+          <AdminContentNav data={data} musicId={musicId} selectedNode={resolvedNode} canManage={canManage} disabled={isRefreshing || guard.busy} onSelect={select} />
+        </Card>}
         <Card className={styles.documentPanel}>
-          <AdminDocumentPanel
-            key={getSelectedNodeKey(resolvedSelectedNode)}
+          {music || canManage ? <AdminDocumentPanel
+            key={getSelectedNodeKey(resolvedNode)}
             data={data}
             role={role}
             isRefreshing={isRefreshing}
-            selectedNode={resolvedSelectedNode}
-            onSaved={(musicId) => {
+            selectedNode={resolvedNode}
+            onCancel={() => router.replace(musicHref)}
+            onSaved={(savedMusicId, savedNode) => {
               startTransition(() => {
-                if (musicId !== undefined) setSelectedNode({ type: "music", id: musicId });
-                router.refresh();
+                if (savedMusicId !== undefined && (savedMusicId !== musicId || isCreatingMusic)) {
+                  router.push(`/admin?musicId=${savedMusicId}`);
+                } else {
+                  if (savedNode) setSelectedNode(savedNode);
+                  if (savedMusicId !== undefined) setSelectedNode({ type: "music", id: savedMusicId });
+                  router.refresh();
+                }
               });
             }}
-          />
+          /> : <Text color="gray">등록된 곡이 없습니다.</Text>}
         </Card>
       </section>
     </div>
   );
 };
-
-const getInitialAdminDashboardState = (
-  data: AdminDashboardData,
-  canManage: boolean,
-): StoredAdminDashboardState => {
-  const fallback = getFallbackAdminDashboardState(data);
-  const stored = readAdminDashboardState();
-  if (!stored) return fallback;
-
-  const selectedNode = isValidSelectedNode(stored.selectedNode, data, canManage)
-    ? stored.selectedNode
-    : fallback.selectedNode;
-  const musicIds = new Set(data.musics.map((music) => music.id));
-  const expandedMusicIds = stored.expandedMusicIds.filter((musicId) =>
-    musicIds.has(musicId),
-  );
-
-  return {
-    selectedNode,
-    expandedMusicIds:
-      expandedMusicIds.length > 0 ? expandedMusicIds : fallback.expandedMusicIds,
-    scrollTop: stored.scrollTop ?? fallback.scrollTop,
-  };
-};
-
-const getFallbackAdminDashboardState = (
-  data: AdminDashboardData,
-): StoredAdminDashboardState => {
-  const firstMusicId = data.musics[0]?.id ?? 0;
-
-  return {
-    selectedNode: getDefaultSelectedNode(data),
-    expandedMusicIds: firstMusicId ? [firstMusicId] : [],
-    scrollTop: 0,
-  };
-};
-
-const getDefaultSelectedNode = (data: AdminDashboardData): SelectedNode => ({
-  type: "music",
-  id: data.musics[0]?.id ?? 0,
-});
-
-const readAdminDashboardState = (): StoredAdminDashboardState | null => {
-  try {
-    const value = sessionStorage.getItem(ADMIN_DASHBOARD_STATE_KEY);
-    if (!value) return null;
-
-    const parsed = JSON.parse(value);
-    if (!isStoredAdminDashboardState(parsed)) return null;
-
-    return parsed;
-  } catch {
-    return null;
-  }
-};
-
-const saveAdminDashboardState = (state: StoredAdminDashboardState) => {
-  try {
-    sessionStorage.setItem(ADMIN_DASHBOARD_STATE_KEY, JSON.stringify(state));
-  } catch {
-    // sessionStorage can be unavailable in private contexts.
-  }
-};
-
-const isStoredAdminDashboardState = (
-  value: unknown,
-): value is StoredAdminDashboardState => {
-  if (!value || typeof value !== "object") return false;
-
-  const state = value as Partial<StoredAdminDashboardState>;
-  return (
-    isSelectedNode(state.selectedNode) &&
-    Array.isArray(state.expandedMusicIds) &&
-    state.expandedMusicIds.every((id) => Number.isInteger(id)) &&
-    (state.scrollTop == null ||
-      (typeof state.scrollTop === "number" && Number.isFinite(state.scrollTop)))
-  );
-};
-
-const isSelectedNode = (value: unknown): value is SelectedNode => {
-  if (!value || typeof value !== "object") return false;
-
-  const node = value as Partial<SelectedNode>;
-  if (typeof node.type !== "string") return false;
-
-  switch (node.type) {
-    case "music":
-    case "novel":
-    case "comic":
-    case "lyric":
-    case "book":
-      return Number.isInteger(node.id);
-    case "newNovel":
-    case "newComic":
-    case "newLyric":
-      return Number.isInteger(node.musicId);
-    case "newMusic":
-    case "newBook":
-      return true;
-    default:
-      return false;
-  }
-};
-
-const isValidSelectedNode = (
-  node: SelectedNode,
-  data: AdminDashboardData,
-  canManage: boolean,
-) => {
-  switch (node.type) {
-    case "music":
-      return data.musics.some((music) => music.id === node.id);
-    case "novel":
-      return data.novels.some((novel) => novel.id === node.id);
-    case "comic":
-      return data.comics.some((comic) => comic.id === node.id);
-    case "lyric":
-      return data.lyricTracks.some((track) => track.musicId === node.id);
-    case "book":
-      return data.books.some((book) => book.id === node.id);
-    case "newMusic":
-    case "newBook":
-      return canManage;
-    case "newNovel":
-    case "newComic":
-      return (
-        canManage && data.musics.some((music) => music.id === node.musicId)
-      );
-    case "newLyric":
-      return (
-        canManage &&
-        data.musics.some((music) => music.id === node.musicId) &&
-        !data.lyricTracks.some((track) => track.musicId === node.musicId)
-      );
-  }
-};
-
-const TreeSection = ({
-  label,
-  count,
-  action,
-  children,
-}: {
-  label: string;
-  count: number;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) => (
-  <div className={styles.treeSection}>
-    <div className={styles.collectionLabel}>
-      <Text size="1" weight="bold">
-        {label}
-      </Text>
-      <Flex align="center" gap="2">
-        <Badge variant="outline">{count}</Badge>
-        {action}
-      </Flex>
-    </div>
-    {children}
-  </div>
-);
-
-const MusicTreeButton = ({
-  musicId,
-  artworkSrc,
-  label,
-  meta,
-  isExpanded,
-  isActive,
-  onToggle,
-  onSelect,
-}: {
-  musicId: number;
-  artworkSrc: string;
-  label: string;
-  meta: string;
-  isExpanded: boolean;
-  isActive: boolean;
-  onToggle: () => void;
-  onSelect: () => void;
-}) => (
-  <div className={styles.musicTreeRow} data-active={isActive}>
-    <button
-      type="button"
-      className={styles.expandButton}
-      aria-label={isExpanded ? "곡 접기" : "곡 펼치기"}
-      aria-expanded={isExpanded}
-      onClick={onToggle}
-    >
-      <span className={styles.chevron} data-expanded={isExpanded}>
-        ▸
-      </span>
-    </button>
-    <Flex asChild align="center" gap="2" minWidth="0" p="2">
-      <button
-        type="button"
-        className={styles.musicSelectButton}
-        onClick={onSelect}
-      >
-        <Box flexShrink="0">
-          <AlbumArtwork src={artworkSrc} alt="" size={40} />
-        </Box>
-        <Flex direction="column" gap="1" minWidth="0" flexGrow="1">
-          <Flex align="center" gap="2" minWidth="0">
-            <Badge size="1" variant="outline">#{musicId}</Badge>
-            <Text size="2" weight="medium" truncate>{label}</Text>
-          </Flex>
-          <Text size="1" color="gray" truncate>{meta}</Text>
-        </Flex>
-      </button>
-    </Flex>
-  </div>
-);
-
-const TreeButton = ({
-  depth,
-  badge,
-  kind,
-  label,
-  meta,
-  isActive,
-  onClick,
-}: {
-  depth: number;
-  badge: string;
-  kind: "music" | "child" | "book";
-  label: string;
-  meta: string;
-  isActive: boolean;
-  onClick: () => void;
-}) => (
-  <button
-    type="button"
-    className={styles.treeButton}
-    data-active={isActive}
-    data-kind={kind}
-    style={getDepthStyle(depth)}
-    onClick={onClick}
-  >
-    <span className={styles.treeButtonContent}>
-      <Badge className={styles.treeButtonBadge} variant="outline">
-        {badge}
-      </Badge>
-      <span className={styles.treeButtonLabel}>{label}</span>
-    </span>
-    <span className={styles.treeButtonMeta}>{meta}</span>
-  </button>
-);
-
-const getSelectedNodeKey = (selectedNode: SelectedNode) =>
-  "id" in selectedNode
-    ? `${selectedNode.type}:${selectedNode.id}`
-    : "musicId" in selectedNode
-      ? `${selectedNode.type}:${selectedNode.musicId}`
-      : selectedNode.type;
-
-const getDepthStyle = (depth: number) =>
-  ({ "--depth": depth }) as CSSProperties;

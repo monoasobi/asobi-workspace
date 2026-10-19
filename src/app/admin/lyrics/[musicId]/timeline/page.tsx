@@ -59,7 +59,7 @@ async function AdminLyricTimelinePageContent({
             variant="ghost"
             color="gray"
           >
-            <Link href="/admin" aria-label="Admin으로 돌아가기">
+            <Link href={`/admin?musicId=${musicId}`} aria-label="Admin으로 돌아가기">
               <ChevronLeftIcon width="18" height="18" />
             </Link>
           </IconButton>

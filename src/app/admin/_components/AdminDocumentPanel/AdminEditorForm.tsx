@@ -13,6 +13,7 @@ interface AdminEditorFormProps {
   fields: EditorFieldConfig[];
   message: AdminMessage | null;
   visibilityFlags: Record<string, boolean>;
+  onChange: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onVisibilityChange: (key: string, value: boolean) => void;
 }
@@ -23,10 +24,11 @@ export const AdminEditorForm = ({
   fields,
   message,
   visibilityFlags,
+  onChange,
   onSubmit,
   onVisibilityChange,
 }: AdminEditorFormProps) => (
-  <form id={formId} className={styles.documentBody} onSubmit={onSubmit}>
+  <form id={formId} className={styles.documentBody} onSubmit={onSubmit} onChange={onChange}>
     {fields.map((field) => (
       <div className={styles.fieldRow} key={field.name}>
         <Text className={styles.fieldKey} size="2">

@@ -7,15 +7,19 @@ import { AdminLogin } from "./_components/AdminLogin";
 
 import { Suspense } from "react";
 
-export default function AdminPage() {
+interface AdminPageProps {
+  searchParams: Promise<{ musicId?: string; newMusic?: string }>;
+}
+
+export default function AdminPage({ searchParams }: AdminPageProps) {
   return (
     <Suspense fallback={<Loading />}>
-      <AdminPageContent />
+      <AdminPageContent searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function AdminPageContent() {
+async function AdminPageContent({ searchParams }: AdminPageProps) {
   const cookieStore = await cookies();
   const session = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
   const adminSession = verifyAdminSession(session);
@@ -26,5 +30,9 @@ async function AdminPageContent() {
 
   const data = await getAdminDashboard();
 
-  return <AdminDashboard data={data} role={adminSession.role} />;
+  const query = await searchParams;
+  const creatingMusic = adminSession.role === "admin" && query.newMusic === "1";
+  const requestedId = Number(query.musicId);
+  const musicId = data.musics.find((music) => music.id === requestedId)?.id ?? data.musics[0]?.id;
+  return <AdminDashboard key={`${musicId ?? "empty"}:${creatingMusic}`} creatingMusic={creatingMusic} musicId={musicId} data={data} role={adminSession.role} />;
 }

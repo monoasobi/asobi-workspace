@@ -1,10 +1,12 @@
 .container {
-    display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     width: 100%;
     height: calc(100dvh - 56px);
     overflow: hidden;
-    padding: 20px;
+    min-width: 0;
+    padding: 16px;
 }
 
 .loginCard {
@@ -13,26 +15,20 @@
 }
 
 .header {
-    margin-bottom: 16px;
-}
-
-.summaryGrid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(96px, 1fr));
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.summaryCard {
-    min-height: 76px;
-    border-radius: 6px;
+    flex-shrink: 0;
 }
 
 .console {
     display: grid;
-    grid-template-columns: minmax(320px, 40%) minmax(0, 1fr);
+    grid-template-columns: minmax(200px, 250px) minmax(0, 1fr);
+    flex: 1 1 0;
     gap: 12px;
     min-height: 0;
+}
+
+.console[data-creating="true"] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
 }
 
 .consoleSidebar,
@@ -45,7 +41,7 @@
 
 .consoleSidebar {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
 }
 
 .consolePanelHeader {
@@ -92,164 +88,25 @@
     padding: 8px 16px;
 }
 
-.tree {
-    display: grid;
-    gap: 16px;
-    padding-right: 8px;
-}
-
-.treeSection {
-    display: grid;
-    gap: 6px;
-}
-
-.collectionLabel,
-.folderLabel {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 28px;
-    padding-left: calc(var(--depth, 0) * 16px);
-}
-
-.collectionLabel {
-    padding: 0 4px 6px;
-    color: var(--gray-12);
-    border-bottom: 1px solid var(--gray-a4);
-}
-
-.treeDocument,
-.treeFolder {
-    display: grid;
-    gap: 2px;
-}
-
-.musicTreeRow {
-    display: grid;
-    grid-template-columns: 32px minmax(0, 1fr);
-    align-items: stretch;
-    min-height: 56px;
-    margin-top: 4px;
-    border: 1px solid var(--gray-a4);
-    border-radius: 6px;
-    background: var(--gray-a2);
-    overflow: hidden;
-}
-
-.musicTreeRow:hover {
-    background: var(--gray-a3);
-}
-
-.musicTreeRow[data-active="true"] {
-    border-color: var(--accent-a7);
-    background: var(--accent-a4);
-}
-
-.expandButton,
-.musicSelectButton {
-    border: 0;
-    color: inherit;
-    background: transparent;
-    font: inherit;
-    cursor: pointer;
-}
-
-.expandButton {
-    display: grid;
-    place-items: center;
-    border-right: 1px solid var(--gray-a4);
-}
-
-.expandButton:hover {
-    background: var(--gray-a3);
-}
-
-.chevron {
-    display: inline-block;
-    color: var(--gray-10);
-    font-size: 13px;
-    transition: transform 120ms ease;
-}
-
-.chevron[data-expanded="true"] {
-    transform: rotate(90deg);
-}
-
-.musicSelectButton {
-    text-align: left;
-}
-
-.treeChildren {
-    display: grid;
-    gap: 2px;
-    padding: 2px 0 4px;
-}
-
-.treeActions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 6px 8px 6px 40px;
-}
-
-.treeButton {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 10px;
-    align-items: start;
+.contentNavButton {
+    justify-content: flex-start;
     width: 100%;
-    min-height: 34px;
-    padding: 7px 8px 7px calc(8px + var(--depth, 0) * 16px);
-    border: 1px solid transparent;
-    border-radius: 6px;
-    color: var(--gray-12);
-    background: transparent;
-    font: inherit;
+    height: auto;
+    min-height: 36px;
+    padding: 8px;
     text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.contentNavButton:not([aria-current]):not(:hover) {
+    background-color: transparent;
+}
+
+.bookSummary {
     cursor: pointer;
-}
-
-.treeButton:hover {
-    background: var(--gray-a3);
-}
-
-.treeButton[data-active="true"] {
-    border-color: var(--accent-a7);
-    background: var(--accent-a4);
-    color: var(--accent-12);
-}
-
-.treeButtonContent {
-    display: grid;
-    min-width: 0;
-    gap: 3px;
-}
-
-.treeButtonBadge {
-    width: fit-content;
-}
-
-.treeButtonLabel,
-.treeButtonMeta {
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.treeButtonLabel {
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.treeButton[data-kind="music"] .treeButtonLabel {
-    font-size: 14px;
-}
-
-.treeButtonMeta {
-    color: var(--gray-10);
-    font-size: 11px;
-    padding-top: 3px;
+    color: var(--gray-11);
+    font-size: var(--font-size-2);
 }
 
 .documentPanel {
@@ -381,20 +238,28 @@
     padding: 10px 12px;
 }
 
-@media (max-width: 980px) {
-    .summaryGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 760px) {
+    .container {
+        padding: 12px;
     }
 
     .console {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(100px, 28%) minmax(0, 1fr);
     }
 
     .consolePanelHeader {
+        flex-wrap: wrap;
         align-items: flex-start;
     }
 
+    .fieldRow,
     .editorGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fieldKey {
+        border-right: 0;
+        border-bottom: 1px solid var(--gray-a4);
     }
 }

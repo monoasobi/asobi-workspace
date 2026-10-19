@@ -1,5 +1,6 @@
 "use client";
 
+import { adminNavigationAtom, confirmAdminNavigation } from "@/atoms/adminNavigation.atom";
 import { appearanceAtom } from "@atoms/appearance.atom";
 import { fontAtom } from "@atoms/font.atom";
 import { sidebarAtom } from "@atoms/sidebar.atom";
@@ -13,12 +14,13 @@ import {
   SegmentedControl,
   Text,
 } from "@radix-ui/themes";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
 import type { MouseEventHandler } from "react";
 import styles from "./Header.module.css";
 
 export const Header = () => {
+  const navigationGuard = useAtomValue(adminNavigationAtom);
   const [appearance, setAppearance] = useAtom(appearanceAtom);
   const [font, setFont] = useAtom(fontAtom);
   const setIsSidebar = useSetAtom(sidebarAtom);
@@ -40,7 +42,9 @@ export const Header = () => {
       </IconButton>
 
       <Button asChild variant="ghost" className={styles.logoButton}>
-        <Link href="/" aria-label="monoasobi 홈">
+        <Link href="/" aria-label="monoasobi 홈" onNavigate={(event) => {
+          if (!confirmAdminNavigation(navigationGuard)) event.preventDefault();
+        }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/assets/logo.svg" alt="monoasobi" className={styles.logo} />
         </Link>
