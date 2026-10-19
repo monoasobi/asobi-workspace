@@ -13,6 +13,7 @@ export async function getAdminMusics(): Promise<AdminMusic[]> {
       title: musics.title,
       korTitle: musics.korTitle,
       enTitle: musics.enTitle,
+      albumArtKey: musics.albumArtKey,
       youtubeId: musicSettings.youtubeId,
       fanLightColor: musicSettings.fanLightColor,
       bpm: musicSettings.bpm,

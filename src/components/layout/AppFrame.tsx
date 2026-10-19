@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Header } from "./Header";
 import { Button } from "@/components/ui/button";
 import { SongList } from "./SongList";
+import type { SongSort } from "./SongList/albumOrder";
 import { MusicExperience } from "@/components/player/MusicExperience";
 import {
   Sheet,
@@ -37,7 +38,11 @@ export function AppFrame({
   const [selectedId, setSelectedId] = useState<number | null>(
     sidebarMusicIds(sidebarLayout)[0] ?? catalog[0]?.music.id ?? null,
   );
-  const [sort, setSort] = useState<"recommended" | "release">("recommended");
+  const [sort, setSort] = useState<SongSort>("recommended");
+  const songListItems = catalog.map(({ music, track }) => ({
+    music,
+    hasLyrics: !!track?.lyric.length,
+  }));
   const mainRef = useRef<HTMLElement>(null);
   const selected =
     catalog.find(
@@ -76,7 +81,7 @@ export function AppFrame({
           >
             <div className="h-full w-[360px] border-r">
               <SongList
-                catalog={catalog}
+                catalog={songListItems}
                 layout={sidebarLayout}
                 sort={sort}
                 onSort={setSort}
@@ -104,7 +109,7 @@ export function AppFrame({
               </SheetDescription>
             </SheetHeader>
             <SongList
-              catalog={catalog}
+              catalog={songListItems}
               layout={sidebarLayout}
               sort={sort}
               onSort={setSort}

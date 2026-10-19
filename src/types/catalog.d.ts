@@ -5,6 +5,7 @@ export interface AdminMusic {
   title: string;
   korTitle: string;
   enTitle: string;
+  albumArtKey?: string | null;
   youtubeId: string | null;
   fanLightColor: string | null;
   bpm: number | null;
@@ -17,4 +18,9 @@ export interface CatalogEntry {
   sections?: CallSection[];
   music: Music & { fanLightColor?: string };
   track?: LyricTrack;
+}
+export interface SongListItem {
+  music: Music;
+  hasLyrics: boolean;
+  publish?: boolean;
 }

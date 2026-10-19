@@ -78,6 +78,7 @@ export function usePlayback() {
       setError("playError");
     }
   }, []);
+  const pause = useCallback(() => playerRef.current?.pause(), []);
 
   const seek = useCallback(
     (time: number, resume = false) => {
@@ -127,6 +128,7 @@ export function usePlayback() {
     volume,
     error,
     setVolume,
+    pause,
     seek,
     seekBy,
     retry: () => {

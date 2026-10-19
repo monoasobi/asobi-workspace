@@ -2,7 +2,9 @@
 import { recordRecentGuideTexts } from "@/lib/recentGuideTexts";
 import { RecentTextProvider } from "./CallGuideEditor/TextSuggestions";
 import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import type { AdminMusic } from "@/types/catalog";
 import {
   ArrowLeft,
   Copy,
@@ -34,25 +36,55 @@ import { useGuideHistory } from "./CallGuideEditor/useGuideHistory";
 import { EditorWorkspace } from "./CallGuideEditor/EditorWorkspace";
 import { NumberField } from "./CallGuideEditor/NumberField";
 import { useEditorViewport } from "./CallGuideEditor/useEditorViewport";
+import { guideSaveInput } from "./CallGuideEditor/guideSaveInput";
 
 export function CallGuideEditor({
   initial,
   readOnly,
+  embedded = false,
+  musicSettings,
+  onDirtyChange,
+  onBusyChange,
+  onSaved,
 }: {
   initial: GuideDocument;
   readOnly: boolean;
+  embedded?: boolean;
+  musicSettings?: AdminMusic;
+  onDirtyChange?: (dirty: boolean) => void;
+  onBusyChange?: (busy: boolean) => void;
+  onSaved?: (document: GuideDocument) => void;
 }) {
   const router = useRouter();
-  const desktop = useEditorViewport();
+  const containerRef = useRef<HTMLElement>(null);
+  const desktop = useEditorViewport(embedded ? containerRef : undefined);
+  const Container = embedded ? "section" : "main";
   const [saved, setSaved] = useState(initial);
   const history = useGuideHistory({
     guide: initial.guide,
     syncOffset: initial.syncOffset,
   });
-  const { guide, syncOffset } = history.draft;
+  const { guide, syncOffset: draftSyncOffset } = history.draft;
+  const syncOffset =
+    draftSyncOffset === saved.syncOffset
+      ? (musicSettings?.syncOffset ?? draftSyncOffset)
+      : draftSyncOffset;
+  const music = useMemo(
+    () =>
+      musicSettings
+        ? {
+            ...saved.music,
+            youtubeId: musicSettings.youtubeId ?? undefined,
+            fanLightColor: musicSettings.fanLightColor ?? undefined,
+            bpm: musicSettings.bpm ?? undefined,
+          }
+        : saved.music,
+    [saved.music, musicSettings],
+  );
   const [busy, setBusy] = useState(false);
   const [selectedCue, setSelectedCue] = useState<string | null>(null);
   const [loop, setLoop] = useState(false);
+  useLayoutEffect(() => () => setLoop(false), []);
   function selectCue(id: string | null) {
     setSelectedCue(id);
     setLoop(false);
@@ -60,7 +92,13 @@ export function CallGuideEditor({
   const [message, setMessage] = useState("");
   const dirty =
     JSON.stringify(guide) !== JSON.stringify(saved.guide) ||
-    syncOffset !== saved.syncOffset;
+    draftSyncOffset !== saved.syncOffset;
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+  }, [dirty, onDirtyChange]);
+  useEffect(() => {
+    onBusyChange?.(busy);
+  }, [busy, onBusyChange]);
   const track = useMemo(
     () => ({ ...saved.track, sync: saved.sourceSync + syncOffset }),
     [saved, syncOffset],
@@ -92,12 +130,33 @@ export function CallGuideEditor({
     setBusy(true);
     setMessage("");
     try {
+      let revision = saved.revision;
+      let offsetToSave = syncOffset;
+      if (embedded) {
+        const latestResponse = await fetch(
+          `/api/admin/musics/${saved.music.id}/guide`,
+          { cache: "no-store" },
+        );
+        const latest = await latestResponse.json();
+        if (!latestResponse.ok)
+          throw new Error(
+            latest.error ?? "최신 곡 설정을 확인하지 못했습니다.",
+          );
+        const input = guideSaveInput(
+          saved,
+          latest.document,
+          draftSyncOffset,
+          syncOffset,
+        );
+        revision = input.revision;
+        offsetToSave = input.syncOffset;
+      }
       const response = await fetch(
         `/api/admin/musics/${saved.music.id}/guide`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ revision: saved.revision, guide, syncOffset }),
+          body: JSON.stringify({ revision, guide, syncOffset: offsetToSave }),
         },
       );
       const result = await response.json();
@@ -108,6 +167,7 @@ export function CallGuideEditor({
         saved.guide,
       );
       setSaved(result.document);
+      onSaved?.(result.document);
       history.update(() => ({
         guide: result.document.guide,
         syncOffset: result.document.syncOffset,
@@ -135,60 +195,77 @@ export function CallGuideEditor({
   }
   if (!desktop)
     return (
-      <main className="flex h-dvh flex-col items-center justify-center gap-4 bg-background p-6 text-center text-foreground">
+      <Container
+        ref={containerRef}
+        className={cn(
+          "flex flex-col items-center justify-center gap-4 bg-background p-6 text-center text-foreground",
+          embedded ? "min-h-0 flex-1" : "h-dvh",
+        )}
+      >
         <h1 className="text-lg font-semibold">
           콜 편집은 넓은 화면에서 이용해 주세요
         </h1>
         <p className="text-sm text-muted-foreground">
-          화면 너비 1024px 이상에서 편집할 수 있습니다. 창을 다시 넓히면 작성
-          중인 초안이 유지됩니다.
+          편집 영역 너비 1024px 이상에서 편집할 수 있습니다.{" "}
+          {embedded && "사이드바를 접거나 "}창을 다시 넓히면 작성 중인 초안이
+          유지됩니다.
         </p>
-        <Button variant="outline" disabled={busy} onClick={leave}>
-          곡 설정으로 돌아가기
-        </Button>
-      </main>
+        {!embedded && (
+          <Button variant="outline" disabled={busy} onClick={leave}>
+            곡 설정으로 돌아가기
+          </Button>
+        )}
+      </Container>
     );
   return (
-    <RecentTextProvider musicId={saved.music.id} saved={saved.guide}>
-      <main
-        className="flex h-dvh flex-col overflow-hidden bg-background text-foreground"
-        onKeyDown={(event) => {
-          if (
-            readOnly ||
-            busy ||
-            (event.target as HTMLElement).closest(
-              "input, textarea, select, [contenteditable=true]",
-            )
+    <Container
+      ref={containerRef}
+      className={cn(
+        "flex flex-col overflow-hidden bg-background text-foreground",
+        embedded ? "min-h-0 flex-1" : "h-dvh",
+      )}
+      onKeyDown={(event) => {
+        if (
+          readOnly ||
+          busy ||
+          (event.target as HTMLElement).closest(
+            "input, textarea, select, [contenteditable=true]",
           )
-            return;
-          if (
-            (event.metaKey || event.ctrlKey) &&
-            event.key.toLowerCase() === "z"
-          ) {
-            event.preventDefault();
-            if (event.shiftKey) history.redo();
-            else history.undo();
-          }
-        }}
-      >
+        )
+          return;
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          event.key.toLowerCase() === "z"
+        ) {
+          event.preventDefault();
+          if (event.shiftKey) history.redo();
+          else history.undo();
+        }
+      }}
+    >
+      <RecentTextProvider musicId={saved.music.id} saved={saved.guide}>
         <header className="flex shrink-0 flex-wrap items-center gap-3 border-b bg-card px-4 py-3">
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label="곡 설정으로 돌아가기"
-            title="곡 설정으로 돌아가기"
-            disabled={busy}
-            onClick={leave}
-          >
-            <ArrowLeft className="size-4" />
-          </Button>
+          {!embedded && (
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="곡 설정으로 돌아가기"
+              title="곡 설정으로 돌아가기"
+              disabled={busy}
+              onClick={leave}
+            >
+              <ArrowLeft className="size-4" />
+            </Button>
+          )}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h1 className="truncate text-base font-semibold">
                 {saved.music.title}
               </h1>
               <Badge variant="outline">
-                {saved.publish ? "공개 곡" : "비공개 곡"}
+                {(musicSettings?.publish ?? saved.publish)
+                  ? "공개 곡"
+                  : "비공개 곡"}
               </Badge>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -304,7 +381,7 @@ export function CallGuideEditor({
                     onClick={() =>
                       history.update((draft) => ({
                         ...draft,
-                        syncOffset: roundTime(draft.syncOffset + delta),
+                        syncOffset: roundTime(syncOffset + delta),
                       }))
                     }
                   >
@@ -339,16 +416,16 @@ export function CallGuideEditor({
             {busy ? "저장 중…" : "전체 저장"}
           </Button>
         </header>
-        {(message || invalid || !saved.music.youtubeId) && (
+        {(message || invalid || !music.youtubeId) && (
           <p role="status" className="shrink-0 border-b px-4 py-2 text-xs">
             {message ||
-              (!saved.music.youtubeId
+              (!music.youtubeId
                 ? "전용 YouTube ID가 없어 재생은 불가능합니다. 곡 설정에서 연결해 주세요."
                 : "저장 전 재확인이 필요한 블록이 있습니다. 블록 설정에서 확인해 주세요.")}
           </p>
         )}
         <MusicExperience
-          music={saved.music}
+          music={music}
           track={track}
           sections={resolved.sections}
           editorOnly
@@ -358,7 +435,7 @@ export function CallGuideEditor({
               onSelect={selectCue}
               loop={loop}
               onLoopChange={setLoop}
-              music={saved.music}
+              music={music}
               track={track}
               guide={guide}
               sections={resolved.sections}
@@ -371,7 +448,7 @@ export function CallGuideEditor({
             />
           )}
         />
-      </main>
-    </RecentTextProvider>
+      </RecentTextProvider>
+    </Container>
   );
 }

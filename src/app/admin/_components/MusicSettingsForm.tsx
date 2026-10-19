@@ -1,14 +1,7 @@
 "use client";
 import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useState, type FormEvent } from "react";
-import Link from "next/link";
-import {
-  ArrowUpRight,
-  AudioLines,
-  Globe,
-  Save,
-  SlidersHorizontal,
-} from "lucide-react";
+import { AudioLines, Globe, Save, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -53,6 +46,11 @@ export function MusicSettingsForm({
   const [publish, setPublish] = useState(music.publish);
   const [bpm, setBpm] = useState(String(music.bpm ?? ""));
   const [syncOffset, setSyncOffset] = useState(String(music.syncOffset));
+  const [savedSyncOffset, setSavedSyncOffset] = useState(
+    String(music.syncOffset),
+  );
+  const displayedSyncOffset =
+    syncOffset === savedSyncOffset ? String(music.syncOffset) : syncOffset;
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
@@ -78,7 +76,7 @@ export function MusicSettingsForm({
           fanLightColor: fanLightColor || null,
           publish,
           bpm: bpm.trim() === "" ? null : Number(bpm),
-          syncOffset: Number(syncOffset),
+          syncOffset: Number(displayedSyncOffset),
         }),
       });
       const result = await response.json();
@@ -90,6 +88,7 @@ export function MusicSettingsForm({
       onSaved({ ...music, ...result.settings, id: music.id });
       setYoutubeId(result.settings.youtubeId ?? "");
       setSyncOffset(String(result.settings.syncOffset));
+      setSavedSyncOffset(String(result.settings.syncOffset));
       setBpm(String(result.settings.bpm ?? ""));
       setFanLightColor(result.settings.fanLightColor ?? "");
       setPublish(result.settings.publish);
@@ -135,24 +134,6 @@ export function MusicSettingsForm({
                 {music.korTitle} · {music.enTitle}
               </p>
             </div>
-            <Button asChild variant="outline" className="bg-background">
-              <Link
-                href={`/admin/musics/${music.id}/guide`}
-                onNavigate={(event) => {
-                  if (
-                    busy ||
-                    (dirty &&
-                      !window.confirm(
-                        "저장하지 않은 곡 설정을 버리고 콜 편집으로 이동할까요?",
-                      ))
-                  )
-                    event.preventDefault();
-                }}
-              >
-                <AudioLines className="size-4" /> 콜 편집 · 미리보기{" "}
-                <ArrowUpRight className="size-4" />
-              </Link>
-            </Button>
           </div>
           <fieldset disabled={readOnly || busy} className="grid min-w-0 gap-5">
             <section
@@ -299,7 +280,7 @@ export function MusicSettingsForm({
                     max={3600}
                     step="0.01"
                     aria-describedby="sync-help"
-                    value={syncOffset}
+                    value={displayedSyncOffset}
                     onChange={(event) => {
                       setSyncOffset(event.target.value);
                       edited();

@@ -1,6 +1,7 @@
 import { getAdminSession } from "@/server/auth/access";
 import { getAdminConnectionStatus } from "@/server/queries/admin";
 import { getAdminMusics } from "@/server/queries/music";
+import { readSidebarLayout } from "@/server/queries/sidebar";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, LockKeyhole } from "lucide-react";
@@ -18,11 +19,15 @@ export const metadata: Metadata = {
 export default async function AdminPage() {
   const session = await getAdminSession();
   if (session.authenticated) {
-    const musics = await getAdminMusics().catch(() => null);
-    if (musics) {
+    const data = await Promise.all([
+      getAdminMusics(),
+      readSidebarLayout(),
+    ]).catch(() => null);
+    if (data) {
       return (
         <AdminMusicManager
-          initialMusics={musics}
+          initialMusics={data[0]}
+          sidebarLayout={data[1]}
           readOnly={session.role !== "admin"}
         />
       );

@@ -1,34 +1,80 @@
 "use client";
-import { useState } from "react";
+import { Activity, useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { adminSidebarAtom, initialAdminSidebar } from "@/atoms/adminSidebar";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ListMusic, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ListMusic,
+  PanelLeft,
+  AudioLines,
+  SlidersHorizontal,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { AdminMusic } from "@/types/catalog";
 import { AdminAuthForm } from "./AdminAuthForm";
 import { MusicSettingsForm } from "./MusicSettingsForm";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { CallEditorPanel } from "./AdminMusicManager/CallEditorPanel";
 import { Button } from "@/components/ui/button";
+import { SongList } from "@/components/layout/SongList";
+import { projectSidebar, type SidebarLayout } from "@/lib/sidebarOrder";
 
 export function AdminMusicManager({
   initialMusics,
+  sidebarLayout,
   readOnly,
 }: {
   initialMusics: AdminMusic[];
+  sidebarLayout: SidebarLayout;
   readOnly: boolean;
 }) {
   const [musics, setMusics] = useState(initialMusics);
-  const [selectedId, setSelectedId] = useState(initialMusics[0]?.id);
-  const [query, setQuery] = useState("");
-  const [dirty, setDirty] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [storedSidebar, setSidebar] = useAtom(adminSidebarAtom);
+  const sidebar = storedSidebar ?? initialAdminSidebar;
+  const { sort } = sidebar;
+  const selectedId = musics.some((music) => music.id === sidebar.selectedId)
+    ? sidebar.selectedId!
+    : musics[0]?.id;
+  const [infoDirty, setInfoDirty] = useState(false);
+  const [guideDirty, setGuideDirty] = useState(false);
+  const [infoSaving, setInfoSaving] = useState(false);
+  const [guideSaving, setGuideSaving] = useState(false);
+  const dirty = infoDirty || guideDirty;
+  const saving = infoSaving || guideSaving;
+  const [view, setView] = useState<"info" | "guide">("info");
+  const [guideOpened, setGuideOpened] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+  function switchView(next: "info" | "guide") {
+    if (saving) return;
+    if (next === "guide") setGuideOpened(true);
+    setView(next);
+  }
   const selected = musics.find((music) => music.id === selectedId);
-  const visible = musics.filter((music) =>
-    [music.title, music.korTitle, music.enTitle].some((title) =>
-      title.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
-    ),
+  const catalog = musics.map((music) => ({
+    music: {
+      id: music.id,
+      title: music.title,
+      korTitle: music.korTitle,
+      enTitle: music.enTitle,
+      albumArtKey: music.albumArtKey,
+      fanLightColor: music.fanLightColor ?? undefined,
+    },
+    hasLyrics: music.hasLyrics,
+    publish: music.publish,
+  }));
+  const layout = projectSidebar(
+    sidebarLayout,
+    musics.map((music) => music.id),
   );
   function select(id: number) {
     if (saving || id === selectedId) return;
@@ -37,8 +83,13 @@ export function AdminMusicManager({
       !window.confirm("저장하지 않은 변경사항을 버리고 다른 곡을 선택할까요?")
     )
       return;
-    setDirty(false);
-    setSelectedId(id);
+    setInfoDirty(false);
+    setGuideDirty(false);
+    setGuideOpened(view === "guide");
+    setSidebar((current) => ({
+      ...(current ?? initialAdminSidebar),
+      selectedId: id,
+    }));
   }
   return (
     <main className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
@@ -54,7 +105,7 @@ export function AdminMusicManager({
                   saving ||
                   (dirty &&
                     !window.confirm(
-                      "저장하지 않은 곡 설정을 버리고 공개 화면으로 이동할까요?",
+                      "저장하지 않은 변경사항을 버리고 공개 화면으로 이동할까요?",
                     ))
                 )
                   event.preventDefault();
@@ -62,6 +113,15 @@ export function AdminMusicManager({
             >
               <ChevronLeft className="size-5" />
             </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={sidebarOpen ? "곡 목록 접기" : "곡 목록 펼치기"}
+            aria-expanded={sidebarOpen}
+            onClick={() => setSidebarOpen((open) => !open)}
+          >
+            <PanelLeft className="size-5" />
           </Button>
           <Separator orientation="vertical" className="h-6!" />
           <div>
@@ -81,7 +141,7 @@ export function AdminMusicManager({
                   saving ||
                   (dirty &&
                     !window.confirm(
-                      "저장하지 않은 곡 설정을 버리고 추천 목록으로 이동할까요?",
+                      "저장하지 않은 변경사항을 버리고 추천 목록으로 이동할까요?",
                     ))
                 )
                   event.preventDefault();
@@ -91,116 +151,134 @@ export function AdminMusicManager({
               추천 정렬
             </Link>
           </Button>
-          <AdminAuthForm authenticated />
+          <AdminAuthForm
+            authenticated
+            onBeforeSubmit={() =>
+              !saving &&
+              (!dirty ||
+                window.confirm(
+                  "저장하지 않은 변경사항을 버리고 로그아웃할까요?",
+                ))
+            }
+          />
         </div>
       </header>
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
         <aside
-          className="flex h-[30dvh] shrink-0 flex-col border-b bg-card md:h-auto md:w-72 md:border-r md:border-b-0 lg:w-80"
+          className={
+            sidebarOpen
+              ? "flex h-[30dvh] shrink-0 flex-col border-b bg-card md:h-auto md:w-[360px] md:border-r md:border-b-0"
+              : "hidden"
+          }
           aria-label="관리할 곡"
         >
-          <div className="space-y-3 p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold">곡 목록</h2>
-              <span className="text-xs tabular-nums text-muted-foreground">
-                {query ? `${visible.length} / ${musics.length}` : musics.length}
-                곡
-              </span>
-            </div>
-            <div className="relative">
-              <Search
-                aria-hidden="true"
-                className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground"
-              />
-              <Input
-                type="search"
-                aria-label="곡 검색"
-                placeholder="곡 제목 검색"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                className="h-9 bg-background pl-9"
-              />
-            </div>
-          </div>
-          <ScrollArea
-            className="min-h-0 flex-1 px-2 pb-2"
-            viewportProps={{
-              role: "navigation",
-              "aria-label": "관리할 곡 목록",
+          <SongList
+            catalog={catalog}
+            layout={layout}
+            sort={sort}
+            onSort={(sort) =>
+              setSidebar((current) => ({
+                ...(current ?? initialAdminSidebar),
+                sort,
+              }))
+            }
+            expandedGroups={
+              sort === "release" ? undefined : sidebar.expandedGroups[sort]
+            }
+            onExpandedGroupsChange={(groups) => {
+              if (sort !== "release")
+                setSidebar((current) => ({
+                  ...(current ?? initialAdminSidebar),
+                  expandedGroups: {
+                    ...(current ?? initialAdminSidebar).expandedGroups,
+                    [sort]: groups,
+                  },
+                }));
             }}
-          >
-            {visible.map((music) => (
-              <button
-                key={music.id}
-                type="button"
-                disabled={saving}
-                onClick={() => select(music.id)}
-                aria-current={selectedId === music.id ? "true" : undefined}
-                className={cn(
-                  "group mb-1 flex w-full cursor-pointer items-center gap-3 rounded-lg border border-transparent px-3 py-3 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
-                  selectedId === music.id && "border-border bg-accent",
-                )}
-              >
-                <span className="min-w-0 flex-1 space-y-1.5">
-                  <span
-                    lang="ja"
-                    className="block truncate text-sm font-medium"
-                  >
-                    {music.title}
-                  </span>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    {music.korTitle}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Badge
-                      variant={music.publish ? "secondary" : "outline"}
-                      className="text-[10px]"
-                    >
-                      {music.publish ? "공개" : "비공개"}
-                    </Badge>
-                    {!music.hasLyrics && (
-                      <span className="text-[11px] text-muted-foreground">
-                        가사 준비 중
-                      </span>
-                    )}
-                  </span>
-                </span>
-                <ChevronRight
-                  aria-hidden="true"
-                  className={cn(
-                    "size-4 shrink-0 text-muted-foreground/40",
-                    selectedId === music.id && "text-foreground",
-                  )}
-                />
-              </button>
-            ))}
-            {!visible.length && (
-              <p className="p-4 text-sm text-muted-foreground">
-                표시할 곡이 없습니다.
-              </p>
-            )}
-          </ScrollArea>
+            selectedId={selectedId}
+            onSelect={select}
+            disabled={saving}
+            scrollKey="admin"
+            restoreReady={storedSidebar !== null}
+          />
         </aside>
         <div
           className="flex min-h-0 min-w-0 flex-1 flex-col bg-muted/30"
           role="region"
           aria-label="곡 설정"
         >
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b bg-card px-4 py-2">
+            <p className="min-w-0 truncate text-sm font-semibold" lang="ja">
+              {selected?.title ?? "곡을 선택해 주세요"}
+            </p>
+            <div
+              role="group"
+              aria-label="곡 편집 화면"
+              className="flex gap-1 rounded-lg border bg-muted/40 p-1"
+            >
+              <Button
+                size="sm"
+                variant={view === "info" ? "default" : "ghost"}
+                aria-pressed={view === "info"}
+                disabled={!selected || saving}
+                onClick={() => switchView("info")}
+              >
+                <SlidersHorizontal className="size-4" />
+                기본 정보{infoDirty ? " ·" : ""}
+              </Button>
+              <Button
+                size="sm"
+                variant={view === "guide" ? "default" : "ghost"}
+                aria-pressed={view === "guide"}
+                disabled={!selected || saving}
+                onClick={() => switchView("guide")}
+              >
+                <AudioLines className="size-4" />콜 편집{guideDirty ? " ·" : ""}
+              </Button>
+            </div>
+          </div>
           {selected ? (
-            <MusicSettingsForm
-              key={selected.id}
-              music={selected}
-              readOnly={readOnly}
-              onDirtyChange={setDirty}
-              onBusyChange={setSaving}
-              onSaved={(saved) =>
-                setMusics((current) =>
-                  current.map((music) =>
-                    music.id === saved.id ? saved : music,
-                  ),
-                )
-              }
-            />
+            <div key={selected.id} className="contents">
+              <Activity mode={view === "info" ? "visible" : "hidden"}>
+                <MusicSettingsForm
+                  key={selected.id}
+                  music={selected}
+                  readOnly={readOnly}
+                  onDirtyChange={setInfoDirty}
+                  onBusyChange={setInfoSaving}
+                  onSaved={(saved) =>
+                    setMusics((current) =>
+                      current.map((music) =>
+                        music.id === saved.id ? saved : music,
+                      ),
+                    )
+                  }
+                />
+              </Activity>
+              {guideOpened && (
+                <Activity mode={view === "guide" ? "visible" : "hidden"}>
+                  <CallEditorPanel
+                    music={selected}
+                    readOnly={readOnly}
+                    onDirtyChange={setGuideDirty}
+                    onBusyChange={setGuideSaving}
+                    onSaved={(document) => {
+                      setMusics((current) =>
+                        current.map((music) =>
+                          music.id === document.music.id
+                            ? {
+                                ...music,
+                                syncOffset: document.syncOffset,
+                                sourceSync: document.sourceSync,
+                              }
+                            : music,
+                        ),
+                      );
+                    }}
+                  />
+                </Activity>
+              )}
+            </div>
           ) : (
             <p className="p-8 text-sm text-muted-foreground">
               MONOASOBI에 곡을 추가하면 이곳에 자동으로 표시됩니다.

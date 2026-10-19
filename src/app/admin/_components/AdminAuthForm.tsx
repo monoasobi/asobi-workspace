@@ -6,13 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function AdminAuthForm({ authenticated }: { authenticated: boolean }) {
+export function AdminAuthForm({
+  authenticated,
+  onBeforeSubmit,
+}: {
+  authenticated: boolean;
+  onBeforeSubmit?: () => boolean;
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
+    if (onBeforeSubmit && !onBeforeSubmit()) return;
     const form = event.currentTarget;
     const password = new FormData(form).get("password");
     setBusy(true);

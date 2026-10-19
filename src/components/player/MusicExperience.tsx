@@ -1,7 +1,7 @@
 "use client";
 
 import ReactPlayer from "react-player";
-import { type ReactNode } from "react";
+import { useLayoutEffect, type ReactNode } from "react";
 import type { LyricTrack, CallSection } from "@/types/lyric";
 import { GuidePreview } from "./GuidePreview";
 import { PlayerBar } from "./PlayerBar";
@@ -24,6 +24,7 @@ export function MusicExperience({
 }) {
   const { attachPlayer, ...playback } = usePlayback();
   usePlaybackShortcuts(playback);
+  useLayoutEffect(() => playback.pause, [playback.pause]);
   const offset = track?.sync ?? 0;
   return (
     <>
