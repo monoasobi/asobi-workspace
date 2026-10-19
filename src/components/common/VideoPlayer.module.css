@@ -1,3 +1,29 @@
+.playerDialog {
+  position: static;
+  display: block;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.playerDialog:modal {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
+}
+
+.playerDialog::backdrop {
+  background: #000;
+}
+
 .videoSection {
   width: 100%;
   overflow: hidden;

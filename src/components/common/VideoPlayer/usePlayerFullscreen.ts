@@ -36,7 +36,18 @@ export const lockPlayerLandscape = (orientation?: LockableOrientation) => {
   };
 };
 
+export const showExpandedPlayer = (dialog: HTMLDialogElement) => {
+  // Promote the existing player without moving or recreating the YouTube iframe.
+  dialog.close();
+  dialog.showModal();
+  return () => {
+    dialog.close();
+    if (dialog.isConnected) dialog.show();
+  };
+};
+
 export const usePlayerFullscreen = () => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [mode, setMode] = useState<"inline" | "fullscreen" | "expanded">("inline");
@@ -57,6 +68,11 @@ export const usePlayerFullscreen = () => {
   useEffect(() => {
     if (mode !== "fullscreen") return;
     return lockPlayerLandscape(window.screen.orientation);
+  }, [mode]);
+
+  useEffect(() => {
+    if (mode !== "expanded" || !dialogRef.current) return;
+    return showExpandedPlayer(dialogRef.current);
   }, [mode]);
 
   useEffect(() => {
@@ -112,5 +128,12 @@ export const usePlayerFullscreen = () => {
     if (!await requestPlayerFullscreen(container)) setMode("expanded");
   };
 
-  return { containerRef, buttonRef, isExpanded, toggleFullscreen };
+  return {
+    dialogRef,
+    containerRef,
+    buttonRef,
+    isExpanded,
+    toggleFullscreen,
+    cancelExpanded: () => setMode("inline"),
+  };
 };
