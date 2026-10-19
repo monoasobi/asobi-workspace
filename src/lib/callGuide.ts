@@ -444,6 +444,13 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
       firstLine: first,
       lastLine: first + cue.lines.length - 1,
       pulseTimes: pulses,
+      clapPattern:
+        cue.type === "clap" && cue.pattern
+          ? {
+              ...cue.pattern,
+              steps: [...cue.pattern.steps],
+            }
+          : undefined,
       selection: cue.selection ? { ...cue.selection, line: first } : undefined,
       textSelections: cueTextSelections(cue).map(
         ({ lineId, field, start, end }) => ({ lineId, field, start, end }),

@@ -315,6 +315,8 @@ export function GuidePreview({
                         activeSectionIds={activeSectionIds}
                         ready={ready}
                         onSeek={jump}
+                        clock={clock}
+                        offset={offset}
                       />
                     </Fragment>
                   ))}

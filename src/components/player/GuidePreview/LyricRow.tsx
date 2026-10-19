@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import type { CallSection, LyricLine, LyricLocale } from "@/types/lyric";
 import { HighlightedText } from "../HighlightedText";
 import { LyricGuideCard } from "../LyricGuideCard";
+import { ClapIndicator } from "../ClapIndicator";
+import type { PlaybackClock } from "../MusicExperience/playbackClock";
 import type { LyricTextField } from "@/lib/lyricText";
 
 export const LyricRow = memo(function LyricRow({
@@ -19,6 +21,8 @@ export const LyricRow = memo(function LyricRow({
   activeSectionIds,
   ready,
   onSeek,
+  clock,
+  offset,
 }: {
   line: LyricLine;
   index: number;
@@ -29,6 +33,8 @@ export const LyricRow = memo(function LyricRow({
   activeSectionIds: Set<string>;
   ready: boolean;
   onSeek: (index: number) => void;
+  clock: PlaybackClock;
+  offset: number;
 }) {
   const t = useTranslations();
   const visibleBadges = badges.filter((section) => {
@@ -203,6 +209,7 @@ export const LyricRow = memo(function LyricRow({
             sections.length > 0 && "px-[clamp(4rem,12cqi,5rem)]",
           )}
         >
+          <ClapIndicator sections={badges} clock={clock} offset={offset} />
           {(!line.instrumental || standalone.length === 0) && (
             <span
               lang="ja"

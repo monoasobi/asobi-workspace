@@ -49,6 +49,12 @@ export interface CallSection {
   };
   // Seconds on the lyric timeline; track sync is added when reading player time.
   pulseTimes: number[];
+  clapPattern?: {
+    bpm: number;
+    firstOffset: number;
+    subdivision: 1 | 2 | 4;
+    steps: number[];
+  };
   // Optional selected text offsets, not pre-split lyric segments.
   selection?: { line: number; start: number; end: number };
   textSelections?: {
