@@ -1,6 +1,7 @@
 "use client";
 import type { RefreshResult } from "@/types/refresh";
 import { useState, type FormEvent } from "react";
+import { AudioLines, Type } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
 import { Label } from "@asobi/ui/components/label";
@@ -85,18 +86,29 @@ export function MusicInfoForm({
           setMessage("");
         }}
       >
-        {fields.map(({ key, label, ...options }) => (
-          <div className="grid gap-2" key={key}>
-            <Label htmlFor={`common-${key}`}>{label}</Label>
-            <Input
-              id={`common-${key}`}
-              name={key}
-              defaultValue={
-                (key === "youtubeId" ? music.commonYoutubeId : music[key]) ?? ""
-              }
-              required={"required" in options && options.required}
-            />
-          </div>
+        {[
+          { title: "제목", description: "두 서비스에서 함께 사용하는 곡 제목입니다.", Icon: Type, fields: fields.slice(0, 3) },
+          { title: "음원 및 연결", description: "MONOASOBI 영상과 특별 페이지를 설정합니다.", Icon: AudioLines, fields: fields.slice(3) },
+        ].map(group => (
+          <section key={group.title} className="min-w-0">
+            <div className="mb-4 flex items-start gap-3">
+              <group.Icon aria-hidden className="mt-0.5 size-5 text-muted-foreground" />
+              <div><h3 className="text-sm font-semibold">{group.title}</h3><p className="mt-1 type-caption">{group.description}</p></div>
+            </div>
+            <div className="grid gap-5">
+              {group.fields.map(({ key, label, ...options }) => (
+                <div className="grid gap-2" key={key}>
+                  <Label htmlFor={`common-${key}`}>{label}</Label>
+                  <Input
+                    id={`common-${key}`}
+                    name={key}
+                    defaultValue={(key === "youtubeId" ? music.commonYoutubeId : music[key]) ?? ""}
+                    required={"required" in options && options.required}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
         ))}
       </fieldset>
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t p-5">

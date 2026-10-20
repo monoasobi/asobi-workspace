@@ -8,6 +8,7 @@ import { getErrorMessage, getInitialVisibilityFlags } from "./utils";
 import { AlbumArtField } from "./AlbumArtField";
 import { AdminEditorField } from "./AdminEditorField";
 import type { AdminDashboardData, SelectedNode } from "./data";
+import { useNavigationGuard } from "@/components/NavigationGuard";
 import { useEditorGuard } from "@/components/editors/shared/useEditorGuard";
 import { RefreshStatus } from "@/components/RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
@@ -19,19 +20,24 @@ export function AdminDocumentPanel({
   readOnly,
   revision,
   onDeleted,
+  onNavigate,
 }: {
   data: AdminDashboardData;
   node: SelectedNode;
   readOnly: boolean;
   revision?: string;
   onDeleted: () => void;
+  onNavigate?: (href: string) => void;
 }) {
   const router = useRouter();
+  const navigate = (href: string) => onNavigate ? onNavigate(href) : router.replace(href);
   const config = getEditorConfig(data, node)!;
   const document = getSelectedDocument(data, node);
   const [dirty, setDirty] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
+  const guard = useNavigationGuard();
+  const blocked = busy || guard.busy;
   const [editRevision, setEditRevision] = useState(revision);
   const [flags, setFlags] = useState(() => getInitialVisibilityFlags(config));
   const [editing, setEditing] = useState(config.method === "POST" && !readOnly);
@@ -49,7 +55,7 @@ export function AdminDocumentPanel({
     : undefined;
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (readOnly || busy) return;
+    if (readOnly || blocked) return;
     const form = new FormData(event.currentTarget);
     setBusy(true);
     setMessage("");
@@ -123,7 +129,7 @@ export function AdminDocumentPanel({
                   : null;
       if (href) {
         if (refreshResults.some((r) => !r.ok)) setNextHref(href);
-        else router.replace(href);
+        else navigate(href);
       }
       router.refresh();
     } catch (error) {
@@ -139,7 +145,7 @@ export function AdminDocumentPanel({
   async function remove() {
     if (
       readOnly ||
-      busy ||
+      blocked ||
       !config.deleteEndpoint ||
       !window.confirm(
         `${document.title} 문서를 삭제할까요? ${config.deleteDescription}`,
@@ -183,8 +189,10 @@ export function AdminDocumentPanel({
         {node.type === "lyric" && (
           <Button
             variant="outline"
-            disabled={dirty || busy}
-            onClick={() => router.push(`/musics/${node.id}/lyrics`)}
+            disabled={dirty || blocked}
+            onClick={() => {
+              if (guard.confirmLeave()) router.push(`/musics/${node.id}/lyrics`);
+            }}
           >
             타임라인 편집
           </Button>
@@ -195,20 +203,20 @@ export function AdminDocumentPanel({
               setEditRevision(revision);
               setEditing(true);
             }}
-            disabled={busy}
+            disabled={blocked}
           >
             수정
           </Button>
         )}
         {!readOnly && config.deleteEndpoint && !deleted && (
-          <Button variant="destructive" disabled={busy} onClick={remove}>
+          <Button variant="destructive" disabled={blocked} onClick={remove}>
             삭제
           </Button>
         )}
       </header>
       <RefreshStatus results={refresh} onRefresh={setRefresh} />
       {nextHref && (
-        <Button onClick={() => router.replace(nextHref)}>
+        <Button onClick={() => navigate(nextHref)}>
           저장한 문서로 이동
         </Button>
       )}
@@ -232,7 +240,7 @@ export function AdminDocumentPanel({
           onChange={() => setDirty(true)}
           className="space-y-4"
         >
-          <fieldset disabled={busy} className="space-y-4">
+          <fieldset disabled={blocked} className="space-y-4">
             {config.fields.map((field) => (
               <div
                 key={field.name}
@@ -256,23 +264,23 @@ export function AdminDocumentPanel({
                 />
               </div>
             ))}
-            {node.type === "newMusic" && <AlbumArtField disabled={busy} />}
+            {node.type === "newMusic" && <AlbumArtField disabled={blocked} />}
           </fieldset>
           <div className="flex gap-2">
-            <Button type="submit" disabled={busy}>
+            <Button type="submit" disabled={blocked}>
               {busy ? "저장 중…" : config.submitLabel}
             </Button>
             <Button
               type="button"
               variant="outline"
-              disabled={busy}
+              disabled={blocked}
               onClick={() => {
                 if (!dirty || window.confirm("변경사항을 버릴까요?")) {
                   setDirty(false);
                   setFlags(getInitialVisibilityFlags(config));
                   setEditing(false);
                   if (savedMusicId.current !== null) {
-                    router.replace(`/musics/${savedMusicId.current}`);
+                    navigate(`/musics/${savedMusicId.current}`);
                     router.refresh();
                   }
                 }

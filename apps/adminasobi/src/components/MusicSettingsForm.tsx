@@ -2,7 +2,6 @@
 import type { RefreshResult } from "@/types/refresh";
 import { useState, type FormEvent } from "react";
 import { AudioLines, Globe, Save, SlidersHorizontal } from "lucide-react";
-import { Badge } from "@asobi/ui/components/badge";
 import { Separator } from "@asobi/ui/components/separator";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
@@ -120,29 +119,13 @@ export function MusicSettingsForm({
       aria-busy={busy}
     >
       <div>
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-5 sm:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="type-caption">콜 설정</span>
-                <Badge variant={music.publish ? "secondary" : "outline"}>
-                  {music.publish ? "공개 중" : "비공개"}
-                </Badge>
-              </div>
-              <h2 lang="ja" className="text-2xl font-semibold tracking-tight">
-                {music.title}
-              </h2>
-              <p className="mt-1.5 type-description">
-                {music.korTitle} · {music.enTitle}
-              </p>
-            </div>
-          </div>
+        <div className="flex w-full flex-col gap-5 p-5 sm:p-6">
           <fieldset disabled={readOnly || busy} className="grid min-w-0 gap-5">
             <section
-              className="rounded-xl border bg-card p-5 sm:p-6"
+              className="min-w-0"
               aria-labelledby="media-heading"
             >
-              <div className="mb-5 flex items-start gap-3">
+              <div className="mb-4 flex items-start gap-3">
                 <AudioLines
                   aria-hidden="true"
                   className="mt-0.5 size-5 text-muted-foreground"
@@ -162,7 +145,6 @@ export function MusicSettingsForm({
                   <Input
                     id="youtube-id"
                     aria-describedby="youtube-help"
-                    className="h-10"
                     value={youtubeId}
                     maxLength={11}
                     pattern="[A-Za-z0-9_-]{11}"
@@ -188,7 +170,7 @@ export function MusicSettingsForm({
                   >
                     <SelectTrigger
                       id="fanlight-color"
-                      className="w-full data-[size=default]:h-10"
+                      className="w-full"
                       aria-invalid={invalidColor}
                       aria-describedby={
                         invalidColor ? "fanlight-help" : undefined
@@ -227,10 +209,10 @@ export function MusicSettingsForm({
               </div>
             </section>
             <section
-              className="rounded-xl border bg-card p-5 sm:p-6"
+              className="min-w-0"
               aria-labelledby="timing-heading"
             >
-              <div className="mb-5 flex items-start gap-3">
+              <div className="mb-4 flex items-start gap-3">
                 <SlidersHorizontal
                   aria-hidden="true"
                   className="mt-0.5 size-5 text-muted-foreground"
@@ -291,10 +273,10 @@ export function MusicSettingsForm({
               </div>
             </section>
             <section
-              className="rounded-xl border bg-card p-5 sm:p-6"
+              className="min-w-0"
               aria-labelledby="publish-heading"
             >
-              <div className="mb-5 flex items-start gap-3">
+              <div className="mb-4 flex items-start gap-3">
                 <Globe
                   aria-hidden="true"
                   className="mt-0.5 size-5 text-muted-foreground"
@@ -342,8 +324,8 @@ export function MusicSettingsForm({
           </div>
         </div>
       </div>
-      <footer className="shrink-0 border-t bg-card px-5 py-4 sm:px-8">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
+      <footer className="shrink-0 border-t bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0 flex-1 type-caption" aria-live="polite">
             {message ? (
               <p
