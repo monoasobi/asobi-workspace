@@ -272,7 +272,7 @@ try {
     revision: sidebar.revision,
     layout,
   });
-  assert(saved.refresh.every((r) => r.target === "loudasobi"));
+  assert.deepEqual(saved.refresh, [], "Uncached Loud saves need no notification");
   await put("/api/admin/sidebar", { revision: sidebar.revision, layout }, 409);
   await put(
     "/api/admin/sidebar",

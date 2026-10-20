@@ -5,9 +5,7 @@ import { localCheckClient } from "./local-check-client.mjs";
 let adminCookie;
 const { call, login, expectedDatabase } = localCheckClient(() => adminCookie);
 const db = new DatabaseSync(expectedDatabase, { readOnly: true });
-const expectLoudFailure = process.argv.includes(
-  "--expect-loud-refresh-failure",
-);
+const skipLoudHttp = process.argv.includes("--skip-loud-http");
 const row = (table, column = "music_id") =>
   db.prepare(`SELECT * FROM ${table} WHERE ${column} = ?`).get(0);
 const snapshot = () => ({
@@ -35,12 +33,13 @@ const settings = {
   publish: Boolean(before.settings.publish),
   syncOffset: before.settings.sync_offset,
 };
-function refreshResult(data) {
+function refreshResult(data, expectedTargets = ["monoasobi"]) {
   assert.ok(Array.isArray(data.refresh));
+  assert.deepEqual(data.refresh.map((result) => result.target), expectedTargets);
   for (const result of data.refresh)
     assert.equal(
       result.ok,
-      result.target === "loudasobi" ? !expectLoudFailure : true,
+      true,
       `Unexpected refresh result: ${result.target}`,
     );
 }
@@ -173,10 +172,7 @@ try {
     "Rejected requests must not modify data",
   );
   // Compile public refresh routes before measuring the bounded save notifications.
-  for (const target of [
-    "MONOASOBI",
-    ...(expectLoudFailure ? [] : ["LOUDASOBI"]),
-  ]) {
+  for (const target of ["MONOASOBI"]) {
     const url = new URL(
       "/api/internal/revalidate",
       process.env[target + "_URL"],
@@ -205,6 +201,15 @@ try {
       (await request({ scope: "arbitrary-path", path: "/admin" })).status,
       400,
     );
+    assert.equal(
+      (await fetch(url, {
+        method: "POST",
+        headers: { Authorization: "Bearer invalid-local-check", "Content-Type": "application/json" },
+        body: JSON.stringify({ scope: "catalog" }),
+        signal: AbortSignal.timeout(60000),
+      })).status,
+      401,
+    );
     assert.equal((await request({ scope: "catalog" })).status, 200);
   }
   const retry = await call("/api/admin/refresh", {
@@ -231,7 +236,7 @@ try {
     );
   for (const target of [
     "MONOASOBI",
-    ...(expectLoudFailure ? [] : ["LOUDASOBI"]),
+    ...(skipLoudHttp ? [] : ["LOUDASOBI"]),
   ]) {
     const response = await fetch(process.env[target + "_URL"], {
       cache: "no-store",
@@ -248,7 +253,7 @@ try {
     body: { ...settings, bpm: 137, syncOffset: 0.25 },
   });
   assert.equal(result.status, 200);
-  refreshResult(result.data);
+  refreshResult(result.data, []);
   const afterSettings = snapshot();
   assert.equal(afterSettings.settings.bpm, 137);
   assert.equal(afterSettings.settings.sync_offset, 0.25);
@@ -264,8 +269,8 @@ try {
   assert.ok(detail.response.headers.get("cache-control").includes("no-store"));
   assert.equal((await call("/musics/0")).status, 200);
   console.log(
-    expectLoudFailure
-      ? "Local flow passed: saves remain successful when LOUDASOBI refresh is unavailable; source/guide data preserved."
+    skipLoudHttp
+      ? "Local flow passed: Mono cache invalidation succeeds without contacting LOUDASOBI; source/guide data preserved."
       : "Local flow passed: auth/roles/origin/validation, separate section saves, data preservation and both public pages reflect updates.",
   );
 } finally {

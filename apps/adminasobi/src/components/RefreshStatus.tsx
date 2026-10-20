@@ -45,8 +45,8 @@ export function RefreshStatus({
     >
       <p className="text-sm">
         저장은 완료했지만{" "}
-        {failed.map((result) => result.target.toUpperCase()).join(", ")} 공개
-        화면 갱신을 확인하지 못했습니다.
+        {failed.map((result) => result.target.toUpperCase()).join(", ")} 서버
+        캐시 초기화를 확인하지 못했습니다.
         {error && (
           <span role="alert" className="block text-destructive">
             {error}
@@ -54,7 +54,7 @@ export function RefreshStatus({
         )}
       </p>
       <Button variant="outline" size="sm" disabled={busy} onClick={retry}>
-        {busy ? "갱신 요청 중…" : "공개 갱신 다시 요청"}
+        {busy ? "캐시 초기화 요청 중…" : "캐시 초기화 다시 요청"}
       </Button>
     </div>
   );

@@ -4,10 +4,10 @@ export async function refreshPublicCatalog(
   targets: RefreshTarget[],
 ): Promise<RefreshResult[]> {
   return Promise.all(
-    targets.map(async (target) => {
-      const prefix = target === "monoasobi" ? "MONOASOBI" : "LOUDASOBI";
-      const url = process.env[prefix + "_URL"],
-        secret = process.env[prefix + "_REVALIDATION_SECRET"];
+    // Loud reads the database per request; it has no server catalog cache to invalidate.
+    targets.filter((target) => target === "monoasobi").map(async (target) => {
+      const url = process.env.MONOASOBI_URL,
+        secret = process.env.MONOASOBI_REVALIDATION_SECRET;
       if (!url || !secret) return { target, ok: false };
       try {
         const response = await fetch(new URL("/api/internal/revalidate", url), {

@@ -102,6 +102,19 @@ test("refresh requires an explicit success response and safely reports notificat
     assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
       { target: "monoasobi", ok: true },
     ]);
+    const callsBeforeLoud = mocked.mock.callCount();
+    assert.deepEqual(await refreshPublicCatalog(["loudasobi"]), []);
+    assert.equal(mocked.mock.callCount(), callsBeforeLoud);
+    assert.deepEqual(await refreshPublicCatalog(["monoasobi", "loudasobi"]), [
+      { target: "monoasobi", ok: true },
+    ]);
+    assert.equal(mocked.mock.callCount(), callsBeforeLoud + 1);
+    mocked.mock.mockImplementation(async () =>
+      Response.json({ ok: true }, { status: 503 }),
+    );
+    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
+      { target: "monoasobi", ok: false },
+    ]);
     mocked.mock.mockImplementation(async () => Response.json({}));
     assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
       { target: "monoasobi", ok: false },

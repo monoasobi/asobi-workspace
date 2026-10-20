@@ -76,7 +76,7 @@ export async function PUT(
     );
     const refresh =
       result.status === 200
-        ? await refreshPublicCatalog(["monoasobi", "loudasobi"])
+        ? await refreshPublicCatalog(["loudasobi"])
         : [];
     return reply({ ...result, refresh }, result.status);
   } catch {
