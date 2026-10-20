@@ -4,18 +4,19 @@
 
 ## 현재 상태
 
-- **1단계 진행 중 — 원본 Git 이력 이관과 npm workspaces 구성.** 0단계는 완료했습니다. 확인일: 2026-10-20 KST.
-- 사용자 요청: 단계마다 작업 내용을 먼저 쉽게 설명하고 진행. 이번 실행 범위는 0단계입니다.
-- 새 프로젝트에는 지침과 이번 감사 문서만 있습니다. 앱 소스 복사, workspace 구성, Git 초기화는 아직 하지 않았습니다.
-- 원본 두 프로젝트의 코드·설정·Git 이력은 변경하지 않았습니다. 설치·빌드·서버 기동·DB/R2 접속·DNS 변경·배포·커밋·푸시는 하지 않았습니다.
+- **2단계 로컬 검증 완료 — 공통 UI·도메인 코드·정식 DB 정의 추출.** 확인일: 2026-10-20 KST. Production build와 브라우저 기능 QA는 별도입니다.
+- 사용자 요청: 단계마다 작업 내용을 먼저 쉽게 설명하고 진행. 이번 실행 범위는 2단계이며 3단계는 아직 시작하지 않았습니다.
+- 브랜드는 사용자 결정(2026-10-20)에 따라 LOUDASOBI 팔레트로 통일합니다. 공용 색상 정의는 `packages/ui/src/brand.css`, Tailwind 연결은 `styles.css`이며 Loud에서 사용합니다. Mono 화면 적용은 7단계, 새 관리자는 생성 시부터 적용합니다.
+- 기존 두 앱이 `ui`, `content-core`, `database` 패키지를 사용합니다. lint·타입·기존/집중 검사·로컬 HTTP 확인을 마쳤습니다. 상세 결과는 아래 2단계 기록과 [README](../README.md)를 봅니다.
+- 원본 두 프로젝트의 코드·설정·Git 이력은 변경하지 않았습니다. 운영 DB/R2 접속·DNS 변경·빌드·배포·원격 연결·푸시는 하지 않았습니다. 이관용 3개 커밋은 보존하며, 추가 승인에 따라 아래 세부 작업 커밋 기록으로 이어갑니다.
 - 전체 페이지/API·환경변수 이름·정적 자산·스크립트·마이그레이션 목록: [source-inventory.md](source-inventory.md).
 - 기존 구현의 이동·소유 관계: [reuse-map.md](reuse-map.md).
 
 | 단계 | 내용 | 상태 |
 | --- | --- | --- |
 | 0 | 감사와 기준선 | 완료 |
-| 1 | Git 이력 이관 방식 확정, npm workspaces에서 기존 앱 실행 | 진행 중 |
-| 2 | 공통 UI·순수 도메인 코드·DB 정의 추출 | 미착수 |
+| 1 | Git 이력 이관 방식 확정, npm workspaces에서 기존 앱 실행 | 완료 — 로컬 샘플 기준 |
+| 2 | 공통 UI·순수 도메인 코드·DB 정의 추출 | 로컬 검증 완료 — 배포 빌드 미검증 |
 | 3 | 통합 관리자 기본 틀과 첫 저장 흐름 | 미착수 |
 | 4 | 독립 앨범아트 주소와 크기별 제공 | 미착수 |
 | 5 | 가사·콜 편집기 별도 페이지 이관 | 미착수 |
@@ -26,7 +27,7 @@
 
 ## 원본 기준선
 
-1단계 승인 기록(2026-10-20): 사용자가 squash하지 않는 subtree 방식과 로컬 Git 초기화·기준 문서 커밋 1개·두 앱 이관 커밋 2개, 총 3개 커밋을 승인했습니다. 새 원격 저장소는 아직 없으며 로컬 작업부터 진행합니다. workspace 설정 변경은 추가 요청 전까지 커밋하지 않습니다. 푸시·원격 생성·빌드·운영 작업 승인은 포함하지 않습니다.
+1단계 승인 기록(2026-10-20): 사용자가 squash하지 않는 subtree 방식과 로컬 Git 초기화·기준 문서 커밋 1개·두 앱 이관 커밋 2개, 총 3개 커밋을 승인했습니다. 새 원격 저장소는 아직 없으며 로컬 작업부터 진행합니다. 당시에는 workspace 설정 변경을 추가 요청 전까지 커밋하지 않기로 했으며, 이 제한은 아래 2026-10-20 세부 작업 커밋 승인으로 갱신됐습니다. 푸시·원격 생성·빌드·운영 작업 승인은 포함하지 않습니다.
 
 | 항목 | MONOASOBI | LOUDASOBI |
 | --- | --- | --- |
@@ -123,7 +124,9 @@ upstream 비교는 로컬에 저장된 원격 추적 ref 기준입니다. fetch 
 
 미검증: 새 프로젝트 실행/설치, 새 배포 빌드, 브라우저·모바일·실제 재생, 인증 저장, 복제/운영 DB 스키마·권한·데이터, 실제 R2 객체, 이미지 MISS/HIT·속도, Cloudflare/DNS/Images 설정, Vercel 프로젝트·환경변수·요금 조건. 원본의 과거 검증 기록을 이번 실행 결과로 옮겨 적지 않습니다.
 
-## 결정·승인과 다음 단계
+## 0단계 종료 시점의 결정·승인과 다음 단계
+
+아래는 0단계 종료 시점의 기록입니다. Git 작업 승인과 실행 상태는 이 문서 앞의 1단계 승인 기록 및 아래 실행 결과가 우선합니다.
 
 - 확정: 세 앱, npm workspaces, Loud shadcn UI 재사용, 별도 가사/콜 URL, 관리자 사이드바 유지, 기존 코드 최대 활용, 원본 보존.
 - 이번 승인/실행: 0단계 읽기 감사, 새 프로젝트 문서 작성, 원본을 바꾸지 않는 lint/타입 기준선 확인.
@@ -138,4 +141,146 @@ upstream 비교는 로컬에 저장된 원격 추적 ref 기준입니다. fetch 
 4. 이력 이관은 Git 초기화와 커밋이 필요합니다. 구체적인 방법/커밋 범위를 사용자에게 확인하고 실행합니다. 새 원격 저장소 주소/공개 범위도 확인하되, 원격이 없어도 승인된 로컬 workspace 작업은 가능합니다. 자동으로 원격 생성·푸시하지 않습니다.
 5. 이관 직전 원본 HEAD/status를 재확인하고, 앱별 package 이름/포트/기존 config를 보존하며 루트 lockfile을 구성합니다. `.env` 값을 복사해 운영 DB 쓰기가 가능한 개발 환경을 자동으로 만들지 않습니다.
 
-되돌리기: 이번 단계는 새 docs 파일만 추가했으므로 이 문서들을 제거하면 됩니다. 원본 저장소·데이터·서비스 변경을 되돌릴 작업은 없습니다.
+0단계 되돌리기: 당시에는 새 docs 파일만 추가했습니다. 원본 저장소·데이터·서비스 변경은 없었습니다. 이후 1단계 결과를 보존한 채 docs를 임의로 삭제하지 않습니다.
+
+## 1단계 실행 결과
+
+### 이관과 재사용
+
+- `apps/monoasobi`, `apps/loudasobi`에 각 원본 HEAD를 `git subtree add`로 가져왔습니다. squash/원본 이력 재작성은 하지 않았습니다.
+- 이관 직후 Git tree ID가 원본과 각각 완전히 같고 두 원본 HEAD가 새 HEAD의 ancestor임을 확인했습니다.
+  - Mono tree: `6e3e4f385c0a53acdab7ea808282c6836ea66233`.
+  - Loud tree: `477e46f207c6136f31d5c77ebd661775954f9528`.
+- 기존 `src/`, `public/`, 관리자·편집기·재생·query/mutation·Drizzle 이력은 변경하지 않았습니다. 신규 제품 컴포넌트/서버 로직은 작성하지 않았습니다.
+- Git의 원래 전역 줄바꿈 설정이 원본 파일을 광범위하게 바꾸지 않도록 새 저장소의 `core.autocrlf=false`만 설정했습니다. 전역 설정과 원본 저장소 설정은 바꾸지 않았습니다.
+
+### 승인된 Git 작업
+
+| 커밋 | 내용 |
+| --- | --- |
+| `9d80254` | `Add migration baseline` — 지침/감사 문서 |
+| `333af83` | `Import MONOASOBI history` — 원본 이력과 앱 가져오기 |
+| `f661b96` | `Import LOUDASOBI history` — 원본 이력과 앱 가져오기 |
+
+1단계 이력 이관 당시 first-parent 커밋은 위 3개입니다. 원본 176개/18개 커밋을 부모 이력으로 보존합니다. 당시 workspace 설정·진행 문서는 미커밋으로 남겼으며, 아래 세부 작업 커밋 승인에 따라 후속 커밋으로 기록했습니다. 새 원격은 없고 원격 생성·푸시는 하지 않았습니다.
+
+### 필요한 설정만 수정
+
+- 루트 `package.json`: private npm workspace, `dev:mono`, `dev:loud`, 전체 lint/typecheck. admin 앱/공통 패키지는 소비자가 생기는 후속 단계에서 생성합니다.
+- 루트 `package-lock.json` 하나로 통합했습니다. 기존 두 lockfile의 해석 버전/무결성 정보를 재사용해 오프라인 설치했고 **두 앱의 모든 직접 dependency/devDependency 설치 버전이 원본 lockfile과 동일**한 것을 확인했습니다. 새 의존성을 추가하지 않았습니다.
+- 앱 이름은 `@asobi/monoasobi`, `@asobi/loudasobi`로 구분했습니다. 기존 의존성 범위는 유지했습니다. React/Jotai/Next 버전 차이는 이번에 강제 통일하지 않았습니다.
+- 기본 포트는 Mono 3000/Loud 3001, root 명령에서 `-- --port`로 변경 가능합니다. 기존 서버가 사용 중이므로 실제 확인에는 3100/3101을 썼습니다.
+- `.nvmrc`는 루트 Node 24.14.1로 통합하고 npm 11.11.0을 packageManager에 기록했습니다. root와 앱의 engines는 Node 24.x/npm 11.x입니다. Vercel의 지원 major와 설치된 두 Next의 최소 Node 조건을 확인했습니다. 운영 Node patch까지 동일하다는 보장은 아닙니다.
+- Next의 실제 설치 문서에 따라 Turbopack root와 outputFileTracingRoot를 workspace 루트로 지정했습니다. Mono cacheComponents/React Compiler 설정, 앱별 import alias, 정적 자산 URL, 기존 Tailwind 구성은 보존했습니다.
+- 앱별 `.env.example`과 root 제외 규칙을 구성하고 Loud 예시 파일만 ignore 예외로 허용했습니다. 실제 `.env`·원본 node_modules·.next·백업은 가져오지 않았습니다.
+- 이관한 앱 AGENTS에는 루트 청사진 우선과 소유권 인계 시점을 명시했습니다. 당시 Mono 신규 커밋 규칙은 영어 한 줄로 맞췄으나, 이후 사용자 결정에 따라 루트와 두 앱 모두 간결한 한글 한 줄로 갱신했습니다.
+
+### 실행 환경과 확인 범위
+
+- Git 제외 `.local/development.sqlite`에 **로컬 검증 전용** DB를 만들었습니다. 기존 9개 SQL/Drizzle journal을 그대로 적용했습니다. 실제 DB를 새로 대체하거나 운영 내용을 복제한 작업이 아닙니다.
+- 샘플은 합성 곡 ID 0 한 개·stable ID가 있는 가사 한 줄·명시적 Loud 전용 영상/publish 설정뿐입니다. 기존 seed/backfill/콘텐츠 이전 도구는 실행하지 않았습니다.
+- 두 앱 `.env.local`은 같은 로컬 파일 DB를 가리킵니다. 관리자/열람/세션값은 이번 로컬 확인용으로 생성했고 로그에 출력하지 않았습니다. R2 설정은 넣지 않았습니다.
+- 개발 서버 실행 확인 주소: Mono `http://127.0.0.1:3100`, Loud `http://127.0.0.1:3101`. 현재 프로세스가 종료되면 README 명령으로 재실행합니다. 기존 3000/3001 서버는 건드리지 않았습니다.
+- 샌드박스의 포트 바인딩/로컬 접속 제한은 필요한 명령에만 실행 권한을 받아 확인했습니다. 앱 오류로 처리하지 않았습니다.
+
+| 검사 | 결과 |
+| --- | --- |
+| root `npm install --offline --ignore-scripts --no-audit --no-fund` | 통과. 기존 npm 캐시로 1401개 패키지 설치, root lockfile 유지 |
+| 모든 직접 의존성 버전 대조 | 두 앱 모두 원본 lockfile과 차이 0개 |
+| React resolve | 각 앱의 react-dom/react-player와 Radix가 같은 앱의 React를 참조 |
+| root `npm run lint` | 두 앱 통과 |
+| root `npm run typecheck` | 각 Next route typegen + tsc 모두 통과 |
+| Mono `/`, `/admin`, 로그인 후 `/admin?musicId=0`, `/admin/lyrics/0/timeline` | HTTP 200 |
+| Loud `/`, `/admin`, 로그인 후 `/admin`, `/admin/musics/0/guide` | HTTP 200 |
+| Loud 인증된 musics/guide GET | HTTP 200 |
+| 양쪽 로컬 로그인 | admin/viewer 각각 HTTP 200 |
+| 양쪽 비로그인 쓰기·viewer 쓰기 | 각각 401·403, 저장 안 됨 |
+| secret/DB 제외 규칙 | 두 .env.local과 .local DB가 Git ignore됨 |
+
+HTTP 확인은 새 자동화 테스트 프레임워크를 추가하지 않고 임시 점검 스크립트로 수행했습니다. 로컬 결과는 Git 제외 `.local/*-http-check.json`에 남겼습니다. 설치 lifecycle script는 실행하지 않았으며 실제 서버 컴파일/로컬 DB 연결은 성공했습니다.
+
+**남은 검증:** 브라우저에서의 hydration/화면 비교·드래그·스냅·재생·모바일·실제 콘텐츠 전체 조회·인증 저장·R2 파일·운영/복제 DB 권한·실제 배포 빌드·Vercel 설정. 이번 lint/typegen/HTTP 결과로 이를 완료 처리하지 않습니다.
+
+### 임시 중복과 다음 단계
+
+- 기존 두 관리자는 앱 안에 그대로 있습니다. 3~6단계 기능별 전환/QA 후 9단계 운영 전환에서 옛 쓰기 경로를 정리합니다.
+- 앱별 의존성/React/Jotai 버전이 독립적으로 남아 있습니다. 2단계에서 공통 UI의 실제 peer 경계를 만들 때 호환성을 정렬하며, 의존성 수를 줄이려고 제품 동작을 먼저 바꾸지 않습니다.
+- 다음은 **2단계: 기존 Loud shadcn 부품·순수 공통 코드·Mono 정식 DB 정의 추출**입니다. source-inventory/reuse-map과 실제 소비자를 대조하고 packages를 생성합니다. 이번 1단계 승인으로 운영 DB 작업/빌드/추가 커밋/푸시를 실행하지 않습니다.
+- 원본 갱신 여부를 다시 확인하고 시작합니다. 원격 저장소 주소/공개 범위는 사용자가 준비했을 때 기록하며 로컬 공통화의 선행 조건은 아닙니다.
+- 되돌리기: 원본 두 폴더/서비스는 그대로 남아 있습니다. 새 저장소의 이관 커밋은 보존하고 workspace 수정 사항을 검토해 되돌릴 수 있습니다. `.local`은 합성 검증 데이터이며 운영 복구 자료가 아닙니다. 사용자 승인 없이 전체 reset/삭제하지 않습니다.
+
+## 2단계 실행 결과
+
+### 소유권과 재사용
+
+- `packages/ui`: 기존 Loud shadcn TSX 16개·cn을 이동했습니다. 앱의 사본은 제거하고 소비자 import를 package name으로 바꿨습니다. components.json alias/export를 연결했으며 CLI로 부품을 재생성하지 않았습니다.
+- 공통 CSS에는 기존 semantic Tailwind 매핑과 dark variant를 옮겼습니다. 이후 사용자 브랜드 통일 요청에 따라 Loud 팔레트·라이트/다크 값도 공용 `brand.css`로 옮겼고 색상 utility 매핑도 `styles.css`로 모았습니다. Loud globals는 공용 CSS를 가져오며 스크롤/높이 레이아웃만 앱에 유지합니다. 공통 UI의 클래스 탐색은 `@source`로 명시했습니다.
+- `packages/content-core`: 기존 콜 parse/resolve/패턴·가사 표시 보정·가사 언어 필드·아이콘 이름 검증·순수 추천 정렬을 옮겼습니다. 기존 주요 모듈 5개는 import를 제외한 구현이 같은지 AST로 대조했습니다.
+- 가사 타입은 두 원본의 optional 필드를 보존해 한 곳으로 모았습니다. Mono 영어 필드 제거/플레이어 시간 계산도 기존 구현을 이동했습니다. 가사 0.01초 정밀도와 콜 소수 넷째 자리 정밀도를 각각 유지합니다. 범용 타임라인 엔진은 만들지 않았습니다.
+- Loud 공개 카탈로그의 linesSchema만 순수 모듈로 추출했습니다. 기존 Mono 관리자 가사 입력의 허용 범위를 바꾸지 않았습니다. 관리자 폼 스키마·query/mutation·인증·Next 캐시는 앱에 그대로 있습니다.
+- `packages/database`: Mono의 정식 11개 테이블/relations, Drizzle config, 0000~0008 SQL/journal/snapshots를 옮겼습니다. 파일을 재생성하거나 ID/순서/해시를 초기화하지 않았습니다. Loud의 부분 매핑과 Mono 앱의 schema/migration 사본은 제거했습니다.
+- DB 생성은 공유 지연 연결 한 곳으로 모았습니다. Mono의 기존 eager db 진입점과 Loud의 필수 token 검사는 앱의 얇은 adapter에서 유지합니다. 공개 쿼리는 기존 명시적 projection·논리 삭제/publish 조건을 유지합니다.
+- DB generate/migrate/studio 진입점은 database 패키지와 이를 호출하는 root script만 남겼습니다. 기존 운영 도구의 migration 읽기 경로도 정식 위치로 연결했고 실행하지 않았습니다. DB/R2/운영 데이터는 변경하지 않았습니다.
+
+### 의존성과 실행 경계
+
+- npm workspace 내부 의존성은 `0.1.0`으로 연결했고 단일 root lockfile을 갱신했습니다. 별도 패키지 빌드·발행·Turborepo/Nx를 추가하지 않았습니다.
+- 공통 UI의 실제 공유를 위해 React/React DOM을 Loud 기준 19.2.8, 관련 타입을 19.3.0으로 정렬했습니다. 양 앱·ui·react-dom/react-player/Radix가 root의 같은 React 인스턴스를 참조하는지 확인했습니다. Next와 Jotai는 기존 앱 버전을 유지했습니다.
+- Drizzle ORM 0.45.2도 같은 실체를 참조하며 공용 연결은 기존 Loud libSQL client 0.18.0을 사용합니다. Mono의 기존 운영 도구용 직접 client 의존성은 별개로 보존합니다.
+- DB 연결은 표준 server-only 경계로 보호하고 schema 진입점은 CLI/타입에서 독립적으로 읽을 수 있게 분리했습니다. 공통 패키지 안에 앱 alias/import가 남지 않았는지 검사했습니다.
+- Next 설치 문서를 확인하고 source 패키지 이름을 transpilePackages에 명시했습니다. workspace root와 파일 추적 설정을 유지했습니다. 실제 production 번들 검증은 아직 수행하지 않았습니다.
+- 기존 캐시를 우선 사용해 설치했고 캐시에 없던 server-only 등 필요한 메타데이터/패키지를 받았습니다. install lifecycle scripts는 실행하지 않았습니다. root에 공통 검사 도구 의존성을 명시했으며 각 앱의 기존 lint 기준은 유지했습니다.
+
+### 실행한 검사와 결과
+
+| 항목 | 결과 |
+| --- | --- |
+| root `npm run lint` | 두 앱 + 공통 패키지 3개 통과. 마지막 import/검사 파일 수정은 해당 workspace 추가 검사 |
+| root `npm run typecheck` | 각 앱 route typegen/tsc + 공통 패키지 3개 통과. 검사 파일도 core 타입 검사에 포함 |
+| `npm run check:core` | 시간 정밀도·경계·가사 중첩 거부·영어 필드 제거·펄스/resize·콜/가사 참조·ID 0 추천 projection 확인 |
+| 기존 `node --test apps/monoasobi/scripts/activeLyric.test.mjs` | 기존 재생 경계 검사 통과 |
+| canonical migration 대조 | 9개 SQL·journal·snapshot 모두 원본 Git 바이트와 동일 |
+| 주요 도메인 코드 대조 | 5개 기존 모듈의 import 제외 구현 동일 |
+| 테마/스타일 | 기존 CSS 변수 선언 전체 동일. 기존 PostCSS/Tailwind로 공용 CSS 컴파일 및 공유 부품 클래스 생성 확인 |
+| React/ORM resolve | 공용 React/React DOM/ORM과 실제 소비 경로 확인 |
+| Mono 로컬 HTTP | 공개/관리자/가사 페이지 200, admin/viewer 로그인 200, 비로그인 쓰기 401·viewer 쓰기 403 |
+| Loud 로컬 HTTP | 공개/관리자/콜 페이지·인증 조회 200, admin/viewer 로그인 200, 비로그인 쓰기 401·viewer 쓰기 403 |
+
+첫 연결 중 발견한 import 누락/검사 설정은 수정 후 다시 검사했습니다. 실행 중이던 Loud 개발 서버에는 패키지가 생기기 전의 CSS 실패 경로가 cache에 남아 있어, 해당 `.next/dev/cache`만 임시 디렉터리로 옮기고 재시작했습니다. 소스·콘텐츠·운영 캐시는 삭제하지 않았습니다. 새 서버에서 공용 CSS와 기존 페이지가 정상 응답합니다.
+
+HTTP 확인은 1단계의 합성 곡 1개를 가진 같은 로컬 DB와 기존 임시 점검 스크립트를 사용했습니다. **Production build, 배포 번들 포함, 브라우저 hydration·시각 비교·재생·스냅/드래그, 실제 콘텐츠 저장·R2·운영 권한은 미검증**입니다. 개발 컴파일/정적 검사 통과로 대체하지 않습니다.
+
+브랜드 공통화 후 추가 확인(2026-10-20): Loud와 ui의 lint·typecheck가 통과했습니다. 이동 전후 CSS custom property 선언을 전체 대조해 값이 동일하며, 기존 PostCSS/Tailwind로 공용 팔레트·라이트/다크 값·공유 부품 utility가 포함되는지 확인했습니다. `.light` 컨테이너에서도 공용 라이트 토큰을 사용할 수 있게 했습니다. Mono 화면 색상 변경·브라우저 시각 QA·production build는 이번 변경에 포함하지 않았습니다.
+
+### 남은 작업과 재개
+
+- 기존 두 관리자·편집기·공개 재생기는 각 앱에 남아 있습니다. 통합 관리자의 첫 실제 소비자가 생기는 3단계부터 기존 구현을 순서대로 이관합니다.
+- 아이콘 선택기/대용량 검색 데이터·레이아웃 CSS는 앱 전용입니다. 브랜드 색상은 공용 UI로 이동했습니다. Mono UI를 shadcn으로 바꾸고 공용 색상을 화면에 적용하는 작업은 7단계이며, 이 단계에서 Radix Themes를 제거하지 않았습니다.
+- 앱별 db/index.ts는 구현 복제가 아닌 기존 진입점 호환용입니다. 관리자 이관 뒤 남은 소비자가 없어지면 해당 entry를 제거할 수 있습니다.
+- 이관용 3개 커밋은 보존하며, 1~2단계 미커밋 변경은 추가 승인에 따라 세부 작업별로 커밋합니다. 푸시·build·운영 migration·배포는 수행하지 않았습니다. 원본 두 폴더는 보존합니다.
+- 다음은 **3단계: 기존 탐색·폼·인증을 이용한 통합 관리자 기본 틀과 첫 저장 흐름**입니다. 새 DB 패키지의 파일 이동은 운영 DB 전환 승인이 아닙니다.
+
+## 세부 작업 커밋 승인 및 이력 정리 (2026-10-20)
+
+- 사용자 요청: 앞으로 요청한 단계는 세부 기능·작업 단위로 나누어 로컬 커밋까지 수행합니다. 단계당 한 커밋으로 몰지 않고, 메시지는 간결한 한글 한 줄로 작성합니다. 이후 단계에도 적용하며 반복 승인받지 않습니다.
+- 현재 미커밋 작업도 같은 기준으로 정리합니다. 기존 이관용 3개 커밋은 수정하지 않습니다. 푸시·원격 연결·빌드·운영 작업과 3단계 착수는 이번 요청에 포함되지 않습니다.
+- 루트 AGENTS.md/AGENT.md와 두 앱 AGENTS.md의 기존 영어 메시지·커밋 대기 규칙을 갱신했습니다.
+
+| 커밋 | 세부 작업 |
+| --- | --- |
+| `46982bf` | 세부 작업별 한글 커밋 지침 정리 |
+| `43868bb` | 공통 가사·콜 도메인과 계약 검사 추출 |
+| `b373f53` | 공용 DB 연결과 정식 스키마·마이그레이션 구성 |
+| `5e80db0` | 공용 shadcn UI와 LOUDASOBI 브랜드 테마 구성 |
+| `b9522bd` | 단일 npm 워크스페이스와 앱 실행·검사 환경 구성 |
+| `da40c54` | MONOASOBI 가사 타입과 시간 계산을 공통 패키지로 연결 |
+| `302fb5b` | LOUDASOBI 콜·가사 계산과 카탈로그 검증 공통화 |
+| `9873533` | LOUDASOBI 화면에 공용 UI와 브랜드 테마 적용 |
+| `08e4d1a` | 두 앱의 DB 참조와 마이그레이션 소유권 일원화 |
+| `a0f15b4` | 로컬 개발 환경변수 예시와 비밀값 제외 규칙 정리 |
+
+위 작업 커밋 뒤 README·재사용 지도·이 진행 기록을 별도 인계 문서 커밋으로 남깁니다. 문서 자신의 최종 커밋 해시는 Git 로그에서 확인합니다.
+
+검증: root `npm run lint`, `npm run typecheck`, `npm run check:core`, 기존 `node --test apps/monoasobi/scripts/activeLyric.test.mjs` 모두 통과했습니다. 신규 파일의 EOF 공백 한 곳만 정리했으며 기능 코드는 추가 변경하지 않았습니다. 정식 스키마와 마이그레이션 파일 20개는 이관 기준 Git 바이트와 동일합니다. 원본 두 저장소는 기존 HEAD/clean 상태이며 로컬 환경변수·검증용 DB·개발 산출물은 Git에서 제외됩니다.
+
+다음 재개 지점: **3단계 미착수**. 사용자가 진행을 요청하면 통합 관리자 기본 틀과 첫 저장 흐름을 시작하고, 이후에도 세부 작업별 검증·한글 커밋·진행 기록 갱신을 함께 수행합니다. Production build·브라우저 기능 QA·운영 DB/R2/DNS·푸시·배포는 이번 커밋 정리로 완료 처리하지 않습니다.

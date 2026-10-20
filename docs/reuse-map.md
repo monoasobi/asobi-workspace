@@ -1,6 +1,8 @@
 # 기존 코드 재사용·소유권 지도
 
-기준일: 2026-10-20. 상태: **감사 완료, 이동·추출은 전부 미착수**.
+기준일: 2026-10-20. 상태: **2단계 공통 추출 로컬 검증 완료. 통합 관리자 이관은 미착수**.
+
+기존 소스 전체는 각각 `apps/monoasobi`, `apps/loudasobi`에 Git 이력과 함께 가져왔습니다. 2단계에서는 아래 실제 이동 목록의 공통 구현을 packages로 옮기고 소비자 import를 변경했습니다. public 자산과 편집기/재생 알고리즘은 보존했습니다. 아래 본문 표에는 이후 관리자/미리보기 이관 목표도 포함되며, 모든 목표가 구현됐다는 뜻은 아닙니다.
 
 `M` = `/Users/nine/Documents/work/monoasobi-react-ts-web`, `L` = `/Users/nine/Documents/work/loudasobi`. 표의 원본 경로는 각 루트 기준 상대 경로입니다. 세부 기준 HEAD·검증 결과는 [migration-status.md](migration-status.md), 전체 라우트/설정 목록은 [source-inventory.md](source-inventory.md)를 봅니다.
 
@@ -16,7 +18,7 @@
 | 원본 경로 | 재사용 기능 | 새 소유 위치 | 필요한 수정 | 임시 중복 제거 조건 |
 | --- | --- | --- | --- | --- |
 | L `src/components/ui/{button,input,select,dropdown-menu,checkbox,separator,badge,native-select,switch,tooltip,accordion,label,scroll-area,sheet,popover,slider}.tsx` | 기존 shadcn 기본 부품. ScrollArea의 viewportRef/viewportProps 확장 포함 | `packages/ui` | exports·alias·의존성·소비 앱 Tailwind 탐색 연결. CLI 재생성으로 덮어쓰지 않음 | 실제 소비 앱을 패키지 import로 바꾸고 검사 후 앱 사본 제거 |
-| L `components.json`, `src/lib/utils.ts`, `src/app/globals.css`, `postcss.config.mjs` | radix-nova 설정, cn, 공통 테마 변수·애니메이션 | `packages/ui` + 앱별 설정 | 기본 토큰과 Loud 브랜드/레이아웃 CSS 분리. 모든 globals를 세 앱에 무조건 주입하지 않음 | 공통 토큰을 한 원본에서 쓰고 기존 앱 중복 정의 제거 |
+| L `components.json`, `src/lib/utils.ts`, `src/app/globals.css`, `postcss.config.mjs` | radix-nova 설정, cn, 공통 테마 변수·애니메이션 | `packages/ui` + 앱별 설정 | Loud 팔레트·라이트/다크 값은 공용 brand.css, Tailwind 매핑은 styles.css. 앱 레이아웃은 분리 | 공통 토큰을 한 원본에서 쓰고 기존 앱 중복 정의 제거 |
 | L `src/components/ui/icon-picker.tsx`, `icons-data.ts`, `src/lib/lucideIconNames.json`, `docs/licenses/shadcn-iconpicker.txt` | 관리자 아이콘 검색·선택, 대규모 검색 데이터, 라이선스 | 우선 `apps/adminasobi` 내부 | 범용 UI 진입점에 대규모 데이터 포함 금지. 현재 가상화/검색 구현·MIT 고지 보존 | 콜 편집기 이관 후 이전 관리자 선택기 제거. 실제 다른 소비자가 생길 때만 별도 공유 검토 |
 | L `src/lib/callGuide.ts`, `lyricPresentation.ts`, `lyricText.ts`, `src/types/lyric.d.ts` | 콜 JSON parse/resolve/검증·패턴·가사 표시 보정·타입 | `packages/content-core` | 앱 alias 제거. 서버 query·Next 캐시·locale provider 혼입 금지 | 공개/관리자가 한 구현을 import하고 기존 앱 계산 사본 제거 |
 | M `src/types/{music,lyric,novel,comic,book}.d.ts`, `src/lib/lyricEnglish.ts`, `src/server/schemas/admin.schema.ts`; L `src/server/queries/catalog.ts`의 linesSchema | 공통 데이터 계약·가사 영어 필드 표시 분리·검증 | 공통 부분 `packages/content-core`, 관리자 폼 스키마 `apps/adminasobi` | Mono/Loud 가사 타입·겹침 검증 차이 확인. 독음·번역·stable ID·legacy 필드 보존. 입력 허용 범위 임의 강화 금지 | 소비자별 검증 계약을 유지한 채 공통 부분의 사본 제거 |
@@ -58,7 +60,7 @@
 
 ## 새로 작성할 최소 연결 코드와 이유
 
-현재는 문서 외에 새 구현을 만들지 않았습니다. 다음 항목은 기존 기능을 새 배치에 연결하기 위해 필요한 부분입니다.
+1단계에서 루트 workspace/lockfile·실행 명령·Next root·환경변수 예시·제외 규칙을 구성했고, 2단계에서 공용 exports·의존성·DB 연결을 구성했습니다. 제품 UI·편집기·재생/콜 계산은 기존 구현을 재사용했습니다. 다음 항목의 1번은 실제 소비 경계까지 완료했고 2~4번은 후속 단계입니다.
 
 1. 루트 npm workspace·앱별 이름/포트/공용 exports: 앱끼리 상대 경로 의존 없이 기존 코드를 빌드하기 위한 설정입니다.
 2. 관리자 공통 layout·곡 상세 좌우 구성·별도 편집 route: 사용자가 확정한 화면 구조에 기존 폼/편집기를 연결하는 얇은 조립 부분입니다.
@@ -66,3 +68,22 @@
 4. 앱 간 공개 갱신 알림·독립 이미지 loader: 배포/도메인이 나뉘면서 기존 같은 출처 경로를 그대로 사용할 수 없는 부분입니다.
 
 각 단계가 끝나면 실제 이동한 경로·새 코드 이유·소비자·남은 임시 사본을 이 표에 갱신합니다. 이관하지 않은 구현을 완료로 표시하지 않습니다.
+
+## 2단계 실제 이동·제거 결과
+
+| 기존 위치 | 현재 소유 위치 | 상태/남은 연결 |
+| --- | --- | --- |
+| Loud `src/components/ui` 기본 16개 TSX | `packages/ui/src/components` | 기존 함수/클래스를 보존해 이동. 옛 사본 제거, 모든 소비자 package import |
+| Loud `src/lib/utils.ts` | `packages/ui/src/lib/utils.ts` | cn 단일 원본. sheet/tooltip의 앱 alias 제거 |
+| Loud globals의 팔레트·라이트/다크 값·Tailwind 매핑/dark variant | `packages/ui/src/brand.css`, `packages/ui/src/styles.css` | 사용자 결정으로 세 앱 공용 브랜드 확정. Loud는 styles.css로 소비, Mono는 7단계 적용. layout CSS는 앱에 유지 |
+| Loud callGuide/lyricPresentation/lyricText/callIcons/sidebarOrder + lucide 이름 JSON | `packages/content-core/src` 동명 파일 | 함수 구현 보존, 옛 사본 제거. query·mutation·Next 캐시는 이동하지 않음 |
+| Loud catalog query 내부 linesSchema | `packages/content-core/src/catalogLyrics.ts` | 기존 엄격한 공개 타임라인 검증 그대로. Mono 관리자 폼 검증과 강제로 통합하지 않음 |
+| 양 앱 lyric.d.ts | `packages/content-core/src/lyrics.ts` | 양쪽 optional 필드와 locale/콜 타입 보존. 앱별 사본 제거 |
+| Mono lyricEnglish.ts, 플레이어 time.ts | `packages/content-core/src/lyricEnglish.ts`, `lyricTime.ts` | 순수 구현 그대로. 기존 activeLyric 검사 경로 갱신. 콜 roundTime과 가사 roundTime 각각 보존 |
+| Mono schema.ts, drizzle/, drizzle.config.ts | `packages/database/src/schema.ts`, `drizzle/`, `drizzle.config.ts` | SQL/journal/snapshot 바이트 보존, 옛 사본 제거, config의 schema 경로만 수정 |
+| 양 앱 DB client 생성 | `packages/database/src/index.ts` | 지연 연결 1개 원본. 앱 index는 기존 eager API/필수 token 검사만 보존하는 얇은 adapter |
+| Loud 부분 DB mapping | 제거 후 canonical schema를 별칭 import | musicSettings/callGuides/sidebarSettings 이름만 소비자에서 alias. 테이블 재생성/DB 실행 없음 |
+
+그대로 남긴 항목: 앱별 query/mutation/인증·cache 정책·전용 폼 schema·편집 훅·두 재생기·아이콘 선택기/검색 데이터·레이아웃 CSS. 후속 단계의 기능별 소유권 인계 전에는 제거하지 않습니다. `loudasobi-view`는 아직 만들지 않았습니다.
+
+새로 작성한 연결은 DB singleton 진입점과 앱 adapter, package exports/peerDependencies, 공통 타입 검사/린트 설정입니다. `server-only`를 명시해 DB 연결의 클라이언트 import를 차단합니다. 원본 계약 확인용 작은 Node 검사 하나를 추가했고 새 테스트 프레임워크는 추가하지 않았습니다.
