@@ -1,19 +1,22 @@
 import type { NextConfig } from "next";
 import { realpathSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Canonicalize symlinked checkout paths so Turbopack uses one filesystem root.
+// Use one canonical workspace root, including hoisted dependencies and packages.
 const nextConfigDir = realpathSync(dirname(fileURLToPath(import.meta.url)));
+const workspaceRoot = resolve(nextConfigDir, "../..");
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@asobi/content-core", "@asobi/database"],
   cacheComponents: true,
   reactCompiler: {
     compilationMode: "infer",
   },
   turbopack: {
-    root: nextConfigDir,
+    root: workspaceRoot,
   },
+  outputFileTracingRoot: workspaceRoot,
 };
 
 export default nextConfig;
