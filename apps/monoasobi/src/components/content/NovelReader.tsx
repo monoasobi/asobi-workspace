@@ -5,6 +5,7 @@ import { Loading } from "@components/feedback/Loading";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { useEffect, useRef, useState, type UIEvent } from "react";
 import { NovelMarkdown } from "./NovelMarkdown";
+import { fetchNovelMarkdown } from "./NovelReader/fetchNovelMarkdown";
 import styles from "./NovelReader.module.css";
 
 interface NovelReaderProps {
@@ -37,15 +38,7 @@ export const NovelReader = ({ id }: NovelReaderProps) => {
         setIsLoading(true);
         setIsError(false);
 
-        // * 개발 + 소설 검토를 위한 로컬 파일 경로 설정
-        let url = "";
-        if (isDev) {
-          url = `/novel/${novelId}.md`;
-        }
-        const res = await fetch(url || `/api/content/novels/${novelId}`);
-
-        if (!res.ok) throw new Error("Failed to fetch novel");
-        const text = await res.text();
+        const text = await fetchNovelMarkdown(novelId, isDev);
         if (!ignore) setMarkdown(text);
       } catch (error) {
         console.error(error);

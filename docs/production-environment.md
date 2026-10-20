@@ -40,7 +40,7 @@ ADMIN_SESSION_SECRET=<기존 Mono 관리자 세션 비밀값>
 
 Mono 메타데이터의 사이트 주소는 현재 코드에서 `https://monoasobi.vercel.app`로 고정되어 있습니다. `NEXT_PUBLIC_SITE_URL`을 추가해도 Mono에는 적용되지 않습니다. 기존 도메인을 유지하는 전제이며 주소를 바꾼다면 코드 변경을 별도로 합니다.
 
-소설 개발 모드의 `/novel/{id}.md` 로컬 편집 분기는 그대로입니다. 운영 Next 실행에서는 기존 `/api/content/novels/{id}`로 R2를 읽습니다. `NODE_ENV`를 수동으로 development로 지정하거나 로컬 원고를 Git에 추가하지 마세요.
+소설 개발 모드는 `/novel/{id}.md` 로컬 편집 경로를 우선 사용하고, 파일 누락/HTML 응답이면 기존 R2 API로 전환합니다. 사용자 요청으로 로컬 원고는 모두 비웠으며 필요할 때만 추가합니다. 운영 Next 실행에서는 기존 `/api/content/novels/{id}`로 R2를 읽습니다. `NODE_ENV`를 수동으로 development로 지정하거나 로컬 원고를 Git에 추가하지 마세요.
 
 ## Loud — Root Directory `apps/loudasobi`
 

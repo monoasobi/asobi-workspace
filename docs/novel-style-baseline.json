@@ -10,8 +10,9 @@
   "radixReplacement": {
     "beforeCommit": "ce3d914",
     "hashes": {
-      "components/content/NovelReader.tsx": "b64fd0ac8d5a00c20e3804f9e6ab13ba1dcfde3d06dca7c31cba1e1f292e0278",
+      "components/content/NovelReader.tsx": "003f1922b8f253df91a488b043f97dd6a3acafbfbee8e49c3a468d24eb456edd",
       "components/content/NovelMarkdown.tsx": "92fe3df0a71c9e71eeaed860612518cffb0e81a23cecef0867707398c113ac43"
     }
-  }
+  },
+  "loadingChangeNote": "2026-10-20 user approved local-first/R2 fallback. Only Reader loading/import changed; JSX, scroll state, Markdown renderer and CSS remain unchanged."
 }
