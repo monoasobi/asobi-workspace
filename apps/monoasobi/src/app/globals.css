@@ -52,6 +52,11 @@ body {
     margin: 0;
   }
 
+  /* Shadcn expects controls to inherit text color; keep this reset UI-only. */
+  button[data-slot="button"] {
+    color: inherit;
+  }
+
   a {
     color: var(--gray-12, inherit);
     text-decoration: none;
@@ -69,8 +74,10 @@ body {
   min-height: 100dvh;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }

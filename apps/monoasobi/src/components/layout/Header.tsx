@@ -55,9 +55,9 @@ export function Header() {
             <Settings className="size-5" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-64 space-y-4">
-          <fieldset className="space-y-2">
-            <legend className="type-eyebrow">테마</legend>
+        <PopoverContent align="end" className="w-64 gap-4 p-4">
+          <fieldset className="m-0 min-w-0 border-0 p-0">
+            <legend className="type-eyebrow mb-2 p-0">테마</legend>
             <div className="flex gap-2">
               {(["light", "dark"] as const).map((value) => (
                 <Button
@@ -72,8 +72,8 @@ export function Header() {
               ))}
             </div>
           </fieldset>
-          <fieldset className="space-y-2">
-            <legend className="type-eyebrow">폰트</legend>
+          <fieldset className="m-0 min-w-0 border-0 p-0">
+            <legend className="type-eyebrow mb-2 p-0">폰트</legend>
             <div className="flex gap-2">
               {(["gothic", "batang"] as const).map((value) => (
                 <Button
