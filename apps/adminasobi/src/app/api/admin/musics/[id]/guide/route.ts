@@ -3,6 +3,7 @@ import { refreshPublicCatalog } from "@/server/refresh";
 import { z } from "zod";
 import { getAdminSession } from "@/server/auth/access";
 import { privateHeaders, rejectCrossOrigin } from "@/server/auth/request";
+import { musicSettingsSchema } from "@asobi/content-core/musicSettings";
 import { guideSchema } from "@asobi/content-core/callGuide";
 import { saveGuide } from "@/server/mutations/guide";
 import { readGuide } from "@/server/queries/guide";
@@ -10,6 +11,7 @@ import { readGuide } from "@/server/queries/guide";
 const inputSchema = z.object({
   revision: z.string().regex(/^[a-f0-9]{64}$/),
   guide: guideSchema,
+  bpm: musicSettingsSchema.shape.bpm.optional(),
   syncOffset: z.number().finite().min(-3600).max(3600).optional(),
 });
 export async function GET(
@@ -73,6 +75,7 @@ export async function PUT(
       input.data.revision,
       input.data.guide,
       input.data.syncOffset,
+      input.data.bpm,
     );
     const refresh =
       result.status === 200

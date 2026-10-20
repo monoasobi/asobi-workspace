@@ -1,3 +1,4 @@
+import { musicSettingsUpdateSchema } from "../src/lib/musicSettingsInput";
 import { guideSaveInput } from "../src/components/editors/CallGuideEditor/guideSaveInput";
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -119,4 +120,30 @@ test("call saves advance metadata only; source edits retain the conflicting revi
       .revision,
     "old",
   );
+});
+
+
+test("overview settings omit timing while retaining validation and explicit legacy updates", () => {
+  const media = { youtubeId: "by4SYYWlhEs", fanLightColor: null, publish: true };
+  const parsed = musicSettingsUpdateSchema.parse(media);
+  assert.equal(Object.hasOwn(parsed, "bpm"), false);
+  assert.equal(Object.hasOwn(parsed, "syncOffset"), false);
+  assert.equal(musicSettingsUpdateSchema.parse({ ...media, bpm: null }).bpm, null);
+  assert.equal(musicSettingsUpdateSchema.parse({ ...media, bpm: 137.5, syncOffset: -0.25 }).bpm, 137.5);
+  for (const patch of [{ bpm: 401 }, { bpm: 19 }, { syncOffset: 3601 }, { youtubeId: "" }, { extra: true }]) {
+    assert.equal(musicSettingsUpdateSchema.safeParse({ ...media, ...patch }).success, false);
+  }
+});
+
+test("call history preserves BPM and timing together through undo and redo", () => {
+  const initial = { guide: { version: 2, cues: [] }, syncOffset: 0.2, bpm: 130 as number | null };
+  let state: EditorHistory<typeof initial> = { past: [], present: initial, future: [] };
+  state = updateHistory(state, { ...initial, bpm: 145.5 });
+  state = undoHistory(state);
+  assert.deepEqual(state.present, initial);
+  state = redoHistory(state);
+  assert.equal(state.present.bpm, 145.5);
+  assert.equal(state.present.syncOffset, 0.2);
+  state = updateHistory(state, { ...state.present, bpm: null });
+  assert.equal(state.present.bpm, null);
 });

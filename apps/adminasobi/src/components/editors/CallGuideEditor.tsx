@@ -30,6 +30,8 @@ import { SongGuideEditor } from "./CallGuideEditor/SongGuideEditor";
 import { EditorThemeMenu } from "./CallGuideEditor/EditorThemeMenu";
 import { useRouter } from "next/navigation";
 import { Button } from "@asobi/ui/components/button";
+import { Input } from "@asobi/ui/components/input";
+import { Label } from "@asobi/ui/components/label";
 import { Badge } from "@asobi/ui/components/badge";
 import { MusicExperience } from "@asobi/loudasobi-view/player/MusicExperience";
 import { resolveLyricPresentation } from "@asobi/content-core/lyricPresentation";
@@ -66,12 +68,17 @@ export function CallGuideEditor({
   const history = useGuideHistory({
     guide: initial.guide,
     syncOffset: initial.syncOffset,
+    bpm: initial.music.bpm ?? null,
   });
   const { guide, syncOffset: draftSyncOffset } = history.draft;
   const syncOffset =
     draftSyncOffset === saved.syncOffset
       ? (musicSettings?.syncOffset ?? draftSyncOffset)
       : draftSyncOffset;
+  const draftBpm = history.draft.bpm;
+  const displayedBpm = draftBpm === (saved.music.bpm ?? null)
+    ? (musicSettings?.bpm ?? saved.music.bpm)
+    : draftBpm ?? undefined;
   const music = useMemo(
     () =>
       musicSettings
@@ -79,10 +86,10 @@ export function CallGuideEditor({
             ...saved.music,
             youtubeId: musicSettings.youtubeId ?? undefined,
             fanLightColor: musicSettings.fanLightColor ?? undefined,
-            bpm: musicSettings.bpm ?? undefined,
+            bpm: displayedBpm,
           }
-        : saved.music,
-    [saved.music, musicSettings],
+        : { ...saved.music, bpm: displayedBpm },
+    [saved.music, musicSettings, displayedBpm],
   );
   const [busy, setBusy] = useState(false);
   const [selectedCue, setSelectedCue] = useState<string | null>(null);
@@ -96,7 +103,8 @@ export function CallGuideEditor({
   const [refresh, setRefresh] = useState<RefreshResult[]>([]);
   const dirty =
     JSON.stringify(guide) !== JSON.stringify(saved.guide) ||
-    draftSyncOffset !== saved.syncOffset;
+    draftSyncOffset !== saved.syncOffset ||
+    draftBpm !== (saved.music.bpm ?? null);
   useEditorGuard("calls", dirty, busy);
   useEffect(() => {
     onDirtyChange?.(dirty);
@@ -117,6 +125,7 @@ export function CallGuideEditor({
     [guide, track.lyric, track.sync],
   );
   const invalid =
+    (draftBpm !== null && (!Number.isFinite(draftBpm) || draftBpm < 20 || draftBpm > 400)) ||
     guide.guides?.some((item) => !item.labels.ko.trim()) ||
     Object.keys(presentation.issues).length > 0 ||
     Object.keys(resolved.issues).length > 0 ||
@@ -144,7 +153,7 @@ export function CallGuideEditor({
           draftSyncOffset,
           syncOffset,
         );
-        revision = input.revision;
+        revision = draftBpm !== (saved.music.bpm ?? null) ? saved.revision : input.revision;
         offsetToSave = input.syncOffset;
       }
       const response = await fetch(
@@ -152,7 +161,9 @@ export function CallGuideEditor({
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ revision, guide, syncOffset: offsetToSave }),
+          body: JSON.stringify({ revision, guide, syncOffset: offsetToSave,
+            ...(draftBpm !== (saved.music.bpm ?? null) ? { bpm: draftBpm } : {}),
+          }),
         },
       );
       const result = await response.json();
@@ -167,6 +178,7 @@ export function CallGuideEditor({
       history.update(() => ({
         guide: result.document.guide,
         syncOffset: result.document.syncOffset,
+        bpm: result.document.music.bpm ?? null,
       }));
       setRefresh(result.refresh ?? []);
       setMessage("콜·가이드·가사 표시 설정을 저장했습니다.");
@@ -306,7 +318,7 @@ export function CallGuideEditor({
               title="초안 복사"
               onClick={async () => {
                 try {
-                  await copyEditorDraft({ guide, syncOffset });
+                  await copyEditorDraft({ guide, syncOffset, bpm: draftBpm });
                   setMessage("콜·가이드·가사 표시 초안을 복사했습니다.");
                 } catch {
                   setMessage("클립보드 권한을 확인해 주세요.");
@@ -316,6 +328,20 @@ export function CallGuideEditor({
               <Copy className="size-4" />
             </Button>
           </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline">곡 BPM {displayedBpm ?? "미지정"}</Button>
+            </PopoverTrigger>
+            <PopoverContent data-editor-portal align="end" className="grid w-72 gap-3 p-4">
+              <Label htmlFor="call-music-bpm">곡 BPM</Label>
+              <Input id="call-music-bpm" type="number" min={20} max={400} step="any"
+                placeholder="미지정" value={displayedBpm ?? ""} disabled={readOnly || busy}
+                onChange={event => history.update(draft => ({ ...draft,
+                  bpm: event.target.value === "" ? null : Number(event.target.value),
+                }))} />
+              <p className="type-caption">새 펄스 패턴의 기본 BPM입니다. 미지정 시 120을 사용하며 기존 블록은 바뀌지 않습니다. 전체 저장으로 반영합니다.</p>
+            </PopoverContent>
+          </Popover>
           <Popover>
             <PopoverTrigger asChild>
               <Button size="sm" variant="outline">

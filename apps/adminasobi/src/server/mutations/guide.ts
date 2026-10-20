@@ -4,6 +4,7 @@ import {
   loudasobiCallGuides as callGuides,
   loudasobiMusicSettings as musicSettings,
 } from "@asobi/database/schema";
+import { musicSettingsSchema } from "@asobi/content-core/musicSettings";
 import { z } from "zod";
 import { requireAdminWriteAccess } from "@/server/auth/access";
 import { readGuide } from "@/server/queries/guide";
@@ -19,6 +20,7 @@ export async function saveGuide(
   revision: string,
   input: CallGuide,
   syncOffset?: number,
+  bpm?: number | null,
 ) {
   await requireAdminWriteAccess();
   const guide = guideSchema.parse(input);
@@ -29,6 +31,7 @@ export async function saveGuide(
     .max(3600)
     .optional()
     .parse(syncOffset);
+  const parsedBpm = musicSettingsSchema.shape.bpm.optional().parse(bpm);
   return getDb().transaction(async (tx) => {
     const current = await readGuide(id, tx);
     if (!current) return { status: 404, error: "곡이 없거나 삭제되었습니다." };
@@ -58,13 +61,17 @@ export async function saveGuide(
       .insert(callGuides)
       .values({ musicId: id, ...values })
       .onConflictDoUpdate({ target: callGuides.musicId, set: values });
-    if (offset !== undefined)
+    const timing = {
+      ...(offset !== undefined ? { syncOffset: offset } : {}),
+      ...(parsedBpm !== undefined ? { bpm: parsedBpm } : {}),
+    };
+    if (Object.keys(timing).length)
       await tx
         .insert(musicSettings)
-        .values({ musicId: id, syncOffset: offset })
+        .values({ musicId: id, ...timing })
         .onConflictDoUpdate({
           target: musicSettings.musicId,
-          set: { syncOffset: offset, updatedAt: values.updatedAt },
+          set: { ...timing, updatedAt: values.updatedAt },
         });
     return { status: 200, document: await readGuide(id, tx) };
   });
