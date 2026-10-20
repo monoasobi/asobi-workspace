@@ -7,15 +7,16 @@ import {
 import type { EditorFieldConfig } from "./types";
 // Original field dispatch and uncontrolled FormData contract, with shared shadcn boundaries.
 export function AdminEditorField({
+  id,
   field,
   visibilityFlags,
   onVisibilityChange,
 }: {
+  id: string;
   field: EditorFieldConfig;
   visibilityFlags: Record<string, boolean>;
   onVisibilityChange: (key: string, value: boolean) => void;
 }) {
-  const id = `document-${field.name}`;
   if (field.type === "readonly")
     return (
       <>

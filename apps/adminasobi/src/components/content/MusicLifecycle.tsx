@@ -60,6 +60,8 @@ export function MusicLifecycle({
   return (
     <div>
       <Button
+        type="button"
+        size="sm"
         variant={restore ? "outline" : "destructive"}
         disabled={busy || guard.busy || done}
         onClick={apply}
@@ -69,6 +71,7 @@ export function MusicLifecycle({
       <RefreshStatus results={refresh} onRefresh={setRefresh} />
       {done && (
         <Button
+          type="button"
           variant="outline"
           onClick={() => {
             router.replace(href);

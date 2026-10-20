@@ -66,7 +66,7 @@ export function AlbumArtForm({
     <form
       onSubmit={save}
       aria-busy={busy}
-      className="grid gap-3 p-5 pt-14 sm:p-6 sm:pr-32"
+      className="grid gap-3 p-5 sm:p-6"
     >
       <AlbumArtField
         key={albumArtKey}

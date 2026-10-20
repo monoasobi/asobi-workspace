@@ -2,7 +2,7 @@
 import type { RefreshResult } from "@/types/refresh";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { AudioLines, Globe, Save } from "lucide-react";
-import { Separator } from "@asobi/ui/components/separator";
+import { Badge } from "@asobi/ui/components/badge";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
 import { Label } from "@asobi/ui/components/label";
@@ -49,11 +49,9 @@ export function MusicSettingsForm({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
-  const [dirty, setDirty] = useState(false);
   function edited() {
     setMessage("");
     onDirtyChange(true);
-    setDirty(true);
   }
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,7 +90,6 @@ export function MusicSettingsForm({
       setFanLightColor(result.settings.fanLightColor ?? "");
       setPublish(result.settings.publish);
       onDirtyChange(false);
-      setDirty(false);
       setMessage("저장했습니다.");
     } catch {
       setFailed(true);
@@ -109,7 +106,10 @@ export function MusicSettingsForm({
       aria-busy={busy}
     >
       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-        <h2 className="type-section-title">콜 정보</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="type-section-title">콜 정보</h2>
+          <Badge variant={music.publish ? "secondary" : "outline"}>{music.publish ? "콜 공개 중" : "콜 비공개"}</Badge>
+        </div>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {editAction}
           <Button type="submit" size="sm" disabled={readOnly || busy || invalidColor}>
@@ -249,36 +249,9 @@ export function MusicSettingsForm({
               </p>
             </section>
           </fieldset>
-          <div className="space-y-3 px-1 text-xs leading-relaxed text-muted-foreground">
-            <Separator />
-            <p>
-              {music.hasLyrics ? "MONOASOBI 가사 연결됨" : "가사 준비 중"} ·
-              제목은 왼쪽 곡 정보에서, 가사는 가사 편집 화면에서 수정합니다.
-              <br />콜 편집과 미리보기에는 저장된 설정이 적용됩니다.
-            </p>
-          </div>
         </div>
       </div>
-      <footer className="shrink-0 border-t bg-card p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0 flex-1 type-caption" aria-live="polite">
-            {message ? (
-              <p
-                role={failed ? "alert" : "status"}
-                className={failed ? "text-destructive" : ""}
-              >
-                {message}
-              </p>
-            ) : readOnly ? (
-              "열람 전용 계정입니다."
-            ) : dirty ? (
-              "저장하지 않은 변경사항이 있습니다."
-            ) : (
-              "변경사항을 저장하면 설정이 반영됩니다."
-            )}
-          </div>
-        </div>
-      </footer>
+      {message && <p className={failed ? "px-5 pb-5 text-xs text-destructive" : "px-5 pb-5 type-caption"} role={failed ? "alert" : "status"}>{message}</p>}
     </form>
   );
 }

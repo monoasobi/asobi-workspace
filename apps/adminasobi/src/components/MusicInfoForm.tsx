@@ -1,7 +1,6 @@
 "use client";
 import type { RefreshResult } from "@/types/refresh";
 import { useState, type FormEvent, type ReactNode } from "react";
-import { AudioLines, Type } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
 import { Label } from "@asobi/ui/components/label";
@@ -22,9 +21,7 @@ const fields = [
 ] as const;
 export function MusicInfoForm({
   music,
-  heading,
-  editAction,
-  showFields = true,
+  actions,
   readOnly,
   onRefresh,
   onSaved,
@@ -32,9 +29,7 @@ export function MusicInfoForm({
   onBusyChange,
 }: {
   music: AdminMusic;
-  heading: ReactNode;
-  editAction: ReactNode;
-  showFields?: boolean;
+  actions: ReactNode;
   readOnly: boolean;
   onRefresh: (results: RefreshResult[]) => void;
   onSaved: (music: SavedMusic) => void;
@@ -42,7 +37,6 @@ export function MusicInfoForm({
   onBusyChange: (busy: boolean) => void;
 }) {
   const [busy, setBusy] = useState(false),
-    [dirty, setDirty] = useState(false),
     [message, setMessage] = useState(""),
     [failed, setFailed] = useState(false);
   async function save(event: FormEvent<HTMLFormElement>) {
@@ -70,7 +64,6 @@ export function MusicInfoForm({
       }
       onRefresh(result.refresh ?? []);
       onSaved(result.music);
-      setDirty(false);
       onDirtyChange(false);
       setMessage("저장했습니다.");
     } catch {
@@ -82,63 +75,41 @@ export function MusicInfoForm({
     }
   }
   return (
-    <form onSubmit={save} aria-busy={busy} className="flex flex-col">
+    <form id={`music-info-${music.id}`} onSubmit={save} aria-busy={busy}>
       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-        {heading}
+        <h1 className="type-section-title">곡 정보</h1>
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          {editAction}
-          {showFields && <Button type="submit" size="sm" disabled={readOnly || busy}>{busy ? "저장 중…" : "곡 정보 저장"}</Button>}
+          {actions}
+          <Button type="submit" size="sm" disabled={readOnly || busy}>
+            {busy ? "저장 중…" : "곡 정보 저장"}
+          </Button>
         </div>
       </header>
-      <div hidden={!showFields}>
-      <fieldset
-        disabled={busy || readOnly}
-        className="grid gap-5 p-5 sm:p-6"
-        onChange={() => {
-          setDirty(true);
-          onDirtyChange(true);
-          setMessage("");
-        }}
-      >
-        {[
-          { title: "제목", description: "두 서비스에서 함께 사용하는 곡 제목입니다.", Icon: Type, fields: fields.slice(0, 3) },
-          { title: "음원 및 연결", description: "MONOASOBI 영상과 특별 페이지를 설정합니다.", Icon: AudioLines, fields: fields.slice(3) },
-        ].map(group => (
-          <section key={group.title} className="min-w-0">
-            <div className="mb-4 flex items-start gap-3">
-              <group.Icon aria-hidden className="mt-0.5 size-5 text-muted-foreground" />
-              <div><h3 className="text-sm font-semibold">{group.title}</h3><p className="mt-1 type-caption">{group.description}</p></div>
-            </div>
-            <div className="grid gap-5">
-              {group.fields.map(({ key, label, ...options }) => (
-                <div className="grid gap-2" key={key}>
-                  <Label htmlFor={`common-${key}`}>{label}</Label>
-                  <Input
-                    id={`common-${key}`}
-                    name={key}
-                    defaultValue={(key === "youtubeId" ? music.commonYoutubeId : music[key]) ?? ""}
-                    required={"required" in options && options.required}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-      </fieldset>
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t p-5">
-        <p
-          className={failed ? "text-xs text-destructive" : "type-caption"}
-          role={failed ? "alert" : "status"}
-        >
-          {message ||
-            (readOnly
-              ? "열람 전용 계정입니다."
-              : dirty
-                ? "저장하지 않은 변경사항이 있습니다."
-                : "공통 곡 정보를 수정할 수 있습니다.")}
-        </p>
-      </footer>
-      </div>
+      {message && <p className={failed ? "px-5 py-3 text-xs text-destructive" : "px-5 py-3 type-caption"} role={failed ? "alert" : "status"}>{message}</p>}
     </form>
+  );
+}
+
+// Native form ownership keeps the title/artwork forms separate without copying drafts.
+export function MusicInfoFields({ music, section, readOnly, onDirtyChange }: {
+  music: AdminMusic;
+  section: "titles" | "media";
+  readOnly: boolean;
+  onDirtyChange: (dirty: boolean) => void;
+}) {
+  const selectedFields = section === "titles" ? fields.slice(0, 3) : fields.slice(3);
+  return (
+    <div className={section === "titles" ? "grid gap-4 lg:grid-cols-3" : "grid gap-5"}
+      onChange={() => onDirtyChange(true)}>
+      {selectedFields.map(({ key, label, ...options }) => (
+        <div className="grid min-w-0 gap-2" key={key}>
+          <Label htmlFor={`common-${key}`}>{label}</Label>
+          <Input id={`common-${key}`} name={key} form={`music-info-${music.id}`}
+            disabled={readOnly}
+            defaultValue={(key === "youtubeId" ? music.commonYoutubeId : music[key]) ?? ""}
+            required={"required" in options && options.required} />
+        </div>
+      ))}
+    </div>
   );
 }

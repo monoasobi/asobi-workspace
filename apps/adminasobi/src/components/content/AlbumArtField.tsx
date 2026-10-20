@@ -69,7 +69,7 @@ export const AlbumArtField = ({
           onFileChange?.(file);
         }}
       />
-      <div className="grid min-w-0 gap-1.5">
+      <div className="grid min-w-0 flex-1 gap-3">
         {children}
         {filename && <p className="type-label break-all">{filename}</p>}
         <p id={`${id}-help`} className="type-caption">

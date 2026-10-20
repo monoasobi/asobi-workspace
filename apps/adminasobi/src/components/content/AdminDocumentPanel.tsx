@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@asobi/ui/components/button";
 import { getEditorConfig } from "./adminEditorConfig";
@@ -29,6 +29,7 @@ export function AdminDocumentPanel({
   onDeleted: () => void;
   onNavigate?: (href: string) => void;
 }) {
+  const fieldIdPrefix = useId();
   const router = useRouter();
   const navigate = (href: string) => onNavigate ? onNavigate(href) : router.replace(href);
   const config = getEditorConfig(data, node)!;
@@ -45,7 +46,7 @@ export function AdminDocumentPanel({
   const savedMusicId = useRef<number | null>(null);
   const [nextHref, setNextHref] = useState<string | null>(null);
   const [deleted, setDeleted] = useState(false);
-  useEditorGuard("document", dirty, busy);
+  useEditorGuard(`document-${fieldIdPrefix}`, dirty, busy);
   const lyric =
     node.type === "lyric"
       ? data.lyricTracks.find((t) => t.musicId === node.id)
@@ -248,13 +249,14 @@ export function AdminDocumentPanel({
                 className="space-y-2"
               >
                 <label
-                  htmlFor={`document-${field.name}`}
+                  htmlFor={`${fieldIdPrefix}-${field.name}`}
                   className="block text-sm font-medium"
                 >
                   {field.label}
                   {"required" in field && field.required ? " *" : ""}
                 </label>
                 <AdminEditorField
+                  id={`${fieldIdPrefix}-${field.name}`}
                   field={field}
                   visibilityFlags={flags}
                   onVisibilityChange={(key, value) => {
