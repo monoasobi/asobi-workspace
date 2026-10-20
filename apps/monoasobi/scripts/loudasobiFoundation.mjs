@@ -15,11 +15,11 @@ if (apply && !schemaOnly && !process.argv.includes("--confirm-delete-paused")) {
   throw new Error("Pause MONOASOBI admin writes and arrange deployment before applying. See docs/loudasobi-database.md.");
 }
 const remote = createClient({ url: process.env.TURSO_DATABASE_URL, authToken: process.env.TURSO_AUTH_TOKEN });
-const migrations = readMigrationFiles({ migrationsFolder: "./drizzle" });
-const journal = JSON.parse(await readFile("./drizzle/meta/_journal.json", "utf8"));
+const migrations = readMigrationFiles({ migrationsFolder: "../../packages/database/drizzle" });
+const journal = JSON.parse(await readFile("../../packages/database/drizzle/meta/_journal.json", "utf8"));
 const normalizedHashes = await Promise.all(journal.entries.map(async entry => ({
   when: entry.when,
-  hash: createHash("sha256").update((await readFile("./drizzle/" + entry.tag + ".sql", "utf8")).replaceAll("\r\n", "\n")).digest("hex"),
+  hash: createHash("sha256").update((await readFile("../../packages/database/drizzle/" + entry.tag + ".sql", "utf8")).replaceAll("\r\n", "\n")).digest("hex"),
 })));
 const quote = name => '"' + name.replaceAll('"', '""') + '"';
 const lineSchema = z.object({
@@ -102,7 +102,7 @@ async function main() {
     }
     for (const index of snapshot.indexes) await local.execute(index);
     await local.execute("PRAGMA foreign_keys = ON");
-    await migrate(drizzle(local), { migrationsFolder: "./drizzle" });
+    await migrate(drizzle(local), { migrationsFolder: "../../packages/database/drizzle" });
     if (!schemaOnly) await importLyrics(local);
     await verifyOriginalRows(local, snapshot);
     const integrity = await local.execute("PRAGMA foreign_key_check");
@@ -110,7 +110,7 @@ async function main() {
     console.log("Local migration/import rehearsal passed. Backup: " + path);
   } finally { local.close(); }
   if (!apply) { console.log("No remote changes. Production application requires the deployment procedure in docs/loudasobi-database.md."); return; }
-  await migrate(drizzle(remote), { migrationsFolder: "./drizzle" });
+  await migrate(drizzle(remote), { migrationsFolder: "../../packages/database/drizzle" });
   if (!schemaOnly) await importLyrics(remote);
   await verifyOriginalRows(remote, snapshot);
   const counts = await remote.execute("SELECT (SELECT count(*) FROM musics) AS musics, (SELECT count(*) FROM lyric_tracks) AS mono_lyrics, (SELECT count(*) FROM loudasobi_lyric_tracks) AS loud_lyrics, (SELECT count(*) FROM loudasobi_music_settings WHERE publish=1) AS published");

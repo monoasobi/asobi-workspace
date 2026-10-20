@@ -1,6 +1,6 @@
 import "server-only";
 import { getDb } from "@/server/db";
-import { sidebarSettings } from "@/server/db/schema";
+import { loudasobiSidebarSettings as sidebarSettings } from "@asobi/database/schema";
 import { requireAdminWriteAccess } from "@/server/auth/access";
 import { readAdminSidebar } from "@/server/queries/sidebar";
 import {

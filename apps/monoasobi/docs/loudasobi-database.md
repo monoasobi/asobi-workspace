@@ -1,5 +1,7 @@
 # loudasobi 공용 DB 기반
 
+> 모노레포 2단계에서 정식 스키마와 0000~0008 이력을 `packages/database`로 그대로 인계했습니다. 아래 이 저장소/MONOASOBI 전용 실행 설명은 과거 운영 기록입니다. 새 실행 경로와 승인 범위는 루트 README와 docs/migration-status.md를 우선하며, 과거 이관 도구를 다시 실행하지 않습니다.
+
 ## 적용 완료: 사이드바 추천 목록 (2026-09-25)
 
 - `0007_loudasobi_sidebar.sql`은 `loudasobi_sidebar_settings` 테이블만 추가합니다. 단일 행(id=1)의 `layout_json`에 그룹 이름·순서·공개곡 배치를 저장합니다.

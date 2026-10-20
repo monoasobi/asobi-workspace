@@ -1,22 +1,5 @@
-import "server-only";
+import { getDb } from "@asobi/database";
 
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
-import * as schema from "./schema";
-
-const databaseUrl = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
-
-if (!databaseUrl) {
-  throw new Error("TURSO_DATABASE_URL is required");
-}
-
-export const db = drizzle(
-  createClient({
-    url: databaseUrl,
-    authToken,
-  }),
-  { schema },
-);
-
-export * from "./schema";
+// Preserve the existing eager entry point while sharing connection and schema.
+export const db = getDb();
+export * from "@asobi/database/schema";

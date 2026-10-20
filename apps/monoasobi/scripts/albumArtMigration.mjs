@@ -20,8 +20,8 @@ try {
   const history = (await db.execute('SELECT * FROM __drizzle_migrations')).rows;
   const tableSql = (await db.execute("SELECT sql FROM sqlite_master WHERE name='musics'")).rows[0].sql;
   await writeFile(`${folder}/before.json`, JSON.stringify({ tableSql, rows, history }, null, 2));
-  const sql = await readFile('drizzle/0008_album_art.sql', 'utf8');
-  const journal = JSON.parse(await readFile('drizzle/meta/_journal.json', 'utf8'));
+  const sql = await readFile('../../packages/database/drizzle/0008_album_art.sql', 'utf8');
+  const journal = JSON.parse(await readFile('../../packages/database/drizzle/meta/_journal.json', 'utf8'));
   const entry = journal.entries.find(item => item.tag === '0008_album_art');
   let hasColumn = (await db.execute('PRAGMA table_info(musics)')).rows.some(row => row.name === 'album_art_key');
   if (!hasColumn) {

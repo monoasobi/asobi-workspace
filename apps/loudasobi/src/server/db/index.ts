@@ -1,13 +1,9 @@
 import "server-only";
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
-import * as schema from "./schema";
+import { getDb as getSharedDb } from "@asobi/database";
 
-function connect() {
-  const url = process.env.TURSO_DATABASE_URL;
-  const authToken = process.env.TURSO_AUTH_TOKEN;
-  if (!url || !authToken) throw new Error("Database configuration is missing");
-  return drizzle(createClient({ url, authToken }), { schema });
+export function getDb() {
+  // Keep this app's existing configuration requirement, including local tokens.
+  if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN)
+    throw new Error("Database configuration is missing");
+  return getSharedDb();
 }
-let database: ReturnType<typeof connect> | undefined;
-export const getDb = () => (database ??= connect());

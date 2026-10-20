@@ -2,7 +2,7 @@ import "server-only";
 import { and, eq, isNull } from "drizzle-orm";
 import { requireAdminWriteAccess } from "@/server/auth/access";
 import { getDb } from "@/server/db";
-import { musics, musicSettings } from "@/server/db/schema";
+import { musics, loudasobiMusicSettings as musicSettings } from "@asobi/database/schema";
 import {
   musicSettingsSchema,
   type MusicSettingsInput,

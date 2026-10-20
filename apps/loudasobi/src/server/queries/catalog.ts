@@ -5,10 +5,10 @@ import { z } from "zod";
 import { getDb } from "@/server/db";
 import {
   musics,
-  musicSettings,
+  loudasobiMusicSettings as musicSettings,
   lyricTracks,
-  callGuides,
-} from "@/server/db/schema";
+  loudasobiCallGuides as callGuides,
+} from "@asobi/database/schema";
 import { resolveLyricPresentation } from "@asobi/content-core/lyricPresentation";
 import { parseGuide, resolveGuide } from "@asobi/content-core/callGuide";
 import type { CatalogEntry } from "@/types/catalog";

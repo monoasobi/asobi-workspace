@@ -1,1 +1,0 @@
-ALTER TABLE `loudasobi_music_settings` ADD `bpm` real;

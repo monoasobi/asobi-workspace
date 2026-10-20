@@ -2,7 +2,7 @@ import "server-only";
 import { asc, eq, isNull } from "drizzle-orm";
 import { requireAdminSession } from "@/server/auth/access";
 import { getDb } from "@/server/db";
-import { musics, musicSettings, lyricTracks } from "@/server/db/schema";
+import { musics, loudasobiMusicSettings as musicSettings, lyricTracks } from "@asobi/database/schema";
 import type { AdminMusic } from "@/types/catalog";
 
 export async function getAdminMusics(): Promise<AdminMusic[]> {

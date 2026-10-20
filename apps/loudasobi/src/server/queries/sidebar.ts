@@ -2,7 +2,7 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@/server/db";
-import { musics, musicSettings, sidebarSettings } from "@/server/db/schema";
+import { musics, loudasobiMusicSettings as musicSettings, loudasobiSidebarSettings as sidebarSettings } from "@asobi/database/schema";
 import { requireAdminSession } from "@/server/auth/access";
 import { projectSidebar, sidebarLayoutSchema } from "@asobi/content-core/sidebarOrder";
 

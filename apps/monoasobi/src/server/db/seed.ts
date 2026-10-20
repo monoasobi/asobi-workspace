@@ -15,8 +15,8 @@ import {
   lyricTracks,
   musics,
   novels,
-} from "./schema";
-import * as schema from "./schema";
+} from "@asobi/database/schema";
+import * as schema from "@asobi/database/schema";
 
 interface LyricTrackSeed {
   id: number;

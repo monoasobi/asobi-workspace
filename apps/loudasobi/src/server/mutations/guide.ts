@@ -1,6 +1,6 @@
 import "server-only";
 import { getDb } from "@/server/db";
-import { callGuides, musicSettings } from "@/server/db/schema";
+import { loudasobiCallGuides as callGuides, loudasobiMusicSettings as musicSettings } from "@asobi/database/schema";
 import { z } from "zod";
 import { requireAdminWriteAccess } from "@/server/auth/access";
 import { readGuide } from "@/server/queries/guide";

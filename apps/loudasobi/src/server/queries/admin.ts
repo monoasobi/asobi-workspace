@@ -4,10 +4,10 @@ import { requireAdminSession } from "@/server/auth/access";
 import { getDb } from "@/server/db";
 import {
   musics,
-  musicSettings,
+  loudasobiMusicSettings as musicSettings,
   lyricTracks,
-  callGuides,
-} from "@/server/db/schema";
+  loudasobiCallGuides as callGuides,
+} from "@asobi/database/schema";
 
 export async function getAdminConnectionStatus() {
   await requireAdminSession();
