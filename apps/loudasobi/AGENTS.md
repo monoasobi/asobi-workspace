@@ -38,4 +38,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - 사용자 결정으로 공개 화면의 실시간 갱신을 제거했습니다. Mono의 기존 `public-catalog` 서버 캐시만 관리자 저장 후 무효화하고 Loud는 요청별 DB 조회를 유지합니다. Loud 카탈로그 focus/storage 훅·새 캐시/폴링을 되살리지 않습니다.
 - 재생/볼륨·읽던 위치/언어·선택곡 같은 로컬 동작은 보존합니다. 볼륨 storage와 재생 clock visibilitychange는 제거 대상이 아닙니다.
-- 사용자는 환경 분리 요구를 철회하고 개발 환경에서도 운영 DB를 사용하는 기존 방식을 허용했습니다. 기존 연결 설정을 유지하며 별도 DB/R2 분리를 선행 조건으로 삼지 않습니다. 현재 합성 SQLite를 이 결정만으로 운영 DB로 바꾸거나 합성 fixture 검사를 운영 DB에서 실행하지 않습니다. 루트 `docs/cache-and-environments.md`를 따릅니다.
+- 사용자는 환경 분리 요구를 철회하고 개발 환경에서도 운영 DB를 사용하는 기존 방식을 허용했습니다. 기존 연결 설정을 유지하며 별도 DB/R2 분리를 선행 조건으로 삼지 않습니다. 후속 명시 요청으로 세 앱은 기존 운영 Turso에 연결했습니다. 합성 fixture 검사는 운영 DB에서 실행하지 않으며 기존 local-check-client의 로컬 전용 제한을 유지합니다. 루트 `docs/cache-and-environments.md`를 따릅니다.
