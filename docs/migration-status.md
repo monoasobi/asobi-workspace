@@ -861,3 +861,10 @@ Tabs는 공식 https://ui.shadcn.com/r/styles/radix-nova/tabs.json 소스를 공
 공식 radix-nova code-block을 packages/ui에 추가했습니다. 원본 레지스트리는 https://ui.shadcn.com/r/styles/radix-nova/code-block.json 이며 import 경로·Lucide 아이콘·복사 안내 한국어만 연결했습니다. 가이드의 기존 pre/code와 SYNTAX 라벨을 공식 Header/Title/Actions/CopyButton/Content 조합으로 교체하고 Markdown 제목과 줄바꿈 표시를 적용했습니다. 문법 예시 11개 원문·실제 소설 렌더러·미리보기 CSS는 보존합니다. 공식 선택 기능인 구문 강조 hook/Shiki는 사용하지 않으므로 새 의존성을 추가하지 않았습니다.
 
 공용 UI/관리자 lint·typecheck, 소설 스타일 보존 검사, diff 공백 검사 통과. 기존 문법 예시 배열이 바뀌지 않았음을 비교했고 인증된 /guide HTTP에서 코드블록/본문/복사 버튼 각 11개 및 기존 미리보기·폰트 응답을 확인했습니다. 실제 브라우저의 복사 클릭·레이아웃 시각 QA는 남아 있습니다. 운영 데이터 쓰기·빌드·푸시·배포는 하지 않았습니다.
+
+
+## 관리자 QA — 문서 우측 버튼 정렬 재수정 (2026-10-21)
+
+기존 수정·삭제 행과 별개였던 추가 아이콘의 absolute/h-8 컨테이너 및 pr-14 예약 여백이 간격과 높이 차이를 만들었습니다. 문서가 있으면 createAction을 AdminDocumentPanel에 전달해 수정·삭제·세로 Separator·추가를 단일 inline-flex/items-center/gap-2 행에 배치합니다. 모든 아이콘 버튼은 같은 outline/icon-sm(28px)이며 구분선은 20px로 중앙 정렬합니다. 복수 항목 선택 행과 헤더의 겹침 방지용 여백을 없앴고 빈 탭에서만 기존 absolute 추가 위치를 유지합니다. 기존 가사 단일 항목 규칙과 저장/취소·이동 보호는 유지합니다.
+
+검증: 관리자 lint/typecheck·콘텐츠 계약 5개와 diff 공백 검사 통과. 인증된 곡 29 응답을 HTML 파싱해 수정/삭제/구분선/추가가 순서대로 같은 부모에 있는지, 버튼 크기가 모두 28px이고 구분선 중앙 정렬 클래스가 있는지 확인했습니다. 실제 픽셀 정렬·반응형/복수 항목/작성 상태 클릭 QA는 별도입니다. 운영 데이터 변경·빌드·푸시·배포는 하지 않았습니다. AGENT.md의 기존 absolute 배치 규칙도 최신 사용자 수정에 맞게 갱신했습니다.

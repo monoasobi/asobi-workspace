@@ -1,7 +1,8 @@
 "use client";
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Save, Trash2, X, ExternalLink } from "lucide-react";
+import { Separator } from "@asobi/ui/components/separator";
 import { Badge } from "@asobi/ui/components/badge";
 import { Label } from "@asobi/ui/components/label";
 import { Table, TableBody, TableRow, TableHead, TableCell } from "@asobi/ui/components/table";
@@ -22,7 +23,7 @@ import { AdminSrtExport } from "@/components/editors/AdminSrtExport";
 
 export function AdminDocumentPanel({
   embedded = false,
-  reserveActionSpace = false,
+  createAction,
   data,
   node,
   readOnly,
@@ -32,7 +33,7 @@ export function AdminDocumentPanel({
   onNavigate,
 }: {
   embedded?: boolean;
-  reserveActionSpace?: boolean;
+  createAction?: ReactNode;
   data: AdminDashboardData;
   node: SelectedNode;
   readOnly: boolean;
@@ -209,9 +210,9 @@ export function AdminDocumentPanel({
   }
   return (
     <section className={embedded ? "min-w-0 p-5 pt-0" : "min-h-0 min-w-0 flex-1 overflow-y-auto p-5"} aria-busy={busy}>
-      <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${reserveActionSpace ? "pr-14" : ""}`}>
+      <header className="mb-4 flex items-center justify-between gap-3">
         <h2 className="min-w-0 flex-1 break-words type-card-title">{document.title}</h2>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex shrink-0 items-center gap-2">
           {!readOnly && !nextHref && !deleted && (editing ? <>
             <Button type="button" size="sm" variant="outline" disabled={blocked} onClick={cancel}><X />취소</Button>
             <Button type="submit" form={formId} size="sm" disabled={blocked}><Save />{busy ? "저장 중…" : config.submitLabel}</Button>
@@ -221,6 +222,10 @@ export function AdminDocumentPanel({
           {!readOnly && config.deleteEndpoint && !deleted && (
             <Button type="button" size="icon-sm" variant="outline" className="text-destructive hover:text-destructive" aria-label="삭제" title="삭제" disabled={blocked} onClick={remove}><Trash2 className="size-4" /></Button>
           )}
+          {createAction && <>
+            <Separator orientation="vertical" className="h-5 data-vertical:self-center" />
+            {createAction}
+          </>}
         </div>
       </header>
       <RefreshStatus results={refresh} onRefresh={setRefresh} />
