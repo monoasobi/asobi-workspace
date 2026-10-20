@@ -52,8 +52,9 @@ body {
     margin: 0;
   }
 
-  /* Shadcn expects controls to inherit text color; keep this reset UI-only. */
+  /* Shadcn expects controls to inherit typography; keep this reset UI-only. */
   button[data-slot="button"] {
+    font-family: inherit;
     color: inherit;
   }
 

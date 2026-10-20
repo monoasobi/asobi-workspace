@@ -717,3 +717,12 @@ Mono lint/typecheck·소설 UI 보존 검사 통과. 실제 개발 서버 CSS �
 ## QA 수정 — 글꼴 버튼 미리보기 복원
 
 원본 Header의 Text weight=bold와 Header.module.css .batangText(font-family: KoPub Batang, serif)를 재확인했습니다. 이관에서 빠진 KoPub 바탕 버튼의 글꼴 미리보기와 두 글꼴 라벨의 굵기를 기존 shadcn Button 내부 span/Tailwind로 복원했습니다. Mono lint/typecheck 및 KoPub WOFF2 HTTP 200 확인. 실제 브라우저 글꼴 표시는 사용자 QA로 확인합니다.
+
+
+## QA 개선 — Loud 기준 Mono 설정 패널
+
+사용자가 Loud 설정 패널을 기준으로 Mono 스타일 개선과 shadcn 활용을 요청했습니다. Loud의 기존 제목/설명/닫기/구분선/폭/반응형/스크롤 틀을 packages/ui의 SettingsPopover로 추출하고 두 앱에서 사용합니다. 공용 shadcn Popover/Button/Separator를 재사용합니다. 공통화 커밋은 a42794d입니다. Loud의 언어/테마 선택 및 번역/상태는 유지했습니다.
+
+Mono Header에서 SettingsMenu를 분리해 같은 틀을 사용하고 기존 테마 두 가지는 아이콘 카드, 글꼴 두 가지는 체크 표시 목록으로 정리했습니다. 기존 appearance/font 저장 키·선택 동작과 KoPub 바탕 미리보기/굵기를 유지했습니다. Mono의 선택 테두리/배경은 라이트/다크 모두 primary를 따릅니다. 시스템 테마·언어 설정 등 새 기능이나 의존성을 추가하지 않았습니다.
+
+전체 workspace lint/typecheck·소설 UI 보존 검사 통과 및 두 개발 홈 HTTP 200 확인. 소설 본문·재생·스타일은 변경하지 않았습니다. 현재 브라우저 조작 도구가 없어 열린 설정 팝오버·키보드/모바일·실제 선택 전환의 시각 확인은 사용자 QA로 남습니다.

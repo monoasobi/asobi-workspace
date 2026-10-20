@@ -45,3 +45,8 @@
 ## 주조색 확정
 
 사용자가 공용 주조색을 **#F2285A**로 재확정했습니다. packages/ui/src/brand.css의 magenta-500을 해당 sRGB 값으로 명시하고 라이트/다크 모두 primary와 sidebar-primary가 이를 직접 사용합니다. 기존 라이트의 magenta-600·다크의 magenta-400을 기본 주조색으로 사용하지 않습니다. Mono 정식 발매 배지와 Loud/통합 관리자의 기본 버튼·강조 등 기존 공용 primary 소비자는 같은 값을 따릅니다. 보조 배경/상태/읽기 전용 색상과 hover 투명도는 기존 역할을 유지합니다.
+
+
+## 공용 설정 패널
+
+Loud의 기존 설정 팝오버 틀을 @asobi/ui/components/settings-popover로 추출해 Mono/Loud가 함께 사용합니다. 공용 shadcn Popover/Button/Separator와 제목·설명·닫기·320px 폭/모바일 최대 폭·스크롤·여백을 한곳에서 유지합니다. 앱별 선택 항목과 상태는 각 SettingsMenu가 소유합니다. Mono는 기존 light/dark와 gothic/batang 저장값을 유지하며 테마 아이콘 카드·글꼴 체크 목록은 공용 Button을 사용합니다. KoPub 글꼴 미리보기는 유지합니다.
