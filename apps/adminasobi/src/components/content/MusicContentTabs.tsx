@@ -41,7 +41,7 @@ export function MusicContentTabs({
   ];
   const source = `${contentActive}:${initialNode ? getSelectedNodeKey(initialNode) : ""}`;
   const [view, setView] = useState<{ source: string; tab: string } | null>(null);
-  const [selections, setSelections] = useState<Record<string, { source: string; node: SelectedNode }>>({});
+  const [selections, setSelections] = useState<Record<string, { source: string; node: SelectedNode | null }>>({});
   const tab = view?.source === source ? view.tab : contentActive ? (initialNode ? categoryOf(initialNode) : "novel") : "media";
   function nodeFor(group: typeof groups[number]) {
     const selected = selections[group.value];
@@ -81,7 +81,7 @@ export function MusicContentTabs({
         const canCreate = !readOnly && !!group.create;
         return (
           <TabsContent key={group.value} value={group.value} forceMount className="relative min-h-0 overflow-y-auto pt-5 data-[state=inactive]:hidden">
-            {canCreate && <Button type="button" variant="ghost" size="icon-sm" className="absolute right-5 top-4 z-10" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>}
+            {canCreate && <Button type="button" variant="outline" size="icon-sm" className="absolute right-5 top-5 z-10" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>}
             {showItems && (
               <div className={`mb-4 flex flex-wrap gap-2 px-5 ${canCreate ? "pr-16" : ""}`}>
                 {group.items.map(item => <Button key={getSelectedNodeKey(item.node)} variant={node && getSelectedNodeKey(node) === getSelectedNodeKey(item.node) ? "secondary" : "outline"} size="sm" disabled={guard.busy} onClick={() => select(item.node)}>{item.label}</Button>)}
@@ -91,6 +91,7 @@ export function MusicContentTabs({
               <AdminDocumentPanel key={getSelectedNodeKey(node)} embedded reserveActionSpace={canCreate && !showItems} data={data} node={node}
                 revision={node.type === "lyric" ? revision : undefined} readOnly={readOnly || group.value === "book"}
                 onNavigate={navigateSaved}
+                onCancelCreate={() => setSelections(current => ({ ...current, [group.value]: { source, node: group.items[0]?.node ?? null } }))}
                 onDeleted={() => { router.replace(`/musics/${musicId}?tab=content`); router.refresh(); }} />
             ) : <p className="px-5 pb-5 type-caption">{group.label} 연결 정보가 없습니다.</p>}
           </TabsContent>

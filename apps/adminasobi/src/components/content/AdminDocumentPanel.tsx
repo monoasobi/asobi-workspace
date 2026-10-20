@@ -27,6 +27,7 @@ export function AdminDocumentPanel({
   node,
   readOnly,
   revision,
+  onCancelCreate,
   onDeleted,
   onNavigate,
 }: {
@@ -36,6 +37,7 @@ export function AdminDocumentPanel({
   node: SelectedNode;
   readOnly: boolean;
   revision?: string;
+  onCancelCreate?: () => void;
   onDeleted: () => void;
   onNavigate?: (href: string) => void;
 }) {
@@ -199,6 +201,7 @@ export function AdminDocumentPanel({
     setDirty(false);
     setFlags(getInitialVisibilityFlags(config));
     setEditing(false);
+    if (config.method === "POST" && onCancelCreate) { onCancelCreate(); return; }
     if (savedMusicId.current !== null) {
       navigate(`/musics/${savedMusicId.current}`);
       router.refresh();
@@ -206,7 +209,7 @@ export function AdminDocumentPanel({
   }
   return (
     <section className={embedded ? "min-w-0 p-5 pt-0" : "min-h-0 min-w-0 flex-1 overflow-y-auto p-5"} aria-busy={busy}>
-      <header className={`mb-4 flex flex-wrap items-start justify-between gap-3 ${reserveActionSpace ? "pr-10" : ""}`}>
+      <header className={`mb-4 flex flex-wrap items-center justify-between gap-3 ${reserveActionSpace ? "pr-10" : ""}`}>
         <h2 className="min-w-0 flex-1 break-words type-card-title">{document.title}</h2>
         <div className="flex flex-wrap items-center gap-2">
           {node.type === "lyric" && (
@@ -217,11 +220,11 @@ export function AdminDocumentPanel({
           {!readOnly && !nextHref && !deleted && (editing ? <>
             <Button type="button" size="sm" variant="outline" disabled={blocked} onClick={cancel}><X />취소</Button>
             <Button type="submit" form={formId} size="sm" disabled={blocked}><Save />{busy ? "저장 중…" : config.submitLabel}</Button>
-          </> : <Button type="button" size="sm" variant="outline" disabled={blocked} onClick={() => {
+          </> : (config.method !== "POST" || !onCancelCreate) && <Button type="button" size="icon-sm" variant="outline" aria-label={config.method === "POST" ? "작성" : "수정"} title={config.method === "POST" ? "작성" : "수정"} disabled={blocked} onClick={() => {
             setEditRevision(revision); setEditing(true);
-          }}><Pencil />{config.method === "POST" ? "작성" : "수정"}</Button>)}
+          }}><Pencil className="size-4" /></Button>)}
           {!readOnly && config.deleteEndpoint && !deleted && (
-            <Button type="button" size="sm" variant="destructive" disabled={blocked} onClick={remove}><Trash2 />삭제</Button>
+            <Button type="button" size="icon-sm" variant="outline" className="text-destructive hover:text-destructive" aria-label="삭제" title="삭제" disabled={blocked} onClick={remove}><Trash2 className="size-4" /></Button>
           )}
         </div>
       </header>
@@ -239,6 +242,8 @@ export function AdminDocumentPanel({
           onSubmit={submit} onChange={event => { if (event.target instanceof HTMLElement && event.target.getAttribute("name")) setDirty(true); }}>
           <fieldset disabled={blocked} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {config.fields.map(field => {
+              if (field.name === "musicId" && field.type === "readonly")
+                return <input key={field.name} type="hidden" name={field.name} value={field.defaultValue} />;
               const hidden = !!field.showWhen && !field.showWhen(flags);
               const wide = field.type === "textarea" || field.type === "url" || field.type === "readonly" || field.name === "novelIds";
               return (
