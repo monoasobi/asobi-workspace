@@ -3,6 +3,7 @@ import { cn } from "@asobi/ui/lib/utils";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { NovelMarkdown } from "./NovelMarkdown";
 import styles from "./NovelMarkdownGuide.styles";
+import { CodeBlock, CodeBlockHeader, CodeBlockTitle, CodeBlockActions, CodeBlockCopyButton, CodeBlockContent } from "./code-block";
 interface GuideItemProps {
   title: string;
   description?: string;
@@ -125,16 +126,15 @@ const GuideItem = ({ title, description, syntax, preview, font }: GuideItemProps
           <span className="type-body text-muted-foreground">{description}</span>
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="type-caption text-muted-foreground font-bold">
-          SYNTAX
-        </span>
-        <pre className={styles.codeBox}>
-          <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
-            {syntax}
-          </code>
-        </pre>
-      </div>
+      <CodeBlock>
+        <CodeBlockHeader>
+          <CodeBlockTitle>Markdown</CodeBlockTitle>
+          <CodeBlockActions>
+            <CodeBlockCopyButton value={syntax} />
+          </CodeBlockActions>
+        </CodeBlockHeader>
+        <CodeBlockContent wrap>{syntax}</CodeBlockContent>
+      </CodeBlock>
       <div className="flex items-center gap-2">
         <span className={cn("type-body text-muted-foreground", styles.arrow)}>
           ↓ 렌더링 결과

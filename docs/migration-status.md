@@ -854,3 +854,10 @@ Tabs는 공식 https://ui.shadcn.com/r/styles/radix-nova/tabs.json 소스를 공
 뱃지 확인: packages/ui Badge 기본 text-xs는 Tailwind --text-xs=0.75rem, 줄 높이 1rem, font-medium=500입니다. Mono 사이드바 ‘정식 발매’는 별도 크기 override 없이 이 기본값을 사용합니다(기본 루트 16px 기준 12px/16px). 뱃지 스타일 변경은 하지 않았습니다.
 
 검증: 관리자 lint/typecheck, 콘텐츠 계약 5개, diff 공백 검사 통과. 인증된 곡 29 소설/가사 HTTP 200, 세로 구분선·중복 버튼 제거·상단 가사 편집 유지·카드 높이 클래스 응답을 확인했습니다. 실제 브라우저의 카드 축소/긴 내용 스크롤/버튼 간격 시각 QA는 남아 있습니다. 운영 데이터 쓰기·빌드·푸시·배포는 하지 않았습니다.
+
+
+## 소설 가이드 — 공식 shadcn Code Block (2026-10-21)
+
+공식 radix-nova code-block을 packages/ui에 추가했습니다. 원본 레지스트리는 https://ui.shadcn.com/r/styles/radix-nova/code-block.json 이며 import 경로·Lucide 아이콘·복사 안내 한국어만 연결했습니다. 가이드의 기존 pre/code와 SYNTAX 라벨을 공식 Header/Title/Actions/CopyButton/Content 조합으로 교체하고 Markdown 제목과 줄바꿈 표시를 적용했습니다. 문법 예시 11개 원문·실제 소설 렌더러·미리보기 CSS는 보존합니다. 공식 선택 기능인 구문 강조 hook/Shiki는 사용하지 않으므로 새 의존성을 추가하지 않았습니다.
+
+공용 UI/관리자 lint·typecheck, 소설 스타일 보존 검사, diff 공백 검사 통과. 기존 문법 예시 배열이 바뀌지 않았음을 비교했고 인증된 /guide HTTP에서 코드블록/본문/복사 버튼 각 11개 및 기존 미리보기·폰트 응답을 확인했습니다. 실제 브라우저의 복사 클릭·레이아웃 시각 QA는 남아 있습니다. 운영 데이터 쓰기·빌드·푸시·배포는 하지 않았습니다.
