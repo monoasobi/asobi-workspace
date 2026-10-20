@@ -45,10 +45,10 @@ export function SettingsMenu() {
       >
         <div className="flex items-start justify-between gap-3 px-4 py-3">
           <div>
-            <h2 id={`${id}-title`} className="font-semibold">
+            <h2 id={`${id}-title`} className="type-card-title">
               {t("settings")}
             </h2>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 type-caption">
               {t("settingsHelp")}
             </p>
           </div>
@@ -65,13 +65,13 @@ export function SettingsMenu() {
         <Separator />
         <div className="space-y-5 p-4">
           <fieldset>
-            <legend className="mb-1 flex items-center gap-2 text-sm font-semibold">
+            <legend className="mb-1 flex items-center gap-2 type-label font-semibold">
               <Languages className="size-4 text-muted-foreground" aria-hidden />
               {t("language")}
             </legend>
             <p
               id={`${id}-language-help`}
-              className="mb-3 text-xs leading-relaxed text-muted-foreground"
+              className="mb-3 type-caption"
             >
               {t("languageHelp")}
             </p>
@@ -99,7 +99,7 @@ export function SettingsMenu() {
             </div>
           </fieldset>
           <fieldset>
-            <legend className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            <legend className="mb-3 flex items-center gap-2 type-label font-semibold">
               <Sun className="size-4 text-muted-foreground" aria-hidden />
               {t("theme")}
             </legend>

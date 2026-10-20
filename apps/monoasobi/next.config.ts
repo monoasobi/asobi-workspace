@@ -9,6 +9,7 @@ const workspaceRoot = resolve(nextConfigDir, "../..");
 
 const nextConfig: NextConfig = {
   transpilePackages: [
+    "@asobi/ui",
     "@asobi/content-core",
     "@asobi/database",
     "@asobi/storage",

@@ -179,6 +179,53 @@
   --color-ayase-green-800: var(--ayase-green-800);
   --color-ayase-green-900: var(--ayase-green-900);
   --color-ayase-green: var(--ayase-green-500);
+}
 
-
+/* UI roles shared by the apps; prose and timed reading have separate roles. */
+@utility type-page-title {
+  @apply text-2xl font-semibold leading-tight tracking-tight;
+}
+@utility type-section-title {
+  @apply text-lg font-semibold leading-snug;
+}
+@utility type-card-title {
+  @apply text-base font-semibold leading-snug;
+}
+@utility type-body {
+  @apply text-sm font-normal leading-6;
+}
+@utility type-description {
+  @apply text-sm font-normal leading-relaxed text-muted-foreground;
+}
+@utility type-label {
+  @apply text-sm font-medium leading-none;
+}
+@utility type-caption {
+  @apply text-xs font-normal leading-relaxed text-muted-foreground;
+}
+@utility type-eyebrow {
+  @apply text-xs font-semibold leading-relaxed tracking-wide text-primary;
+}
+@utility type-lyric-jp {
+  font-size: 13px;
+  line-height: 1.2;
+}
+@utility type-lyric-reading {
+  font-size: 14px;
+  line-height: 1.2;
+}
+@utility type-lyric-translation {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+@utility type-call-source {
+  font-size: clamp(0.875rem, 0.75rem + 0.625cqi, 1.125rem);
+  letter-spacing: clamp(-0.02em, -0.04em + 0.1cqi, 0em);
+  @apply leading-relaxed;
+}
+@utility type-call-translation {
+  font-size: clamp(0.6875rem, 0.625rem + 0.3125cqi, 0.875rem);
+  letter-spacing: clamp(-0.01em, -0.04em + 0.1cqi, 0em);
+  @apply leading-relaxed;
 }

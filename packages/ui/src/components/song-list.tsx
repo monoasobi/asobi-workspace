@@ -171,13 +171,13 @@ export function SongList({
             isPending && "opacity-50",
           )}
         >
-          <span lang="ja" className="truncate text-sm font-semibold">
+          <span lang="ja" className="truncate type-label font-semibold">
             {music.title}
           </span>
           {locale !== "ja" && (
             <span
               lang={locale}
-              className="truncate text-xs text-muted-foreground"
+              className="truncate type-caption"
             >
               {locale === "ko" ? music.korTitle : music.enTitle}
             </span>
@@ -253,7 +253,7 @@ export function SongList({
                   if (!songs.length) return null;
                   return (
                     <AccordionItem key={group.id} value={group.id}>
-                      <AccordionTrigger className="items-center rounded-none bg-muted/50 px-4 py-3 text-base font-semibold hover:no-underline">
+                      <AccordionTrigger className="items-center rounded-none bg-muted/50 px-4 py-3 type-card-title hover:no-underline">
                         <span className="min-w-0 break-words">
                           {group.name[locale] || group.name.ko}
                         </span>

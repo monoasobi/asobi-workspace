@@ -214,7 +214,7 @@ export const LyricRow = memo(function LyricRow({
             <span
               lang="ja"
               className={cn(
-                "block text-[clamp(0.875rem,0.75rem+0.625cqi,1.125rem)] tracking-[clamp(-0.02em,-0.04em+0.1cqi,0em)] leading-relaxed",
+                "block type-call-source",
                 active ? "font-bold" : "font-medium",
               )}
             >
@@ -226,7 +226,7 @@ export const LyricRow = memo(function LyricRow({
               <span
                 lang="ko"
                 className={cn(
-                  "mt-1.5 block text-[clamp(0.875rem,0.75rem+0.625cqi,1.125rem)] tracking-[clamp(-0.02em,-0.04em+0.1cqi,0em)] leading-relaxed",
+                  "mt-1.5 block type-call-source",
                   active ? "font-semibold" : "font-medium",
                 )}
               >
@@ -235,7 +235,7 @@ export const LyricRow = memo(function LyricRow({
               <span
                 lang="ko"
                 className={cn(
-                  "mt-2 block text-[clamp(0.6875rem,0.625rem+0.3125cqi,0.875rem)] tracking-[clamp(-0.01em,-0.04em+0.1cqi,0em)] leading-relaxed",
+                  "mt-2 block type-call-translation",
                   active ? "text-inherit opacity-80" : "text-muted-foreground",
                 )}
               >
@@ -254,7 +254,7 @@ export const LyricRow = memo(function LyricRow({
                 <span
                   lang="en"
                   className={cn(
-                    "mt-1.5 block text-[clamp(0.875rem,0.75rem+0.625cqi,1.125rem)] tracking-[clamp(-0.02em,-0.04em+0.1cqi,0em)] leading-relaxed",
+                    "mt-1.5 block type-call-source",
                     active ? "font-semibold" : "font-medium",
                   )}
                 >
@@ -265,7 +265,7 @@ export const LyricRow = memo(function LyricRow({
                 <span
                   lang="en"
                   className={cn(
-                    "mt-2 block text-[clamp(0.6875rem,0.625rem+0.3125cqi,0.875rem)] tracking-[clamp(-0.01em,-0.04em+0.1cqi,0em)] leading-relaxed",
+                    "mt-2 block type-call-translation",
                     active
                       ? "text-inherit opacity-80"
                       : "text-muted-foreground",
@@ -281,7 +281,7 @@ export const LyricRow = memo(function LyricRow({
               key={section.id}
               lang={locale}
               className={cn(
-                "block text-[clamp(0.875rem,0.75rem+0.625cqi,1.125rem)] tracking-[clamp(-0.02em,-0.04em+0.1cqi,0em)] leading-relaxed",
+                "block type-call-source",
                 active ? "font-bold" : "font-medium",
               )}
             >
