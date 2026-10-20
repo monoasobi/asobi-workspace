@@ -79,7 +79,7 @@ export function MusicContentTabs({
         return (
           <TabsContent key={group.value} value={group.value} forceMount className="min-h-0 overflow-y-auto data-[state=inactive]:hidden">
             <div className="flex items-center justify-between gap-2 px-5 py-4">
-              <h3 className="type-label">{group.label} <span className="ml-1 text-muted-foreground">{group.items.length}</span></h3>
+              <h3 className="type-label">{group.label}</h3>
               {!readOnly && group.create && (
                 <Button type="button" variant="ghost" size="icon-sm" aria-label={`${group.label} 추가`} disabled={guard.busy} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>
               )}
