@@ -21,7 +21,8 @@ export async function refreshPublicCatalog(
           redirect: "error",
           signal: AbortSignal.timeout(5000),
         });
-        return { target, ok: response.ok };
+        const result = await response.json().catch(() => null);
+        return { target, ok: response.ok && result?.ok === true };
       } catch {
         return { target, ok: false };
       }

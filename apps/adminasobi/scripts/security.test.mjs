@@ -77,3 +77,49 @@ test("song IDs preserve zero and reject ambiguous numeric input", () => {
   for (const raw of ["-1", "1.5", "1e3", "", " ", "9007199254740992"])
     assert.equal(parseMusicId(raw), null);
 });
+
+test("refresh requires an explicit success response and safely reports notification failures", async (context) => {
+  const { refreshPublicCatalog } = await import("../src/server/refresh.ts");
+  const keys = ["MONOASOBI_URL", "MONOASOBI_REVALIDATION_SECRET"];
+  const saved = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  try {
+    process.env.MONOASOBI_URL = "http://localhost:3100";
+    process.env.MONOASOBI_REVALIDATION_SECRET = "local-refresh-test";
+    const mocked = context.mock.method(
+      globalThis,
+      "fetch",
+      async (url, options) => {
+        assert.equal(new URL(url).pathname, "/api/internal/revalidate");
+        assert.equal(
+          options.headers.Authorization,
+          "Bearer local-refresh-test",
+        );
+        assert.equal(options.redirect, "error");
+        assert.equal(options.cache, "no-store");
+        return Response.json({ ok: true });
+      },
+    );
+    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
+      { target: "monoasobi", ok: true },
+    ]);
+    mocked.mock.mockImplementation(async () => Response.json({}));
+    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
+      { target: "monoasobi", ok: false },
+    ]);
+    mocked.mock.mockImplementation(async () => {
+      throw new Error("offline");
+    });
+    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
+      { target: "monoasobi", ok: false },
+    ]);
+    delete process.env.MONOASOBI_REVALIDATION_SECRET;
+    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
+      { target: "monoasobi", ok: false },
+    ]);
+  } finally {
+    for (const key of keys) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  }
+});
