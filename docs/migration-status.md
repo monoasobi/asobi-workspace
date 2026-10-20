@@ -683,3 +683,10 @@ HTTP 확인은 1단계의 합성 곡 1개를 가진 같은 로컬 DB와 기존 �
 사용자가 원본 재확인 후 로컬 소설 파일 전체 삭제와 로컬 파일 누락 시 서버 조회를 명시 승인했습니다. 새 Mono public/novel의 Markdown 32개를 삭제했습니다. 원본 monoasobi-contents 및 원본 앱 파일/R2 객체는 보존했습니다. 개발에서는 로컬 원고를 no-store로 먼저 요청하고, 404 또는 Next HTML 응답이면 기존 독자 인증이 적용된 R2 API를 호출합니다. 운영에서는 기존처럼 R2 API만 호출합니다. HTML은 소설로 렌더링하지 않으며 인증 실패/서버 오류는 기존 오류 표시로 처리합니다. 원고를 자동 복사해 되살리지 않습니다.
 
 NovelReader의 로딩 부분만 작은 helper로 분리했습니다. JSX·스크롤·Markdown renderer·CSS는 동일함을 diff로 확인했고, 승인된 로딩 변경에 대해서만 소설 소스 해시를 갱신했습니다. 로컬 우선/404/200 HTML/R2/401/500/HTML 거부 7개 경우 집중 검사와 UI 보존 계약, Mono lint/typecheck 통과. 실제 개발 서버의 군청 요청이 로컬 200 HTML → R2 200 text/markdown으로 전환되어 본문을 읽는 것까지 확인했습니다. DB/파일 쓰기는 하지 않았고 원문은 커밋하지 않았습니다.
+
+
+## QA 수정 — 공용 주조색 #F2285A
+
+Mono 사이드바 정식 발매 배지는 공용 Badge의 bg-primary를 사용하며 앱별 별도 배지색은 없었습니다. 짙은 색의 원인은 공용 라이트 primary가 magenta-600을 사용한 것이었습니다. 사용자 지정 #F2285A를 magenta-500에 명시하고 라이트/다크 primary·sidebar-primary를 모두 해당 값으로 통일했습니다. Mono/Loud/Admin은 같은 토큰을 소비합니다. 소설 문법별 스타일과 별도 읽기 색상은 변경하지 않았습니다.
+
+검증: 전체 workspace lint/typecheck와 소설 UI 보존 검사 통과. 실제 localhost Mono/Loud의 제공 CSS에서 #f2285a와 두 모드의 primary/sidebar-primary → magenta-500 연결을 확인했습니다. 소설 로딩 변경 커밋은 `edd1a25`이며 브랜드 변경은 별도 커밋으로 남깁니다.

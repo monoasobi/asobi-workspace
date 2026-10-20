@@ -1,5 +1,5 @@
 /*
- * 고정 브랜드 팔레트: 500은 제공된 sRGB 원본의 OKLCH 변환값.
+ * 고정 브랜드 팔레트: 500은 제공된 sRGB 원본(주조색은 HEX, 나머지는 OKLCH).
  * 100–400: OKLab에서 흰색과 92/78/58/30% 혼합.
  * 600–900: L과 C를 원본의 88/72/56/40%로 감소.
  * 색상각을 유지하고 sRGB 색역 밖에서는 chroma만 줄입니다.
@@ -12,7 +12,7 @@
   --magenta-200: oklch(0.91750373 0.04256574 14.617492);
   --magenta-300: oklch(0.84250712 0.08727726 14.617492);
   --magenta-400: oklch(0.73751187 0.16140353 14.617492);
-  --magenta-500: oklch(0.62501695 0.23057647 14.617492);
+  --magenta-500: #f2285a;
   --magenta-600: oklch(0.55001492 0.2029073 14.617492);
   --magenta-700: oklch(0.45001221 0.16601506 14.617492);
   --magenta-800: oklch(0.35000949 0.12912283 14.617492);
@@ -164,7 +164,7 @@
   --ayase--green: var(--ayase-green-500);
 }
 
-/* Light: primary는 흰색 본문 대비를 위해 magenta-600 사용. */
+/* Main brand color stays #F2285A in both modes; supporting tones remain semantic. */
 :root,
 .light {
   --background: var(--white-500);
@@ -173,7 +173,7 @@
   --card-foreground: var(--black-500);
   --popover: var(--white-100);
   --popover-foreground: var(--black-500);
-  --primary: var(--magenta-600);
+  --primary: var(--magenta-500);
   --primary-foreground: var(--white-500);
   --secondary: var(--magenta-100);
   --secondary-foreground: var(--magenta-700);
@@ -192,7 +192,7 @@
   --chart-5: var(--purple-500);
   --sidebar: var(--white-500);
   --sidebar-foreground: var(--black-500);
-  --sidebar-primary: var(--magenta-600);
+  --sidebar-primary: var(--magenta-500);
   --sidebar-primary-foreground: var(--white-500);
   --sidebar-accent: var(--magenta-100);
   --sidebar-accent-foreground: var(--magenta-700);
@@ -211,7 +211,7 @@
   --card-foreground: var(--white-500);
   --popover: var(--charcoal-800);
   --popover-foreground: var(--white-500);
-  --primary: var(--magenta-400);
+  --primary: var(--magenta-500);
   --primary-foreground: var(--black-500);
   --secondary: var(--magenta-900);
   --secondary-foreground: var(--magenta-200);
@@ -230,7 +230,7 @@
   --chart-5: var(--purple-500);
   --sidebar: var(--charcoal-900);
   --sidebar-foreground: var(--white-500);
-  --sidebar-primary: var(--magenta-400);
+  --sidebar-primary: var(--magenta-500);
   --sidebar-primary-foreground: var(--black-500);
   --sidebar-accent: var(--magenta-900);
   --sidebar-accent-foreground: var(--magenta-200);

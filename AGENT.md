@@ -38,7 +38,7 @@
   - `apps/adminasobi`: 두 기존 관리자를 합친 한국어 관리자.
 - 두 공개 서비스의 기존 도메인·공개 URL·주요 동작을 보존하고 관리자만 새 주소로 분리합니다.
 - 공통 UI는 최근 LOUDASOBI의 shadcn/ui 구성을 기준으로 통일합니다. MONOASOBI의 Radix Themes는 점진적으로 제거합니다.
-- **브랜드 색상은 사용자 결정(2026-10-20)에 따라 LOUDASOBI의 기존 팔레트와 라이트·다크 semantic token을 세 앱에서 공용으로 사용합니다.** 단일 원본은 `packages/ui/src/brand.css`이며, Tailwind 연결은 `packages/ui/src/styles.css`입니다. 앱별 색상 사본이나 별도 브랜드 테마를 만들지 않습니다. MONOASOBI의 실제 화면 적용은 7단계 UI 전환에서, 새 관리자는 생성 시부터 이 기준을 사용합니다.
+- **브랜드 색상은 사용자 결정(2026-10-20)에 따라 LOUDASOBI의 기존 팔레트와 라이트·다크 semantic token을 세 앱에서 공용으로 사용합니다.** 단일 원본은 `packages/ui/src/brand.css`이며, Tailwind 연결은 `packages/ui/src/styles.css`입니다. 후속 사용자 확정 주조색은 **#F2285A**이고 라이트/다크 primary와 sidebar-primary 모두 magenta-500을 사용합니다. 기본 주조색을 600/400 단계로 임의 변경하지 않습니다. 앱별 색상 사본이나 별도 브랜드 테마를 만들지 않습니다. MONOASOBI의 실제 화면 적용은 7단계 UI 전환에서, 새 관리자는 생성 시부터 이 기준을 사용합니다.
 - Turso와 R2의 기존 데이터·곡 ID·가사 줄 ID·파일 키를 보존합니다. 모노레포 이전을 위해 DB를 새로 만들거나 콘텐츠를 일괄 재생성하지 않습니다.
 - 공통 UI 소스는 한 곳에 두고 각 앱이 빌드에 포함합니다. 공용 UI 서버나 npm 공개 배포는 만들지 않습니다.
 - 공개 앨범아트 제공 주소는 관리자와 두 공개 앱의 주소로부터 분리하는 방향입니다. R2와 Cloudflare 커스텀 도메인·이미지 변환을 사용합니다. 사용자가 승인한 `assets.envifloor.uk`와 `asobi-album-art` 연결·읽기 검증은 완료했으며, 사용자 승인으로 운영 DB 36곡 키 교체·기존 배포 200px 호환·캐시 무효화 검증까지 완료했습니다. 새 앱 배포는 사용자 담당입니다.

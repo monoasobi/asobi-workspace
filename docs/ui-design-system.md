@@ -40,3 +40,8 @@
 - 공통 Resizable은 기존 라이브러리와 18px 조절 핸들 계약을 사용합니다. Mono/새 관리자 모두 같은 구현입니다.
 
 읽기 보존·검사와 남은 QA는 [ui-migration.md](ui-migration.md)에 기록합니다.
+
+
+## 주조색 확정
+
+사용자가 공용 주조색을 **#F2285A**로 재확정했습니다. packages/ui/src/brand.css의 magenta-500을 해당 sRGB 값으로 명시하고 라이트/다크 모두 primary와 sidebar-primary가 이를 직접 사용합니다. 기존 라이트의 magenta-600·다크의 magenta-400을 기본 주조색으로 사용하지 않습니다. Mono 정식 발매 배지와 Loud/통합 관리자의 기본 버튼·강조 등 기존 공용 primary 소비자는 같은 값을 따릅니다. 보조 배경/상태/읽기 전용 색상과 hover 투명도는 기존 역할을 유지합니다.
