@@ -1,9 +1,10 @@
 "use client";
 import type { RefreshResult } from "@/types/refresh";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Button } from "@asobi/ui/components/button";
 import { AlbumArtField } from "./content/AlbumArtField";
 export function AlbumArtForm({
+  details,
   musicId,
   albumArtKey,
   readOnly,
@@ -12,6 +13,7 @@ export function AlbumArtForm({
   onDirtyChange,
   onBusyChange,
 }: {
+  details: ReactNode;
   musicId: number;
   albumArtKey: string | null;
   readOnly: boolean;
@@ -64,19 +66,20 @@ export function AlbumArtForm({
     <form
       onSubmit={save}
       aria-busy={busy}
-      className="grid gap-4 p-5 sm:p-6"
+      className="grid gap-3 p-5 pt-14 sm:p-6 sm:pr-32"
     >
       <AlbumArtField
         key={albumArtKey}
         albumArtKey={albumArtKey}
+        imageAction={hasFile && <Button type="submit" size="sm" className="w-full rounded-t-none" disabled={readOnly || busy}>{busy ? "저장 중…" : "앨범아트 저장"}</Button>}
         disabled={readOnly || busy}
         onFileChange={(file) => {
           setHasFile(Boolean(file));
           onDirtyChange(Boolean(file));
           setMessage("");
         }}
-      />
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      >{details}</AlbumArtField>
+      {message && <div>
         <p
           role={failed ? "alert" : "status"}
           className={
@@ -87,14 +90,7 @@ export function AlbumArtForm({
         >
           {message}
         </p>
-        <Button
-          type="submit"
-          variant="outline"
-          disabled={readOnly || busy || !hasFile}
-        >
-          {busy ? "저장 중…" : "앨범아트 저장"}
-        </Button>
-      </div>
+      </div>}
     </form>
   );
 }
