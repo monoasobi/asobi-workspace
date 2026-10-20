@@ -1,0 +1,263 @@
+{
+  "checkedAt": "2026-10-20T02:47:59.945Z",
+  "sourceBucket": "monoasobi-contents",
+  "targetBucket": "asobi-album-art",
+  "publicBaseUrl": "https://assets.envifloor.uk",
+  "existingKeyCopies": [
+    {
+      "musicId": 0,
+      "kind": "existing-key",
+      "key": "albumart/0/3dcc2616a242f17e6324d966e13f0103.webp",
+      "bytes": 3734,
+      "sha256": "3dcc2616a242f17e6324d966e13f01036dbea3e9473d12874f8f326bd748b309"
+    },
+    {
+      "musicId": 1,
+      "kind": "existing-key",
+      "key": "albumart/1/5aa617635cf4db051ed7c30868ecc6e1.webp",
+      "bytes": 9676,
+      "sha256": "5aa617635cf4db051ed7c30868ecc6e11b7707ee75b4837ae3ed519866cd186f"
+    },
+    {
+      "musicId": 2,
+      "kind": "existing-key",
+      "key": "albumart/2/b3c2b92d5641e493ba373d0eb3730dc4.webp",
+      "bytes": 7190,
+      "sha256": "b3c2b92d5641e493ba373d0eb3730dc413147b5a3d836c04bbfb76420cd804c0"
+    },
+    {
+      "musicId": 3,
+      "kind": "existing-key",
+      "key": "albumart/3/be82af0271687610f4f2c8b9f619861d.webp",
+      "bytes": 7564,
+      "sha256": "be82af0271687610f4f2c8b9f619861dc60f4fee83e9840d16b1e7cb62d982b0"
+    },
+    {
+      "musicId": 4,
+      "kind": "existing-key",
+      "key": "albumart/4/c613aeb8edb086c9e8495517aa4ab435.webp",
+      "bytes": 9660,
+      "sha256": "c613aeb8edb086c9e8495517aa4ab43571a1fec905f81ef5ef0c37fd42c7c6d7"
+    },
+    {
+      "musicId": 5,
+      "kind": "existing-key",
+      "key": "albumart/5/f73ac4c3554d496f2c1046156931a5ea.webp",
+      "bytes": 28738,
+      "sha256": "f73ac4c3554d496f2c1046156931a5eaefdf35aab5c358d455393e43d0c88abc"
+    },
+    {
+      "musicId": 6,
+      "kind": "existing-key",
+      "key": "albumart/6/c675a3989f533fd28aad4176b80afecb.webp",
+      "bytes": 24834,
+      "sha256": "c675a3989f533fd28aad4176b80afecb5ae561b94f88afdca5af98f137ddeb19"
+    },
+    {
+      "musicId": 7,
+      "kind": "existing-key",
+      "key": "albumart/7/4f6c95da3b14465347eab0a783abd0f8.webp",
+      "bytes": 32372,
+      "sha256": "4f6c95da3b14465347eab0a783abd0f890d2ced19c59e435566fba6849fc7ce2"
+    },
+    {
+      "musicId": 8,
+      "kind": "existing-key",
+      "key": "albumart/8/82db51da01dc26fa4d6023d5d2ecf22a.webp",
+      "bytes": 116810,
+      "sha256": "82db51da01dc26fa4d6023d5d2ecf22a9f5c2f6124b4f723039612884ca9cb55"
+    },
+    {
+      "musicId": 9,
+      "kind": "existing-key",
+      "key": "albumart/9/b2c8b67a353a38839e4834139ebc9c86.webp",
+      "bytes": 43470,
+      "sha256": "b2c8b67a353a38839e4834139ebc9c86cac326da420fdd4206e3b76c8cce2abf"
+    },
+    {
+      "musicId": 10,
+      "kind": "existing-key",
+      "key": "albumart/10/273e06256a1444eba5ccdb651b7d30f8.webp",
+      "bytes": 176980,
+      "sha256": "273e06256a1444eba5ccdb651b7d30f8b11f223f8f589f9604de3e34fff672dd"
+    },
+    {
+      "musicId": 11,
+      "kind": "existing-key",
+      "key": "albumart/11/36e1790c42ccc47ac54ab69ed8675b83.webp",
+      "bytes": 100184,
+      "sha256": "36e1790c42ccc47ac54ab69ed8675b834b86691ce663fdcd63b28f3679c9ca6a"
+    },
+    {
+      "musicId": 12,
+      "kind": "existing-key",
+      "key": "albumart/12/9b8bdcc60341b5860f80fd007b16e478.webp",
+      "bytes": 84522,
+      "sha256": "9b8bdcc60341b5860f80fd007b16e4789c15b82406db5af730b3db5fbbdd2df1"
+    },
+    {
+      "musicId": 13,
+      "kind": "existing-key",
+      "key": "albumart/13/3aedea7f9a226da6924c8625f7b05ad7.webp",
+      "bytes": 71052,
+      "sha256": "3aedea7f9a226da6924c8625f7b05ad7fff12cd576a2dd151a0d06b93751f6a6"
+    },
+    {
+      "musicId": 14,
+      "kind": "existing-key",
+      "key": "albumart/14/5eaf2aebfceed3100da131cd475a171d.webp",
+      "bytes": 182468,
+      "sha256": "5eaf2aebfceed3100da131cd475a171d35047239fab4048aa6b702d4e1ce4eba"
+    },
+    {
+      "musicId": 15,
+      "kind": "existing-key",
+      "key": "albumart/15/8b3e8cc4b9ab34b48d579ee3aaf663a4.webp",
+      "bytes": 152110,
+      "sha256": "8b3e8cc4b9ab34b48d579ee3aaf663a4327e9d86d621f291945525b89e263447"
+    },
+    {
+      "musicId": 16,
+      "kind": "existing-key",
+      "key": "albumart/16/21de1ad837dca1de608a1ab5debd7ae5.webp",
+      "bytes": 174276,
+      "sha256": "21de1ad837dca1de608a1ab5debd7ae5464a11b542b70885406a23b1f98a6b02"
+    },
+    {
+      "musicId": 17,
+      "kind": "existing-key",
+      "key": "albumart/17/176a755822538218ac5ca273e2c04d1b.webp",
+      "bytes": 228590,
+      "sha256": "176a755822538218ac5ca273e2c04d1b43e930e3dc83b6cf825ba6a1afb3cf41"
+    },
+    {
+      "musicId": 18,
+      "kind": "existing-key",
+      "key": "albumart/18/eccfb93bad4d6e4fb506f6eb7b1abed0.webp",
+      "bytes": 123810,
+      "sha256": "eccfb93bad4d6e4fb506f6eb7b1abed0cb3e909b7a158b03367cae708011d96d"
+    },
+    {
+      "musicId": 19,
+      "kind": "existing-key",
+      "key": "albumart/19/0e8c2f057a035d956e9bc69709231cd9.webp",
+      "bytes": 128378,
+      "sha256": "0e8c2f057a035d956e9bc69709231cd9ffba20d84050df3a460add7cd01de562"
+    },
+    {
+      "musicId": 20,
+      "kind": "existing-key",
+      "key": "albumart/20/776d0051b50af180719035b0ecc840d8.webp",
+      "bytes": 193436,
+      "sha256": "776d0051b50af180719035b0ecc840d8a0ea8033643de51265a72b3299b28151"
+    },
+    {
+      "musicId": 21,
+      "kind": "existing-key",
+      "key": "albumart/21/9971255de4a0c4547047c49cdd738a94.webp",
+      "bytes": 95100,
+      "sha256": "9971255de4a0c4547047c49cdd738a94153db1c4d898f75e4d060bfbb67e4508"
+    },
+    {
+      "musicId": 22,
+      "kind": "existing-key",
+      "key": "albumart/22/409ecaad85ec44d02f6f52886e38fab6.webp",
+      "bytes": 19284,
+      "sha256": "409ecaad85ec44d02f6f52886e38fab6722fc3d4bdafb5937127083f72b58d1d"
+    },
+    {
+      "musicId": 23,
+      "kind": "existing-key",
+      "key": "albumart/23/8eed3f58bb2430e37f01ce569deee508.webp",
+      "bytes": 49038,
+      "sha256": "8eed3f58bb2430e37f01ce569deee5086fc7b64d623bb56e03687d7f8c2f5063"
+    },
+    {
+      "musicId": 24,
+      "kind": "existing-key",
+      "key": "albumart/24/e50e73d7cd213362f1613b421c09ce54.webp",
+      "bytes": 63394,
+      "sha256": "e50e73d7cd213362f1613b421c09ce544568cf7209c2808b29b3a917d8d5e6be"
+    },
+    {
+      "musicId": 25,
+      "kind": "existing-key",
+      "key": "albumart/25/b048a1f10f514a02d5a809be393cabea.webp",
+      "bytes": 103960,
+      "sha256": "b048a1f10f514a02d5a809be393cabeac563316427602427f47990f05f6089a1"
+    },
+    {
+      "musicId": 26,
+      "kind": "existing-key",
+      "key": "albumart/26/d185a5d6bdda4edc09b4a16d1afb09bf.webp",
+      "bytes": 340236,
+      "sha256": "d185a5d6bdda4edc09b4a16d1afb09bf34315d1f52a4c4c19da77a153723547f"
+    },
+    {
+      "musicId": 27,
+      "kind": "existing-key",
+      "key": "albumart/27/0f8a1b14e64b3994a37a7d7c5f9b4a13.webp",
+      "bytes": 53828,
+      "sha256": "0f8a1b14e64b3994a37a7d7c5f9b4a130ddf79f8d7a2083028bf603f37f87f29"
+    },
+    {
+      "musicId": 28,
+      "kind": "existing-key",
+      "key": "albumart/28/5cfb0d9fb3eceee8b97fb70a25c0c250.webp",
+      "bytes": 623230,
+      "sha256": "5cfb0d9fb3eceee8b97fb70a25c0c2500c873fda9cb30dbb33bad57ca6cd9c52"
+    },
+    {
+      "musicId": 29,
+      "kind": "existing-key",
+      "key": "albumart/29/24bdf856836924442dcfc18bd07df6b2.webp",
+      "bytes": 27226,
+      "sha256": "24bdf856836924442dcfc18bd07df6b2506106dc5f386909ad9b134bd27648de"
+    },
+    {
+      "musicId": 30,
+      "kind": "existing-key",
+      "key": "albumart/30/19a3bbcb04c2971bc38b6a1932ba0f5d.webp",
+      "bytes": 150346,
+      "sha256": "19a3bbcb04c2971bc38b6a1932ba0f5d0ff2df9840fe47b28c41e70f601b5734"
+    },
+    {
+      "musicId": 31,
+      "kind": "existing-key",
+      "key": "albumart/31/f425908468ddcccb2a5ef7b17a7ee7f7.webp",
+      "bytes": 133234,
+      "sha256": "f425908468ddcccb2a5ef7b17a7ee7f73f4cdeb7f7895b90be1f63a051b5413a"
+    },
+    {
+      "musicId": 32,
+      "kind": "existing-key",
+      "key": "albumart/32/0fdcb02d947aadfc4d76062b917b3761.webp",
+      "bytes": 137024,
+      "sha256": "0fdcb02d947aadfc4d76062b917b37614a82d39c0e31af4af70fdf6867a17138"
+    },
+    {
+      "musicId": 33,
+      "kind": "existing-key",
+      "key": "albumart/33/66dec0064887cac9f5bce06d4d7a102c.webp",
+      "bytes": 54958,
+      "sha256": "66dec0064887cac9f5bce06d4d7a102c9edb035ed719d0af9031ebcc03b52f1c"
+    },
+    {
+      "musicId": 34,
+      "kind": "existing-key",
+      "key": "albumart/34/ed6361e5134be7cac6fd2be8873d5a1e.webp",
+      "bytes": 7410,
+      "sha256": "ed6361e5134be7cac6fd2be8873d5a1eacb6217ee4025bbe505b6fa3e8788c91"
+    },
+    {
+      "musicId": 35,
+      "kind": "existing-key",
+      "key": "albumart/35/c26e978f-18f5-4c99-bfab-27ad637225c0.webp",
+      "bytes": 293608,
+      "sha256": "4959484e625e51495b5d4b15ca10d2044163499a13cd44a39f71afa5d3271321"
+    }
+  ],
+  "highResolutionManifest": "manifest.json",
+  "highResolutionObjects": 36,
+  "note": "Copies verified by SHA-256. No DB keys changed and no source objects deleted."
+}
