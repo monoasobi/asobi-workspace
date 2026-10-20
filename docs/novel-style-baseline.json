@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "e1caeac",
+  "hashes": {
+    "components/content/NovelReader.module.css": "5858b5e01590b67553404f67ec6c72302c370801163145db73672ac9c63958c0",
+    "components/content/NovelMarkdown.module.css": "f9e618fc0350719253738ecb65ec8b51ed7992385c8f2831ba8b70eb13eda35e",
+    "components/content/NovelReader.tsx": "231c60f4d2095804cbe9c0884b91edf4400b038d7789455d82e8cdff37586892",
+    "components/content/NovelMarkdown.tsx": "b67e11f52f9985f2c6d8ca08ff11639af3d5171634d9971cadb087a256b89567"
+  },
+  "note": "User-tuned source contract. Only the nonvisual viewer marker and explicit original inherited text color may differ."
+}
