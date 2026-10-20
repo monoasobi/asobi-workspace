@@ -16,7 +16,6 @@ import {
   SheetDescription,
 } from "@asobi/ui/components/sheet";
 import type { CatalogEntry } from "@/types/catalog";
-import { useCatalogRefresh } from "./AppFrame/useCatalogRefresh";
 import { useIsCompact } from "./AppFrame/useIsCompact";
 import { sidebarMusicIds, type SidebarLayout } from "@asobi/content-core/sidebarOrder";
 
@@ -30,7 +29,6 @@ export function AppFrame({
   unavailable?: boolean;
 }) {
   const router = useRouter();
-  useCatalogRefresh();
   const t = useTranslations();
   const compact = useIsCompact();
   const [desktopOpen, setDesktopOpen] = useState(true);
