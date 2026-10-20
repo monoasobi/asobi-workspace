@@ -9,15 +9,22 @@ const monoasobiUrl = process.env.NEXT_PUBLIC_MONOASOBI_URL?.replace(/\/+$/, "");
 
 export function AlbumArtwork({
   albumArtKey,
+  src,
   className,
 }: {
   albumArtKey?: string | null;
+  src?: string;
   className?: string;
 }) {
   const [failed, setFailed] = useState(false);
-  return monoasobiUrl && albumArtKey && !failed ? (
+  const imageSrc =
+    src ??
+    (monoasobiUrl && albumArtKey
+      ? `${monoasobiUrl}/api/content/${albumArtKey}`
+      : undefined);
+  return imageSrc && !failed ? (
     <Image
-      src={`${monoasobiUrl}/api/content/${albumArtKey}`}
+      src={imageSrc}
       alt=""
       width={72}
       height={72}
