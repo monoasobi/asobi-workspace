@@ -1,17 +1,17 @@
 "use client";
 import { TextSuggestions } from "./TextSuggestions";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Button } from "@asobi/ui/components/button";
+import { Label } from "@asobi/ui/components/label";
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@/components/ui/native-select";
+} from "@asobi/ui/components/native-select";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@asobi/ui/components/accordion";
 import { roundTime, type CallCue, type CallGuide } from "@asobi/content-core/callGuide";
 import {
   lyricResizeLimits,

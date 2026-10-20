@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 
 const IconPickerPanel = dynamic(() => import("./IconPickerPanel"), {
   loading: () => (

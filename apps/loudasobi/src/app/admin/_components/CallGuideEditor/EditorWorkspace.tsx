@@ -4,12 +4,12 @@ import { Copy, ClipboardPaste } from "lucide-react";
 import { NextIntlClientProvider } from "next-intl";
 import { messages } from "@/i18n/messages";
 import { locales, localeNames, type Locale } from "@/i18n/config";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@asobi/ui/components/button";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@/components/ui/native-select";
+} from "@asobi/ui/components/native-select";
 import { GuidePreview } from "@/components/player/GuidePreview";
 import type { Playback } from "@/components/player/MusicExperience/usePlayback";
 import type { LyricTrack, CallSection } from "@asobi/content-core/lyrics";

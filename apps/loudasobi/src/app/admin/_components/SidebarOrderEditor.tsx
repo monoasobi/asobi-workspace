@@ -2,9 +2,9 @@
 import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@asobi/ui/components/button";
+import { Badge } from "@asobi/ui/components/badge";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import {
   projectSidebar,
   moveSidebarGroup,

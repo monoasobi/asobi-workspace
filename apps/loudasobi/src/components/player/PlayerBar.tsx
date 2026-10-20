@@ -3,8 +3,8 @@
 import { LoaderCircle, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useSyncExternalStore } from "react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { Button } from "@asobi/ui/components/button";
+import { Slider } from "@asobi/ui/components/slider";
 import type { Music } from "@/types/music";
 import type { Playback } from "./MusicExperience/usePlayback";
 

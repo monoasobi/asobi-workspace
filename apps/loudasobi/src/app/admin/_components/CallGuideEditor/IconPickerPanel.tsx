@@ -1,6 +1,6 @@
 "use client";
 import { IconPicker, type IconName } from "@/components/ui/icon-picker";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import { CallIcon } from "@/components/common/CallIcon";
 
 const presets = [

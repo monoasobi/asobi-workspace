@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Disc3 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@asobi/ui/lib/utils";
 
 const monoasobiUrl = process.env.NEXT_PUBLIC_MONOASOBI_URL?.replace(/\/+$/, "");
 

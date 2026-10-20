@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Header } from "./Header";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import { SongList } from "./SongList";
 import type { SongSort } from "./SongList/albumOrder";
 import { MusicExperience } from "@/components/player/MusicExperience";
@@ -14,7 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from "@/components/ui/sheet";
+} from "@asobi/ui/components/sheet";
 import type { CatalogEntry } from "@/types/catalog";
 import { useCatalogRefresh } from "./AppFrame/useCatalogRefresh";
 import { useIsCompact } from "./AppFrame/useIsCompact";

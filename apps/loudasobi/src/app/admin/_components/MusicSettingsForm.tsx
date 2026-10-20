@@ -2,12 +2,12 @@
 import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useState, type FormEvent } from "react";
 import { AudioLines, Globe, Save, SlidersHorizontal } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@asobi/ui/components/badge";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { Separator } from "@asobi/ui/components/separator";
+import { Button } from "@asobi/ui/components/button";
+import { Input } from "@asobi/ui/components/input";
+import { Label } from "@asobi/ui/components/label";
 import {
   Select,
   SelectContent,
@@ -15,8 +15,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@asobi/ui/components/select";
+import { Checkbox } from "@asobi/ui/components/checkbox";
 import {
   fanLightKeys,
   fanLightBackground,

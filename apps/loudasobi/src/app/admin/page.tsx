@@ -5,9 +5,9 @@ import { readSidebarLayout } from "@/server/queries/sidebar";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, LockKeyhole } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@asobi/ui/components/button";
+import { Separator } from "@asobi/ui/components/separator";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { AdminAuthForm } from "./_components/AdminAuthForm";
 import { AdminMusicManager } from "./_components/AdminMusicManager";
 

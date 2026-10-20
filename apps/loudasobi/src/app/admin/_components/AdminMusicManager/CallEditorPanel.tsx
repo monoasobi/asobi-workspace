@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import type { AdminMusic } from "@/types/catalog";
 import type { GuideDocument } from "@/server/queries/guide";
 import { CallGuideEditor } from "../CallGuideEditor";

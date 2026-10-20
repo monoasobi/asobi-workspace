@@ -9,11 +9,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@asobi/ui/components/accordion";
+import { Button } from "@asobi/ui/components/button";
+import { Switch } from "@asobi/ui/components/switch";
+import { Input } from "@asobi/ui/components/input";
+import { Label } from "@asobi/ui/components/label";
 import { callLabels } from "@/components/player/GuidePreview/guideStyles";
 import type { Playback } from "@/components/player/MusicExperience/usePlayback";
 import {

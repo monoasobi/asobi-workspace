@@ -6,7 +6,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import type { CallGuide } from "@asobi/content-core/callGuide";
 import {
   getTextSuggestions,

@@ -14,13 +14,13 @@ import { useTheme } from "next-themes";
 import { useLocale, useTranslations } from "next-intl";
 import { useSetLocale } from "@/i18n/LocaleProvider";
 import { locales, localeNames } from "@/i18n/config";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+} from "@asobi/ui/components/popover";
+import { Separator } from "@asobi/ui/components/separator";
 
 export function SettingsMenu() {
   const t = useTranslations();

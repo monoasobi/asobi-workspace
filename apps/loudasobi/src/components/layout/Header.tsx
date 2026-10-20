@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import { SettingsMenu } from "./SettingsMenu";
 
 export function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {

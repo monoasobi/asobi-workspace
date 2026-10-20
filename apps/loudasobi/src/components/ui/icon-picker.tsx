@@ -7,10 +7,10 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+} from "@asobi/ui/components/popover";
+import { Button } from "@asobi/ui/components/button";
+import { Input } from "@asobi/ui/components/input";
+import { cn } from "@asobi/ui/lib/utils";
 import { LucideProps, LucideIcon } from "lucide-react";
 import {
   DynamicIcon,
@@ -24,7 +24,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@asobi/ui/components/tooltip";
 import { iconsData } from "./icons-data";
 import { useVirtualizer, VirtualItem } from "@tanstack/react-virtual";
 import Fuse from "fuse.js";

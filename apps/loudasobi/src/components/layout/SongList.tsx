@@ -4,19 +4,19 @@ import { AlbumArtwork } from "@/components/common/AlbumArtwork";
 import { useLocale, useTranslations } from "next-intl";
 import { useLayoutEffect, useRef, useState } from "react";
 import type { SongListItem } from "@/types/catalog";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@asobi/ui/components/badge";
 import { FanLightBadge } from "@/components/common/FanLightBadge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { cn } from "@asobi/ui/lib/utils";
 import type { SidebarLayout } from "@asobi/content-core/sidebarOrder";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import type { Locale } from "@/i18n/config";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@asobi/ui/components/accordion";
 import { getAlbumLayout, type SongSort } from "./SongList/albumOrder";
 import {
   readSidebarScroll,

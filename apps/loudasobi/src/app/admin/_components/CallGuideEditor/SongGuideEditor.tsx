@@ -1,13 +1,13 @@
 "use client";
 import { TextSuggestions } from "./TextSuggestions";
 import { Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Button } from "@asobi/ui/components/button";
+import { Label } from "@asobi/ui/components/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@asobi/ui/components/popover";
 import type { CallGuide } from "@asobi/content-core/callGuide";
 
 export function SongGuideEditor({

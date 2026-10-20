@@ -1,12 +1,12 @@
 "use client";
 import { useSyncExternalStore } from "react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@asobi/ui/components/button";
+import { Label } from "@asobi/ui/components/label";
+import { Checkbox } from "@asobi/ui/components/checkbox";
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@/components/ui/native-select";
+} from "@asobi/ui/components/native-select";
 import type { Playback } from "@/components/player/MusicExperience/usePlayback";
 import {
   cuePulses,

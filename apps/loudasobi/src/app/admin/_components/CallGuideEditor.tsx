@@ -3,7 +3,7 @@ import { recordRecentGuideTexts } from "@/lib/recentGuideTexts";
 import { RecentTextProvider } from "./CallGuideEditor/TextSuggestions";
 import { notifyCatalogUpdated } from "@/lib/catalogUpdates";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@asobi/ui/lib/utils";
 import type { AdminMusic } from "@/types/catalog";
 import {
   ArrowLeft,
@@ -17,17 +17,17 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@asobi/ui/components/popover";
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@/components/ui/native-select";
+} from "@asobi/ui/components/native-select";
 import { callLabels } from "@/components/player/GuidePreview/guideStyles";
 import { SongGuideEditor } from "./CallGuideEditor/SongGuideEditor";
 import { EditorThemeMenu } from "./CallGuideEditor/EditorThemeMenu";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@asobi/ui/components/button";
+import { Badge } from "@asobi/ui/components/badge";
 import { MusicExperience } from "@/components/player/MusicExperience";
 import { resolveLyricPresentation } from "@asobi/content-core/lyricPresentation";
 import { resolveGuide, roundTime } from "@asobi/content-core/callGuide";

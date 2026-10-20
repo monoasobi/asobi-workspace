@@ -3,10 +3,10 @@
 import { Fragment, useCallback, useId, useMemo, useRef } from "react";
 import { Info, LocateFixed, Music2, Pause } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Button } from "@asobi/ui/components/button";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { Switch } from "@asobi/ui/components/switch";
+import { Label } from "@asobi/ui/components/label";
 import { FanLightBadge } from "@/components/common/FanLightBadge";
 import type { Music } from "@/types/music";
 import type {
@@ -18,7 +18,7 @@ import type {
 import { LyricGuideCard } from "./LyricGuideCard";
 import { LyricRow } from "./GuidePreview/LyricRow";
 import { groupLyrics } from "./GuidePreview/groupLyrics";
-import { cn } from "@/lib/utils";
+import { cn } from "@asobi/ui/lib/utils";
 import { displayTimeline } from "./GuidePreview/displayTimeline";
 
 import type { PlaybackClock } from "./MusicExperience/playbackClock";

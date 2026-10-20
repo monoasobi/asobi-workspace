@@ -1,13 +1,13 @@
 "use client";
 import { GripVertical, ArrowUp, ArrowDown, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Button } from "@asobi/ui/components/button";
+import { Label } from "@asobi/ui/components/label";
+import { Input } from "@asobi/ui/components/input";
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@/components/ui/native-select";
-import { cn } from "@/lib/utils";
+} from "@asobi/ui/components/native-select";
+import { cn } from "@asobi/ui/lib/utils";
 import {
   moveSidebarSong,
   moveSidebarGroup,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@asobi/ui/components/badge";
 import {
   fanLightBackground,
   fanLightHex,

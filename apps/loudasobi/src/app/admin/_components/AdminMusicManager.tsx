@@ -10,13 +10,13 @@ import {
   AudioLines,
   SlidersHorizontal,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@asobi/ui/components/badge";
+import { Separator } from "@asobi/ui/components/separator";
 import type { AdminMusic } from "@/types/catalog";
 import { AdminAuthForm } from "./AdminAuthForm";
 import { MusicSettingsForm } from "./MusicSettingsForm";
 import { CallEditorPanel } from "./AdminMusicManager/CallEditorPanel";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import { SongList } from "@/components/layout/SongList";
 import { projectSidebar, type SidebarLayout } from "@asobi/content-core/sidebarOrder";
 

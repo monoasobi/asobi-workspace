@@ -8,12 +8,12 @@ import {
 } from "@/components/player/GuidePreview/guideStyles";
 import { HighlightedText } from "@/components/player/HighlightedText";
 import type { Playback } from "@/components/player/MusicExperience/usePlayback";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import {
   NativeSelect,
   NativeSelectOption,
-} from "@/components/ui/native-select";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@asobi/ui/components/native-select";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { cuePulses, cueTextSelections, type CallCue } from "@asobi/content-core/callGuide";
 import {
   lyricTextFields,
@@ -21,7 +21,7 @@ import {
   lyricTextLang,
   type LyricTextField,
 } from "@asobi/content-core/lyricText";
-import { cn } from "@/lib/utils";
+import { cn } from "@asobi/ui/lib/utils";
 import type { LyricLine } from "@asobi/content-core/lyrics";
 import { Minus, Plus } from "lucide-react";
 import {

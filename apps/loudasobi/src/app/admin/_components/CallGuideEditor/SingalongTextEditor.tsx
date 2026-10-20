@@ -1,10 +1,10 @@
 "use client";
 import { useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@asobi/ui/components/button";
 import { HighlightedText } from "@/components/player/HighlightedText";
 import { cueTextSelections, snapshotLine, type CallCue } from "@asobi/content-core/callGuide";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@asobi/ui/components/input";
+import { Label } from "@asobi/ui/components/label";
 import {
   singalongTextFields,
   lyricTextLabels,

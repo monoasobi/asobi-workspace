@@ -1,9 +1,9 @@
 import { CallIcon } from "@/components/common/CallIcon";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@asobi/ui/components/badge";
 import { callBadgeStyles, callStyles } from "./guideStyles";
 import { memo } from "react";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn } from "@asobi/ui/lib/utils";
 import type { CallSection, LyricLine, LyricLocale } from "@asobi/content-core/lyrics";
 import { HighlightedText } from "../HighlightedText";
 import { LyricGuideCard } from "../LyricGuideCard";
