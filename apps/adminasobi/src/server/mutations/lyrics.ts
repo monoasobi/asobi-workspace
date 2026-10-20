@@ -83,3 +83,22 @@ export async function saveLyrics(
     return { status: 200, document: await readLyrics(id, tx), guideIssues };
   });
 }
+
+import { ContentError } from "./content";
+export async function deleteLyrics(id: number, revision: string) {
+  await requireAdminWriteAccess();
+  return getDb().transaction(async (tx) => {
+    const current = await readLyrics(id, tx);
+    if (!current) return null;
+    if (current.revision !== revision)
+      throw new ContentError(
+        409,
+        "가사가 변경되었습니다. 최신 자료를 확인해 주세요.",
+      );
+    const [deleted] = await tx
+      .delete(lyricTracks)
+      .where(eq(lyricTracks.musicId, id))
+      .returning();
+    return deleted;
+  });
+}

@@ -12,3 +12,10 @@ export async function GET() {
     { headers: privateHeaders },
   );
 }
+
+import { contentWrite } from "@/server/contentRoutes";
+import { musicSchema } from "@asobi/content-core/music";
+import { createMusic } from "@/server/mutations/content";
+export function POST(request: Request) {
+  return contentWrite(request, musicSchema, "music", createMusic, 201);
+}

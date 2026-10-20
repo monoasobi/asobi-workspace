@@ -70,3 +70,17 @@ export async function PUT(
     );
   }
 }
+
+import { contentDelete } from "@/server/contentRoutes";
+import { deleteMusic } from "@/server/mutations/content";
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  return contentDelete(
+    request,
+    (await context.params).id,
+    "music",
+    deleteMusic,
+  );
+}
