@@ -267,3 +267,21 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 | API GET/PUT | `/api/admin/musics/[id]/guide` | 인증 조회·콜/offset 트랜잭션·source 충돌 보호 |
 
 공통 구현 소유권은 [reuse-map.md](reuse-map.md), 구현·검증 한계는 [editor-migration.md](editor-migration.md)를 따릅니다. 기존 관리자/API는 운영 전환 전까지 남아 있습니다.
+
+
+## 6단계 새 관리자 추가 진입점
+
+| 종류 | 경로 | 기능 |
+| --- | --- | --- |
+| 페이지 | `/musics/new`, `/musics/deleted` | 곡 생성·숨긴 곡 목록/복원 |
+| 페이지 | `/musics/[id]/content` | 곡별 원작·가사 문서·연결 서적. query string으로 선택 문서 복원 |
+| 페이지 | `/books` | 전체 서적 생성·조회·수정·삭제 |
+| 페이지 | `/sidebar` | 기존 Loud 추천 그룹·정렬 |
+| API GET | `/api/admin/content` | 인증된 전체 문서/숨긴 곡 조회, private/no-store |
+| API POST/PUT/DELETE | `/api/admin/{novels,comics,books}` 및 `/[id]` | 기존 콘텐츠 CRUD·관계/구매 링크 보존 |
+| API POST/DELETE | `/api/admin/lyric-tracks` 및 `/[id]` | 가사 생성·revision 확인 삭제. JSON 수정은 기존 `/musics/[id]/lyrics` PUT 재사용 |
+| API 추가 메서드 | `/api/admin/musics` POST, `/api/admin/musics/[id]` DELETE | 곡 생성·관련 자료를 보존하는 숨김 |
+| API POST | `/api/admin/musics/[id]/restore` | 숨긴 곡 복원 |
+| API GET/PUT | `/api/admin/sidebar` | 추천 자료·revision·현재 공개곡 배치 검증 |
+
+소설/만화 공개 제공·독자 인증 API는 원래 Mono 위치에 유지합니다. 상세 대조와 미검증은 [content-migration.md](content-migration.md)를 따릅니다.

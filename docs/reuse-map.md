@@ -1,6 +1,6 @@
 # 기존 코드 재사용·소유권 지도
 
-기준일: 2026-10-20. 상태: **5단계 두 편집기 독립 페이지·공통 조작·저장 API 로컬 검증 완료. 화면/재생 QA와 운영 전환 대기**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
+기준일: 2026-10-20. 상태: **6단계 콘텐츠·추천 관리까지 로컬 검증 완료. 화면/실제 콘텐츠/R2 통합 QA와 운영 전환 대기**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
 
 기존 소스 전체는 각각 `apps/monoasobi`, `apps/loudasobi`에 Git 이력과 함께 가져왔습니다. 2단계에서는 아래 실제 이동 목록의 공통 구현을 packages로 옮기고 소비자 import를 변경했습니다. public 자산과 편집기/재생 알고리즘은 보존했습니다. 아래 본문 표에는 이후 관리자/미리보기 이관 목표도 포함되며, 모든 목표가 구현됐다는 뜻은 아닙니다.
 
@@ -129,3 +129,16 @@
 | 기존 관리자 navigation guard | `adminasobi/src/components/NavigationGuard*` | 앱 이동·beforeunload 유지, popstate 처리 보강. 구형 브라우저 fallback과 화면 QA 한계는 editor-migration에 기록 |
 
 두 편집기의 공통화는 새 관리자 내부를 대상으로 합니다. 예전 Mono 공개/관리자 전체에 새 조작을 역이식한 것은 아닙니다. 기존 관리자와 새 관리자의 임시 중복은 기능별 QA·운영 전환 후 제거합니다. 앱끼리 내부 파일을 직접 import하지 않습니다.
+
+
+## 6단계 실제 콘텐츠·추천 인계
+
+| 원본 | 실제 새 소유 위치 | 변경·제거 조건 |
+| --- | --- | --- |
+| M AdminDocumentPanel/editorConfigs·types·utils·adminSelectedDocument 및 Dashboard/selection | adminasobi `components/content` | 동일 필드/payload/조건부 표시·문서 탐색을 shadcn과 URL/공통 guard에 연결. 기존 관리자 사본은 9단계 전환 후 종료 |
+| M novel/comic/book schema | content-core/contentInput | Mono 기존 schema는 re-export. translated/isPublished/book 관계 의미 유지 |
+| M getAdminDashboard·실제 CRUD·soft delete/restoreMusic | 관리자 queries/content·mutations/content·contentRoutes | 인증·공유 DB·트랜잭션 경계 추가. 숨긴 novel의 서적 관계 보존. 파일 CRUD를 새로 만들지 않음 |
+| M lyric JSON 생성/삭제·SRT·선택적 앨범아트 | 새 콘텐츠 폼 + 기존 lyrics mutation/앨범아트 API/5단계 SRT | 수정/삭제 revision, 생성 ID·업로드 재시도 보존. 실제 R2 통합 QA 남음 |
+| L SidebarOrderEditor/SidebarGroupEditor·sidebar query/mutation/API | 관리자 동일 이름 경로 | 그룹명 다국어·drag/button 정렬·membership/revision 그대로, 공통 guard/공개 갱신 결과 연결 |
+
+새 관리자에서 실제 사용하는 것만 이관했고 기존 updateMusic을 콘텐츠 mutation에 중복 추가하지 않았습니다. JSON 가사 수정은 기존 saveLyrics, UI 테마/부품은 ui, 추천 계산은 content-core 단일 구현을 사용합니다. 사용자 QA/검토사항은 별도 진행 중이며 [content-migration.md](content-migration.md)의 미검증 목록과 함께 추후 반영합니다.
