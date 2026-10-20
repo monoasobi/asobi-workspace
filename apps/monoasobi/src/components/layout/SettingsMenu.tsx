@@ -52,7 +52,7 @@ export function SettingsMenu() {
           글꼴
         </legend>
         <p className="type-caption mb-3">소설 본문에 적용됩니다.</p>
-        <div className="space-y-1.5">
+        <div className="grid gap-1.5">
           {(["gothic", "batang"] as const).map((value) => (
             <Button
               key={value}

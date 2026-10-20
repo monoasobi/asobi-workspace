@@ -726,3 +726,10 @@ Mono lint/typecheck·소설 UI 보존 검사 통과. 실제 개발 서버 CSS �
 Mono Header에서 SettingsMenu를 분리해 같은 틀을 사용하고 기존 테마 두 가지는 아이콘 카드, 글꼴 두 가지는 체크 표시 목록으로 정리했습니다. 기존 appearance/font 저장 키·선택 동작과 KoPub 바탕 미리보기/굵기를 유지했습니다. Mono의 선택 테두리/배경은 라이트/다크 모두 primary를 따릅니다. 시스템 테마·언어 설정 등 새 기능이나 의존성을 추가하지 않았습니다.
 
 전체 workspace lint/typecheck·소설 UI 보존 검사 통과 및 두 개발 홈 HTTP 200 확인. 소설 본문·재생·스타일은 변경하지 않았습니다. 현재 브라우저 조작 도구가 없어 열린 설정 팝오버·키보드/모바일·실제 선택 전환의 시각 확인은 사용자 QA로 남습니다.
+
+
+## QA 수정 — 설정 그룹 간격 충돌 제거
+
+공용 SettingsPopover의 space-y-5가 Mono fieldset의 m-0과 충돌해 테마/글꼴 그룹 간격이 사라졌습니다. 공용 본문을 flex column + gap-5(20px)로 변경해 자식 margin reset과 분리했습니다. 공용 제목/설명은 gap-1(4px), 두 앱의 글꼴/언어 선택 목록은 grid + gap-1.5(6px)로 명시했습니다. 패널 padding 16px·제목과 선택 항목 간격 12px·테마 카드 간격 8px은 유지합니다. 전체 lint/typecheck·소설 보존 검사 및 두 개발 홈 200 확인. 브라우저 시각 확인은 미검증입니다.
+
+Mono 정식 발매 배지는 기존 공용 shadcn Badge 기본 variant를 그대로 사용하며 앱별 class override는 없습니다. 배경은 공용 primary #F2285A이고 글자는 primary-foreground(라이트 white-500, 다크 black-500)입니다. shadcn의 고정 색상이라고 설명하지 않습니다.

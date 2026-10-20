@@ -34,11 +34,11 @@ export function SettingsPopover({
         className="max-h-[calc(100dvh-88px)] w-80 max-w-[calc(100vw-32px)] gap-0 overflow-y-auto p-0"
       >
         <div className="flex items-start justify-between gap-3 px-4 py-3">
-          <div>
+          <div className="flex min-w-0 flex-col gap-1">
             <h2 id={`${id}-title`} className="type-card-title">
               {title}
             </h2>
-            <p className="mt-1 type-caption">{description}</p>
+            <p className="type-caption">{description}</p>
           </div>
           <Button
             variant="ghost"
@@ -51,7 +51,7 @@ export function SettingsPopover({
           </Button>
         </div>
         <Separator />
-        <div className="space-y-5 p-4">{children}</div>
+        <div className="flex flex-col gap-5 p-4">{children}</div>
       </PopoverContent>
     </Popover>
   );

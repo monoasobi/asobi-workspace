@@ -32,7 +32,7 @@ export function SettingsMenu() {
         >
           {t("languageHelp")}
         </p>
-        <div className="space-y-1.5">
+        <div className="grid gap-1.5">
           {locales.map((value) => (
             <label key={value} className="relative block cursor-pointer">
               <input
