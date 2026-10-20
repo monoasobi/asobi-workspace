@@ -12,12 +12,14 @@ export function AlbumArtwork({
   className,
   size = 72,
   requestWidth,
+  fit = "cover",
 }: {
   albumArtKey?: string | null;
   src?: string;
   className?: string;
   size?: number;
   requestWidth?: number;
+  fit?: "cover" | "contain";
 }) {
   const legacySrc =
     monoasobiUrl && albumArtKey && isAlbumArtKey(albumArtKey)
@@ -30,6 +32,7 @@ export function AlbumArtwork({
       className={className}
       size={size}
       requestWidth={requestWidth}
+      fit={fit}
       assetBaseUrl={process.env.NEXT_PUBLIC_ASSET_BASE_URL}
       transformImages={process.env.NEXT_PUBLIC_ASSET_TRANSFORMS === "true"}
       fallback={

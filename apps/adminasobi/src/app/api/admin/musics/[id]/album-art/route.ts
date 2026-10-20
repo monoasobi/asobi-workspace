@@ -2,7 +2,6 @@ import { refreshPublicCatalog } from "@/server/refresh";
 import { authorizeWrite } from "@/server/auth/write";
 import { parseMusicId } from "@/lib/musicId";
 import { privateHeaders } from "@/server/auth/request";
-import { ALBUM_ART_MAX_BYTES } from "@asobi/content-core/albumArt";
 import { normalizeAlbumArt } from "@asobi/storage/albumArt";
 import { saveAlbumArt } from "@/server/mutations/albumArt";
 
@@ -18,12 +17,6 @@ export const PUT = async (
       { error: "잘못된 곡 ID입니다." },
       { status: 400, headers: privateHeaders },
     );
-  if (Number(request.headers.get("content-length")) > ALBUM_ART_MAX_BYTES) {
-    return Response.json(
-      { error: "앨범아트는 3MB 이하여야 합니다." },
-      { status: 413, headers: privateHeaders },
-    );
-  }
   const reader = request.body?.getReader();
   if (!reader)
     return Response.json(
@@ -33,24 +26,15 @@ export const PUT = async (
   let image: Uint8Array;
   try {
     const chunks: Uint8Array[] = [];
-    let size = 0;
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      size += value.byteLength;
-      if (size > ALBUM_ART_MAX_BYTES) {
-        await reader.cancel();
-        return Response.json(
-          { error: "앨범아트는 3MB 이하여야 합니다." },
-          { status: 413, headers: privateHeaders },
-        );
-      }
       chunks.push(value);
     }
-    image = await normalizeAlbumArt(Buffer.concat(chunks));
+    image = await normalizeAlbumArt(Buffer.concat(chunks), { maxBytes: Infinity });
   } catch {
     return Response.json(
-      { error: "3MB 이하의 올바른 JPG, PNG, WebP 정지 이미지를 선택해주세요." },
+      { error: "올바른 JPG, PNG, WebP 정지 이미지를 선택해주세요." },
       { status: 400, headers: privateHeaders },
     );
   }

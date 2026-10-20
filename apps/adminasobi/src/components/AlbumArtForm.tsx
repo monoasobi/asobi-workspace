@@ -1,14 +1,8 @@
 "use client";
 import type { RefreshResult } from "@/types/refresh";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Button } from "@asobi/ui/components/button";
-import { Input } from "@asobi/ui/components/input";
-import { Label } from "@asobi/ui/components/label";
-import {
-  ALBUM_ART_ACCEPT,
-  ALBUM_ART_MAX_BYTES,
-} from "@asobi/content-core/albumArt";
-import { AlbumArtwork } from "./AlbumArtwork";
+import { AlbumArtField } from "./content/AlbumArtField";
 export function AlbumArtForm({
   musicId,
   albumArtKey,
@@ -26,16 +20,10 @@ export function AlbumArtForm({
   onDirtyChange: (dirty: boolean) => void;
   onBusyChange: (busy: boolean) => void;
 }) {
-  const [preview, setPreview] = useState<string | null>(null),
+  const [hasFile, setHasFile] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [failed, setFailed] = useState(false);
-  useEffect(
-    () => () => {
-      if (preview) URL.revokeObjectURL(preview);
-    },
-    [preview],
-  );
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || readOnly) return;
@@ -62,7 +50,7 @@ export function AlbumArtForm({
       onSaved(result.albumArtKey);
       onDirtyChange(false);
       form.reset();
-      setPreview(null);
+      setHasFile(false);
       setMessage("앨범아트를 저장했습니다.");
     } catch {
       setFailed(true);
@@ -76,43 +64,18 @@ export function AlbumArtForm({
     <form
       onSubmit={save}
       aria-busy={busy}
-      className="grid gap-3 border-t p-5 sm:p-6"
+      className="grid gap-4 p-5 sm:p-6"
     >
-      <Label htmlFor="album-art-file">앨범아트</Label>
-      <AlbumArtwork
-        key={preview ?? albumArtKey ?? musicId}
-        src={preview ?? undefined}
-        size={120}
+      <AlbumArtField
+        key={albumArtKey}
         albumArtKey={albumArtKey}
-        className="size-[120px] rounded border object-contain"
-      />
-      <Input
-        id="album-art-file"
-        name="albumArt"
-        type="file"
-        accept={ALBUM_ART_ACCEPT}
-        required
         disabled={readOnly || busy}
-        onChange={(event) => {
-          const file = event.currentTarget.files?.[0];
-          event.currentTarget.setCustomValidity(
-            file && file.size > ALBUM_ART_MAX_BYTES
-              ? "3MB 이하의 이미지를 선택해 주세요."
-              : "",
-          );
-          event.currentTarget.reportValidity();
-          setPreview(
-            file && file.size <= ALBUM_ART_MAX_BYTES
-              ? URL.createObjectURL(file)
-              : null,
-          );
+        onFileChange={(file) => {
+          setHasFile(Boolean(file));
           onDirtyChange(Boolean(file));
           setMessage("");
         }}
       />
-      <p className="text-xs text-muted-foreground">
-        JPG·PNG·WebP, 최대 3MB. 비율을 유지해 저장합니다.
-      </p>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p
           role={failed ? "alert" : "status"}
@@ -127,7 +90,7 @@ export function AlbumArtForm({
         <Button
           type="submit"
           variant="outline"
-          disabled={readOnly || busy || !preview}
+          disabled={readOnly || busy || !hasFile}
         >
           {busy ? "저장 중…" : "앨범아트 저장"}
         </Button>

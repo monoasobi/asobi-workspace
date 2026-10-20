@@ -1,62 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlbumArtwork } from "@asobi/ui/components/album-artwork";
-import {
-  ALBUM_ART_ACCEPT,
-  ALBUM_ART_MAX_BYTES,
-  EMPTY_ALBUM_ART,
-} from "@asobi/content-core/albumArt";
+import { useEffect, useId, useRef, useState } from "react";
+import { Button } from "@asobi/ui/components/button";
+import { ALBUM_ART_ACCEPT } from "@asobi/content-core/albumArt";
+import { AlbumArtwork } from "../AlbumArtwork";
 
 export const AlbumArtField = ({
-  currentSrc = EMPTY_ALBUM_ART,
+  currentSrc,
+  albumArtKey,
   disabled,
+  onFileChange,
 }: {
   currentSrc?: string;
+  albumArtKey?: string | null;
   disabled: boolean;
+  onFileChange?: (file: File | undefined) => void;
 }) => {
   const [preview, setPreview] = useState<string | null>(null);
-  useEffect(
-    () => () => {
-      if (preview) URL.revokeObjectURL(preview);
-    },
-    [preview],
-  );
+  const [filename, setFilename] = useState("");
+  const input = useRef<HTMLInputElement>(null);
+  const id = useId();
+  useEffect(() => () => {
+    if (preview) URL.revokeObjectURL(preview);
+  }, [preview]);
   return (
-    <div className="space-y-2">
-      <label htmlFor="album-art-file" className="block text-sm font-semibold">
-        앨범아트 (선택)
-      </label>
-      <AlbumArtwork
-        src={preview ?? currentSrc}
-        alt="앨범아트 미리보기"
-        size={120}
-        fit="contain"
-      />
+    <div className="flex min-w-0 items-center gap-4">
+      <Button
+        type="button"
+        variant="outline"
+        disabled={disabled}
+        aria-label="앨범아트 이미지 선택"
+        aria-describedby={`${id}-help`}
+        className="size-[120px] shrink-0 overflow-hidden rounded-lg p-0"
+        onClick={() => input.current?.click()}
+      >
+        <AlbumArtwork
+          key={preview ?? albumArtKey ?? currentSrc}
+          src={preview ?? currentSrc}
+          size={120}
+          fit="contain"
+          albumArtKey={albumArtKey}
+          className="size-[120px] object-contain"
+        />
+      </Button>
       <input
-        id="album-art-file"
+        ref={input}
+        id={id}
         name="albumArt"
         type="file"
         accept={ALBUM_ART_ACCEPT}
         disabled={disabled}
+        className="hidden"
         onChange={(event) => {
           const file = event.currentTarget.files?.[0];
-          event.currentTarget.setCustomValidity(
-            file && file.size > ALBUM_ART_MAX_BYTES
-              ? "3MB 이하의 이미지를 선택해주세요."
-              : "",
-          );
-          event.currentTarget.reportValidity();
-          setPreview(
-            file && file.size <= ALBUM_ART_MAX_BYTES
-              ? URL.createObjectURL(file)
-              : null,
-          );
+          setPreview(file ? URL.createObjectURL(file) : null);
+          setFilename(file?.name ?? "");
+          onFileChange?.(file);
         }}
       />
-      <p className="text-xs text-muted-foreground">
-        JPG·PNG·WebP, 최대 3MB. 이미지를 자르지 않고 비율을 유지합니다.
-      </p>
+      <div className="grid min-w-0 gap-1.5">
+        {filename && <p className="type-label break-all">{filename}</p>}
+        <p id={`${id}-help`} className="type-caption">
+          이미지를 눌러 JPG·PNG·WebP를 선택하세요. 비율을 유지해 저장합니다.
+        </p>
+      </div>
     </div>
   );
 };

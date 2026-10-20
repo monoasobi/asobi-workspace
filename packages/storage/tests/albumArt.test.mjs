@@ -67,3 +67,18 @@ test("high-resolution input keeps its pixels within the existing limits", async 
     .toBuffer();
   await assert.rejects(() => normalizeAlbumArt(oversizedPixels));
 });
+
+test("unified admin accepts valid source and encoded artwork above 3MiB", async () => {
+  const { randomBytes } = await import("node:crypto");
+  const input = await sharp(randomBytes(2400 * 2400 * 3), {
+    raw: { width: 2400, height: 2400, channels: 3 },
+  }).png().toBuffer();
+  assert(input.byteLength > 3 * 1024 * 1024);
+  await assert.rejects(() => normalizeAlbumArt(input));
+  const output = await normalizeAlbumArt(input, { maxBytes: Infinity });
+  const metadata = await sharp(output).metadata();
+  assert(output.byteLength > 3 * 1024 * 1024);
+  assert.equal(metadata.width, 2400);
+  assert.equal(metadata.height, 2400);
+  await assert.rejects(() => normalizeAlbumArt(Buffer.from("invalid"), { maxBytes: Infinity }));
+});
