@@ -50,8 +50,16 @@ export function MusicDetail({
             <Button
               variant="outline"
               size="sm"
-              disabled
-              title="편집 화면 준비 중"
+              disabled={!music.hasLyrics || guard.busy}
+              title={
+                music.hasLyrics
+                  ? "가사 타임라인 편집"
+                  : "가사 트랙을 먼저 추가해 주세요"
+              }
+              onClick={() => {
+                if (guard.confirmLeave())
+                  router.push(`/musics/${music.id}/lyrics`);
+              }}
             >
               가사 편집
             </Button>
@@ -91,8 +99,11 @@ export function MusicDetail({
             <Button
               variant="outline"
               size="sm"
-              disabled
-              title="편집 화면 준비 중"
+              disabled={guard.busy}
+              onClick={() => {
+                if (guard.confirmLeave())
+                  router.push(`/musics/${music.id}/calls`);
+              }}
             >
               콜 편집
             </Button>

@@ -125,7 +125,9 @@ function Frame({
             selectedId={selectedId}
             onSelect={(id) => {
               if (id !== selectedId && guard.confirmLeave())
-                router.push(`/musics/${id}`);
+                router.push(
+                  `/musics/${id}${path.endsWith("/calls") ? "/calls" : path.endsWith("/lyrics") && musics.find((music) => music.id === id)?.hasLyrics ? "/lyrics" : ""}`,
+                );
             }}
             disabled={guard.busy}
             scrollKey="admin"

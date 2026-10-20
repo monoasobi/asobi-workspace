@@ -5,7 +5,10 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
+  useLayoutEffect,
 } from "react";
+import { installHistoryGuard } from "./NavigationGuard/history";
 const Context = createContext<{
   dirty: boolean;
   busy: boolean;
@@ -43,12 +46,17 @@ export function NavigationGuard({ children }: { children: React.ReactNode }) {
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty, busy]);
-  function confirmLeave() {
+  const confirmLeave = useCallback(() => {
     return (
       !busy &&
       (!dirty || window.confirm("저장하지 않은 변경사항을 버리고 이동할까요?"))
     );
-  }
+  }, [busy, dirty]);
+  const latest = useRef(confirmLeave);
+  useLayoutEffect(() => {
+    latest.current = confirmLeave;
+  }, [confirmLeave]);
+  useEffect(() => installHistoryGuard(() => latest.current()), []);
   return (
     <Context value={{ dirty, busy, setDirty, setBusy, confirmLeave }}>
       {children}
