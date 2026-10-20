@@ -81,7 +81,9 @@ export function MusicContentTabs({
         const canCreate = !readOnly && !!group.create;
         return (
           <TabsContent key={group.value} value={group.value} forceMount className="relative min-h-0 overflow-y-auto pt-5 data-[state=inactive]:hidden">
-            {canCreate && <Button type="button" variant="outline" size="icon-sm" className="absolute right-5 top-5 z-10" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>}
+            {canCreate && <div className="absolute right-5 top-5 z-10">
+              <Button type="button" variant="outline" size="icon-sm" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>
+            </div>}
             {showItems && (
               <div className={`mb-4 flex flex-wrap gap-2 px-5 ${canCreate ? "pr-16" : ""}`}>
                 {group.items.map(item => <Button key={getSelectedNodeKey(item.node)} variant={node && getSelectedNodeKey(node) === getSelectedNodeKey(item.node) ? "secondary" : "outline"} size="sm" disabled={guard.busy} onClick={() => select(item.node)}>{item.label}</Button>)}
