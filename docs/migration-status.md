@@ -664,3 +664,8 @@ HTTP 확인은 1단계의 합성 곡 1개를 가진 같은 로컬 DB와 기존 �
 운영 연결/복구 상세는 [album-art-delivery.md](album-art-delivery.md), 배포 변수와 순서는 [production-environment.md](production-environment.md)를 봅니다. 문서/템플릿 인계는 별도 마지막 커밋으로 기록합니다. 그 커밋의 자기 해시를 위해 amend하지 않습니다.
 
 남음: 사용자 전체 QA/실제 배포 빌드·배포, 배포 사이 Mono 무효화 API 확인, 새 관리자 인증 저장/R2 실패 정리 통합 QA, 성공 확인 후 기존 관리자/쓰기 API 제거. 현재 이미지 36곡에 대한 구버전 호환만 마련했으며 새 배포 전 추가 이미지 교체는 피합니다. 기존 버킷/원본 저장소 삭제나 운영 환경별 분리는 작업에 포함하지 않습니다.
+
+
+## 저장소 이름 변경
+
+사용자 요청으로 로컬 저장소 폴더를 `/Users/nine/Documents/work/asobi-workspace`로 변경하고 루트 npm 이름/lockfile을 `asobi-workspace`로 맞췄습니다. 앱/공용 패키지의 @asobi 이름과 서비스 브랜드는 유지합니다. 현재 Git 원격은 연결되어 있지 않아 원격 저장소 이름 변경은 없습니다. 코드 동작 변경이 없어 lint/build는 반복하지 않으며 JSON 정합성과 workspace 해석을 확인합니다. 개발 서버는 같은 3100/3101/3102 포트로 재시작합니다.

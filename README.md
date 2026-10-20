@@ -1,4 +1,4 @@
-# ASOBI
+# ASOBI Workspace
 
 MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. **8단계 코드/로컬 검증과 운영 DB·원문 R2 연결을 마쳤고, 앨범아트 36곡의 고해상도 키 전환·기존 배포 호환/캐시 검증도 완료했습니다.** 사용자 QA는 진행 중이며 실제 배포는 사용자가 담당합니다. [운영 환경변수·배포 인계](docs/production-environment.md)를 먼저 확인하세요. 기존 관리자 쓰기는 정상 배포/새 관리자 동작 확인 직후 제거합니다.
 
@@ -84,7 +84,7 @@ Loud `.env.local`의 `NEXT_PUBLIC_MONOASOBI_URL`과 `NEXT_PUBLIC_SITE_URL`, 관�
 새 checkout에서 로컬 확인 환경을 준비할 경우, `.env.example`을 각 앱의 `.env.local`로 복사해 로컬 인증값을 채우고 `.local/` 디렉터리를 만듭니다. 이미 있는 `.env.local`과 DB를 덮어쓰지 마세요. **TURSO_DATABASE_URL이 `file:`로 시작하는 로컬 파일인지 확인한 경우에만** database 패키지 디렉터리에서 기존 마이그레이션 명령으로 빈 로컬 DB를 초기화할 수 있습니다.
 
 ```sh
-# asobi 루트에서 시작합니다. .env.local 설정은 앞에서 준비해야 합니다.
+# asobi-workspace 루트에서 시작합니다. .env.local 설정은 앞에서 준비해야 합니다.
 mkdir -p .local
 cd packages/database
 node --env-file=../../apps/monoasobi/.env.local --run db:migrate

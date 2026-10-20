@@ -4,7 +4,7 @@
 
 ## 1. 현재 상태와 실행 범위
 
-- 새 프로젝트 위치: `/Users/nine/Documents/work/asobi`.
+- 새 프로젝트 위치: `/Users/nine/Documents/work/asobi-workspace`.
 - 원본 MONOASOBI: `/Users/nine/Documents/work/monoasobi-react-ts-web`.
 - 원본 LOUDASOBI: `/Users/nine/Documents/work/loudasobi`.
 - 사용자가 말한 소스 상위 폴더의 실제 이름은 `work`입니다. 임의로 `works`를 새로 만들지 않습니다.
@@ -72,7 +72,7 @@
 목표 구조(패키지는 실제 소비자가 생길 때 생성):
 
 ```text
-asobi/
+asobi-workspace/
   AGENTS.md                 # 자동 발견용 진입 지침
   AGENT.md                  # 이 청사진, 단일 원본
   apps/
