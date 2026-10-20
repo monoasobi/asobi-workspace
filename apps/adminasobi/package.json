@@ -22,7 +22,14 @@
     "lucide-react": "1.46.0",
     "next-themes": "^0.4.6",
     "jotai": "^3.0.0",
-    "@asobi/storage": "0.1.0"
+    "@asobi/storage": "0.1.0",
+    "@asobi/loudasobi-view": "0.1.0",
+    "react-player": "^3.4.0",
+    "next-intl": "^4.14.5",
+    "react-resizable-panels": "^4.14.5",
+    "@tanstack/react-virtual": "^3.14.21",
+    "fuse.js": "^7.5.0",
+    "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

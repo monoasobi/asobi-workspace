@@ -8,7 +8,7 @@ const workspaceRoot = realpathSync(
 );
 
 const nextConfig: NextConfig = {
-  transpilePackages: [
+  transpilePackages: ["@asobi/loudasobi-view",
     "@asobi/ui",
     "@asobi/content-core",
     "@asobi/database",

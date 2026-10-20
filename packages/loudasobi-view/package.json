@@ -1,0 +1,48 @@
+{
+  "name": "@asobi/loudasobi-view",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    "./player/GuidePreview/guideStyles": "./src/player/GuidePreview/guideStyles.ts",
+    "./player/GuidePreview/useGuideTimeline": "./src/player/GuidePreview/useGuideTimeline.ts",
+    "./player/GuidePreview/useLyricFollow": "./src/player/GuidePreview/useLyricFollow.ts",
+    "./player/GuidePreview/groupLyrics": "./src/player/GuidePreview/groupLyrics.ts",
+    "./player/GuidePreview/displayTimeline": "./src/player/GuidePreview/displayTimeline.ts",
+    "./player/GuidePreview/timeline": "./src/player/GuidePreview/timeline.ts",
+    "./player/ClapIndicator/clapSteps": "./src/player/ClapIndicator/clapSteps.ts",
+    "./player/MusicExperience/usePlayback": "./src/player/MusicExperience/usePlayback.ts",
+    "./player/MusicExperience/usePlaybackShortcuts": "./src/player/MusicExperience/usePlaybackShortcuts.ts",
+    "./player/MusicExperience/playbackClock": "./src/player/MusicExperience/playbackClock.ts",
+    "./player/GuidePreview": "./src/player/GuidePreview.tsx",
+    "./player/PlayerBar": "./src/player/PlayerBar.tsx",
+    "./player/MusicExperience": "./src/player/MusicExperience.tsx",
+    "./player/HighlightedText": "./src/player/HighlightedText.tsx",
+    "./player/LyricGuideCard": "./src/player/LyricGuideCard.tsx",
+    "./player/ClapIndicator": "./src/player/ClapIndicator.tsx",
+    "./player/GuidePreview/LyricRow": "./src/player/GuidePreview/LyricRow.tsx",
+    "./common/CallIcon": "./src/common/CallIcon.tsx",
+    "./common/HandSwing": "./src/common/HandSwing.tsx",
+    "./common/FanLightBadge": "./src/common/FanLightBadge.tsx",
+    "./atoms/player": "./src/atoms/player.ts",
+    "./types/music": "./src/types/music.ts",
+    "./i18n/config": "./src/i18n/config.ts",
+    "./i18n/messages": "./src/i18n/messages.ts"
+  },
+  "dependencies": {
+    "@asobi/ui": "0.1.0",
+    "@asobi/content-core": "0.1.0",
+    "react-player": "^3.4.0",
+    "next-intl": "^4.14.5",
+    "lucide-react": "1.46.0",
+    "jotai": "^3.0.0"
+  },
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}
