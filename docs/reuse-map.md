@@ -87,3 +87,11 @@
 그대로 남긴 항목: 앱별 query/mutation/인증·cache 정책·전용 폼 schema·편집 훅·두 재생기·아이콘 선택기/검색 데이터·레이아웃 CSS. 후속 단계의 기능별 소유권 인계 전에는 제거하지 않습니다. `loudasobi-view`는 아직 만들지 않았습니다.
 
 새로 작성한 연결은 DB singleton 진입점과 앱 adapter, package exports/peerDependencies, 공통 타입 검사/린트 설정입니다. `server-only`를 명시해 DB 연결의 클라이언트 import를 차단합니다. 원본 계약 확인용 작은 Node 검사 하나를 추가했고 새 테스트 프레임워크는 추가하지 않았습니다.
+
+## 3단계 실제 인계
+
+| 기존 위치 | 현재 소유 위치 | 연결/제거 조건 |
+| --- | --- | --- |
+| Loud 인증·로그인 폼·Origin 검사 | adminasobi의 auth/API/로그인 폼 | 새 cookie/audience 사용. 기존 관리자 전용 인증은 9단계 전환 후 종료 |
+| Loud SongList·앨범 정렬·스크롤 복원 | ui의 song-list/sidebarScroll + content-core의 albumOrder/sidebarSongs | 기존 Loud는 locale·이미지 adapter만 유지. 새 관리자도 같은 목록 사용 |
+| Loud fanlights 색상/키 | content-core/fanlights | 기존 Loud 진입점은 호환 re-export. 관리자 설정 schema가 같은 키 사용 |
