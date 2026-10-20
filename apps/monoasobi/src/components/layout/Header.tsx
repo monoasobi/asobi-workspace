@@ -83,7 +83,15 @@ export function Header() {
                   aria-pressed={font === value}
                   onClick={() => setFont(value)}
                 >
-                  {value === "gothic" ? "Pretendard" : "KoPub 바탕"}
+                  <span
+                    className={
+                      value === "batang"
+                        ? "font-bold [font-family:'KoPub_Batang',serif]"
+                        : "font-bold"
+                    }
+                  >
+                    {value === "gothic" ? "Pretendard" : "KoPub 바탕"}
+                  </span>
                 </Button>
               ))}
             </div>
