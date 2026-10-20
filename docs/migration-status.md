@@ -740,3 +740,8 @@ Mono 정식 발매 배지는 기존 공용 shadcn Badge 기본 variant를 그대
 사용자 요청으로 Mono 설정을 글꼴 → 테마 순서로 배치하고 Loud와 같은 라이트/다크/시스템 설정 세 카드로 구성했습니다. 기존 appearance 저장 키와 light/dark 값을 유지하며 저장값이 없는 경우 기본값은 Loud와 같은 system입니다. matchMedia change를 useSyncExternalStore로 구독해 시스템 설정 선택 중 OS 모드 변경을 반영합니다. 공개 html 클래스와 기존 Radix 읽기 테마는 같은 resolved light/dark를 사용합니다. 글꼴 선택/KoPub 미리보기와 기존 소설 스타일은 유지합니다.
 
 Mono lint/typecheck·소설 UI 보존 검사 통과. OS 테마 변경/새로고침 후 선택 유지와 실제 화면 전환은 사용자 QA로 확인합니다.
+
+
+## QA 수정 — 공개 헤더 배치 통일
+
+Loud 헤더의 좌우 padding은 원래도 Mono와 같은 16px이었으나 40px 고정 grid 칸 때문에 32px 설정 버튼이 Mono보다 8px 안쪽에 놓였습니다. Loud를 Mono와 동일한 flex/justify-between·좌우16px/상하10px·높이56px·테두리/배경으로 맞추고 로고의 grid 전용 정렬을 제거했습니다. 두 header 클래스 일치 및 Loud lint/typecheck 통과.

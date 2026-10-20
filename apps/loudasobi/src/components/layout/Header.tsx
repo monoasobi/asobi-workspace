@@ -9,7 +9,7 @@ import { SettingsMenu } from "./SettingsMenu";
 export function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const t = useTranslations();
   return (
-    <header className="grid h-14 shrink-0 grid-cols-[40px_1fr_40px] items-center border-b bg-background px-4">
+    <header className="flex h-14 w-full shrink-0 items-center justify-between border-b border-border bg-card px-4 py-2.5">
       <Button
         variant="ghost"
         size="icon"
@@ -23,7 +23,7 @@ export function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         alt="loudasobi"
         width={410}
         height={129}
-        className="h-auto w-[120px] justify-self-center"
+        className="h-auto w-[120px]"
       />
       <SettingsMenu />
     </header>
