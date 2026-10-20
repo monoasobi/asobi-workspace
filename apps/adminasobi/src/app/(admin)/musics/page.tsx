@@ -1,14 +1,9 @@
-import { requireAdminSession } from "@/server/auth/access";
-import { AdminAuthForm } from "@/components/AdminAuthForm";
+import { redirect } from "next/navigation";
+import { getAdminMusics } from "@/server/queries/music";
 export default async function MusicsPage() {
-  const session = await requireAdminSession();
+  const musics = await getAdminMusics();
+  if (musics[0]) redirect(`/musics/${musics[0].id}`);
   return (
-    <main className="p-8">
-      <h1 className="mb-4 text-xl font-semibold">ASOBI 곡 관리</h1>
-      <p className="mb-4">
-        {session.role === "admin" ? "관리자" : "열람 전용"}
-      </p>
-      <AdminAuthForm authenticated />
-    </main>
+    <p className="p-8 text-sm text-muted-foreground">관리할 곡이 없습니다.</p>
   );
 }

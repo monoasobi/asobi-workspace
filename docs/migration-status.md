@@ -299,3 +299,9 @@ HTTP 확인은 1단계의 합성 곡 1개를 가진 같은 로컬 DB와 기존 �
 
 - 기존 Loud SongList의 정렬·아코디언·선택 표시·스크롤 복원을 공용 UI로 옮겼습니다. 앱은 locale/문구/이미지만 전달합니다. 앨범 순서·팬라이트 키는 content-core에서 재사용합니다. 공개 화면의 호출부는 얇은 adapter로 유지합니다.
 - ui·Loud lint/typecheck와 content-core typecheck 통과. 관리자 곡 목록/상세 연결은 다음 커밋에서 기록합니다.
+
+### 관리자 곡 조회와 공통 레이아웃
+
+- 기존 Loud 조회 projection에 공통 곡 필드를 더해 인증된 목록/상세 API를 연결했습니다. 곡 ID 0을 보존하고 모호한 숫자·없는 곡을 거부합니다. 응답은 private/no-store입니다.
+- URL 곡 선택·헤더·접을 수 있는 공용 곡 사이드바·라이트/다크 전환·좌우 곡 정보/콜 정보 영역을 연결했습니다. 정렬/그룹/접힘은 기존 Jotai storage 패턴으로 보존하며 저장소 실패 시 기본 상태로 동작합니다. 기존 이동 확인/beforeunload 패턴을 공통 guard로 연결했습니다.
+- admin lint/typecheck·보안/ID 검사 통과. 로컬 HTTP에서 목록/상세·ID 0·잘못된/없는 ID·곡 URL 페이지·no-store를 확인했습니다. 실제 브라우저의 뒤로 가기/스크롤/시각 QA는 별도입니다. 앨범아트 표시는 4단계 전환 전까지 기존 Mono 공개 주소를 사용하는 임시 adapter입니다.

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import { test } from "node:test";
+import { parseMusicId } from "../src/lib/musicId.ts";
 import {
   createAdminSession,
   verifyAdminSession,
@@ -68,4 +69,11 @@ test("admin session audience, role, expiry and same-origin write boundaries", ()
       else process.env[key] = saved[key];
     }
   }
+});
+
+test("song IDs preserve zero and reject ambiguous numeric input", () => {
+  assert.equal(parseMusicId("0"), 0);
+  assert.equal(parseMusicId("12"), 12);
+  for (const raw of ["-1", "1.5", "1e3", "", " ", "9007199254740992"])
+    assert.equal(parseMusicId(raw), null);
 });
