@@ -178,6 +178,7 @@ const Item = ({ item, isActive, isAdmin }: ItemProps) => {
     >
       <AlbumArtwork
         src={getAlbumArtSrc(music)}
+        requestWidth={200}
         alt={music.title}
         className={styles.artwork}
       />

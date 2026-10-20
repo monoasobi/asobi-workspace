@@ -5,12 +5,14 @@ export const AlbumArtwork = ({
   src,
   alt,
   size = 72,
+  requestWidth,
   className,
   fit = "cover",
 }: {
   src: string;
   alt: string;
   size?: number;
+  requestWidth?: number;
   className?: string;
   fit?: "cover" | "contain";
 }) => {
@@ -23,6 +25,7 @@ export const AlbumArtwork = ({
       albumArtKey={key}
       alt={alt}
       size={size}
+      requestWidth={requestWidth}
       className={className}
       fit={fit}
       assetBaseUrl={process.env.NEXT_PUBLIC_ASSET_BASE_URL}

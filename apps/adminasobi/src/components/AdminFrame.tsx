@@ -168,6 +168,7 @@ function Frame({
             renderArtwork={(music, className) => (
               <AlbumArtwork
                 key={music.albumArtKey ?? music.id}
+                requestWidth={200}
                 albumArtKey={music.albumArtKey}
                 className={className}
               />

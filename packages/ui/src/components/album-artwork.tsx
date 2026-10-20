@@ -14,6 +14,7 @@ export function AlbumArtwork({
   src,
   alt = "",
   size = 72,
+  requestWidth,
   className,
   fit = "cover",
   fallback,
@@ -24,6 +25,7 @@ export function AlbumArtwork({
   src?: string;
   alt?: string;
   size?: number;
+  requestWidth?: number;
   className?: string;
   fit?: "cover" | "contain";
   fallback?: ReactNode;
@@ -31,7 +33,7 @@ export function AlbumArtwork({
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const delivery = { assetBaseUrl, transformImages };
   const cdnSrc = !src?.startsWith("blob:")
-    ? getAlbumArtUrl(albumArtKey, delivery, size)
+    ? getAlbumArtUrl(albumArtKey, delivery, requestWidth ?? size)
     : undefined;
   const imageSrc = cdnSrc ?? src;
   if (!imageSrc || failedSrc === imageSrc) {
@@ -48,7 +50,7 @@ export function AlbumArtwork({
     );
   }
   const srcSet =
-    cdnSrc && transformImages
+    cdnSrc && transformImages && requestWidth === undefined
       ? ALBUM_ART_WIDTHS.map(
           (width) =>
             `${getAlbumArtUrl(albumArtKey, delivery, width)} ${width}w`,
