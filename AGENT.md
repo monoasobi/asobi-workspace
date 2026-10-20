@@ -83,6 +83,7 @@ asobi/
     ui/                     # 공용 shadcn 부품·테마·범용 이미지 표시
     content-core/           # 브라우저/서버에서 쓸 순수 타입·검증·가사/콜 계산
     database/               # server-only 연결·스키마·마이그레이션
+    storage/                # 기존 R2·Sharp 구현, Mono 읽기/관리자 업로드 공용
     loudasobi-view/         # 공개 콜 표시와 관리자 감상 미리보기
   docs/
     migration-status.md     # 진행·결정·승인·검증·다음 작업
@@ -94,6 +95,7 @@ asobi/
 - `packages/ui`는 DB·R2·관리자 인증·특정 앱의 라우팅을 참조하지 않습니다. 앨범아트 컴포넌트는 파일 키/URL/표시 크기를 받고, 공통 loader로 이미지 URL을 구성합니다.
 - `content-core`에 비밀값·DB 클라이언트·Next.js 캐시 API를 섞지 않습니다. 앱별 조회와 캐시 정책은 각 앱 서버가 담당합니다.
 - `database`가 세 앱의 모든 query/mutation을 담는 거대한 서비스 패키지가 되지 않게 합니다. 쓰기 기능은 관리자 서버가 소유합니다.
+- 3단계에서 실제 소비가 겹친 기존 R2/Sharp 구현은 `packages/storage`로 인계했습니다. Mono 보호 파일 읽기와 관리자 앨범아트 쓰기는 이 server-only 패키지를 사용합니다. 공개 범위·파일 키·업로드 제한·실패 정리 계약을 유지하며 새 이미지 서버를 만들지 않습니다.
 - 공용 뷰에서 영상 전체화면·popover portal·next-intl provider 등 실행 환경을 가정하는 부분은 기존 구현을 조사하고 최소 adapter로 연결합니다.
 
 ## 5. 기능·데이터 보존 계약
