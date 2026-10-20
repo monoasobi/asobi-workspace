@@ -165,3 +165,8 @@
 - Loud는 기존 request-time DB 조회를 유지하고 공개 `useCatalogRefresh`와 불필요한 internal/revalidate를 제거했습니다. 관리자 `refreshPublicCatalog`에서 비캐시 Loud는 알림 대상에서 제외합니다. 콜 저장은 Loud 전용 범위입니다.
 - 플레이어/볼륨/로컬 상태 구현은 변경하지 않았습니다. 새 캐시/실시간 동기화/환경 프레임워크도 만들지 않았습니다.
 - 환경 분리 계획을 보고한 뒤 사용자가 분리 요구를 철회했습니다. 개발에서 운영 DB 사용을 허용하고 기존 연결 설정을 유지합니다. 별도 DB/R2 분리를 선행 조건으로 삼지 않으며 실제 환경값은 바꾸지 않았습니다. 상세 계약/한계/검사는 [cache-and-environments.md](cache-and-environments.md)를 따릅니다.
+
+
+## 후속 R2 원문·로컬 편집 연결
+
+원본 Mono의 R2 환경 설정을 새 Mono에만 인계했습니다. 기존 `packages/storage`·소설/만화 API를 재사용하며 새 파일 서비스나 조회 코드를 만들지 않았습니다. 소설 개발 분기는 원문 그대로 유지하고 원본의 Git 제외 로컬 원고 4개를 `apps/monoasobi/public/novel`로 복사했습니다. 표시 코드/권한/운영 데이터·객체는 변경하지 않았습니다.

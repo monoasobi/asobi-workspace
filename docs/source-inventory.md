@@ -313,3 +313,10 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 
 - 사용자 명시 요청으로 세 앱 `.env.local`의 DB URL/토큰만 원본과 같은 운영 Turso 값으로 연결했습니다. 원본 환경/다른 설정/런타임 코드는 유지했습니다.
 - 실제 환경 파일은 Git에서 제외되며 DB 데이터·스키마를 변경하지 않았습니다. 원격 읽기 및 세 앱 조회 결과와 복구 자료 위치는 cache-and-environments.md에 기록합니다.
+
+
+## 후속 R2 원문 연결
+
+- 기존 R2 account/key/bucket/endpoint를 Mono `.env.local`에만 연결했습니다. 소설/만화 API·독자 인증·DB/버킷 공개 정책은 유지합니다.
+- `NovelReader`의 개발용 로컬 Markdown 분기는 사용자 보존 요구입니다. 원본의 Git 제외 원고 4개를 새 `public/novel`에 복사했으며 개발 경로·바이트/소스 계약을 검증했습니다.
+- 원격 소설 샘플/만화 3편 목록과 첫 이미지·보호 소설 인증 경계 확인은 전체 콘텐츠/기기 QA와 구분합니다. 상세 결과는 migration-status.md와 cache-and-environments.md를 따릅니다.
