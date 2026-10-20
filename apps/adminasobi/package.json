@@ -8,7 +8,8 @@
     "start": "next start --port 3002",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "check:security": "node --conditions=react-server --test scripts/security.test.mjs"
+    "check:security": "node --conditions=react-server --test scripts/security.test.mjs",
+    "check:editors": "node --import tsx --test scripts/editor-contracts.test.ts"
   },
   "dependencies": {
     "@asobi/ui": "0.1.0",
@@ -41,7 +42,8 @@
     "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0"
+    "@types/react-dom": "19.3.0",
+    "tsx": "4.23.13"
   },
   "engines": {
     "node": "24.x",

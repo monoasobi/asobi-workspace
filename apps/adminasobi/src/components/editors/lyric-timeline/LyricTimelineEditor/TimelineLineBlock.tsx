@@ -1,0 +1,157 @@
+"use client";
+
+import type { LyricLine } from "@asobi/content-core/lyrics";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@asobi/ui/components/popover";
+import type { MouseEvent as ReactMouseEvent } from "react";
+import styles from "../LyricTimelineEditor.module.css";
+import { TimelineLinePopover } from "./TimelineLinePopover";
+import type { TimelineEdge } from "./useTimelineResize";
+
+interface TimelineLineBlockProps {
+  canManage: boolean;
+  currentTime: number;
+  draftSync: number;
+  index: number;
+  isActive: boolean;
+  isEditing: boolean;
+  isSelected: boolean;
+  top: number;
+  line: LyricLine;
+  height: number;
+  onConsumeClick: (index: number) => boolean;
+  onDelete: (index: number) => void;
+  onEdit: (index: number | null) => void;
+  onLineTimeChange: (index: number, edge: TimelineEdge, value: string) => void;
+  onMouseDown: (event: ReactMouseEvent<HTMLDivElement>, index: number) => void;
+  onResizeMouseDown: (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    index: number,
+    edge: TimelineEdge,
+  ) => void;
+  onSelect: (index: number) => void;
+  onSplit: (index: number) => void;
+  onUpdateLine: (index: number, patch: Partial<LyricLine>) => void;
+}
+
+export const TimelineLineBlock = ({
+  canManage,
+  currentTime,
+  draftSync,
+  index,
+  isActive,
+  isEditing,
+  isSelected,
+  top,
+  line,
+  height,
+  onConsumeClick,
+  onDelete,
+  onEdit,
+  onLineTimeChange,
+  onMouseDown,
+  onResizeMouseDown,
+  onSelect,
+  onSplit,
+  onUpdateLine,
+}: TimelineLineBlockProps) => {
+  const jpText = line.jp || `Line ${index + 1}`;
+  const readingText = line.jpReading || " ";
+  const krText = line.kr || " ";
+
+  return (
+    <Popover
+      open={canManage && isEditing}
+      onOpenChange={(open) => {
+        if (!canManage) return;
+
+        if (open) {
+          onSelect(index);
+          onEdit(index);
+        } else if (isEditing) {
+          onEdit(null);
+        }
+      }}
+    >
+      <PopoverTrigger asChild>
+        <div
+          data-timeline-drag
+          className={styles.block}
+          data-active={isActive}
+          data-can-manage={canManage}
+          data-selected={isSelected}
+          style={{ top, height }}
+          role="button"
+          tabIndex={0}
+          onMouseDown={(event) => {
+            if (canManage) onMouseDown(event, index);
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+
+            if (onConsumeClick(index)) return;
+
+            if (isSelected) {
+              if (canManage) onEdit(index);
+              return;
+            }
+
+            onSelect(index);
+            onEdit(null);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              onSelect(index);
+              if (canManage) onEdit(index);
+            }
+          }}
+        >
+          {canManage && (
+            <button
+              type="button"
+              className={`${styles.handle} ${styles.handleStart}`}
+              aria-label="start 조정"
+              onMouseDown={(event) => onResizeMouseDown(event, index, "start")}
+              onClick={(event) => event.stopPropagation()}
+            />
+          )}
+          <div className={styles.blockText}>
+            <span className={styles.blockMain}>{jpText}</span>
+            <span className={styles.blockReading}>{readingText}</span>
+            <span className={styles.blockSub}>{krText}</span>
+          </div>
+          {canManage && (
+            <button
+              type="button"
+              className={`${styles.handle} ${styles.handleEnd}`}
+              aria-label="end 조정"
+              onMouseDown={(event) => onResizeMouseDown(event, index, "end")}
+              onClick={(event) => event.stopPropagation()}
+            />
+          )}
+        </div>
+      </PopoverTrigger>
+      {canManage && (
+        <PopoverContent
+          data-editor-portal
+          className="w-[360px] max-h-[80dvh] overflow-y-auto p-4"
+          sideOffset={8}
+        >
+          <TimelineLinePopover
+            currentTime={currentTime}
+            draftSync={draftSync}
+            index={index}
+            line={line}
+            onDelete={onDelete}
+            onLineTimeChange={onLineTimeChange}
+            onSplit={onSplit}
+            onUpdateLine={onUpdateLine}
+          />
+        </PopoverContent>
+      )}
+    </Popover>
+  );
+};
