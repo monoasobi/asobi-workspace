@@ -179,3 +179,12 @@
 ## 관리자 곡 상세 QA 재구성
 
 기존 MusicInfoForm/MusicSettingsForm/AlbumArtForm은 저장 핸들러를 유지하며 배치·그룹 스타일만 조정했습니다. 기존 콘텐츠 Workspace의 곡 탐색은 MusicContentAccordion으로 인계하고 AdminDocumentPanel/editorConfigs를 그대로 사용합니다. ContentWorkspace는 독립 서적 관리만 남깁니다. AlbumArtField는 곡 등록/수정 공용 이미지 클릭 선택 UI이며 이미지 표시는 기존 AlbumArtwork를 사용합니다. 신규 이미지 서버/관리자 CRUD/편집기를 만들지 않았습니다.
+
+
+## 소설 마크다운 작성 가이드 공용화 (2026-10-21)
+
+| 원본 | 새 소유 위치 | 소비·보존 |
+| --- | --- | --- |
+| Mono custom/Guide.tsx·Guide.styles.ts | packages/ui/src/components/NovelMarkdownGuide.tsx·styles | 문법 예시 11개와 실제 미리보기 재사용. 관리자 /guide 및 헤더 메뉴로 제공. Mono /guide는 사용자 요청으로 제거 |
+| Mono content/NovelMarkdown.tsx·module.css | packages/ui/src/components/NovelMarkdown.tsx·module.css | 렌더링 JSX·상수·문법 CSS 그대로 이동. Mono의 기존 파일은 fontAtom adapter. 기존 승인 해시 재사용 검사 |
+| Mono KoPubBatang-Medium.woff2 | packages/ui/src/assets, novel-guide.css | 관리자 번들에 같은 원본 폰트를 포함. Mono 기존 정적 폰트 URL은 호환 보존. 가이드 범위 읽기 팔레트는 기존 sRGB/P3 값으로 유지하며 Themes 의존성은 추가하지 않음 |

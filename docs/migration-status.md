@@ -834,3 +834,14 @@ Tabs는 공식 https://ui.shadcn.com/r/styles/radix-nova/tabs.json 소스를 공
 소설/만화/가사 폼의 readonly musicId는 라벨/표시값 없이 hidden input으로 유지해 기존 payload와 서버 검증을 보존합니다. 정보 표의 연결 곡 행은 유지합니다.
 
 검증: 전체 workspace lint/typecheck, 콘텐츠 계약 5개(공개 뱃지 기본 유지/관리자 숨김 SSR 포함), 소설 UI 보존 검사 통과. 곡 36 신규 소설/만화/가사 HTTP 200, 활성 폼에서 musicId=36 hidden·연결 곡 라벨 미노출, 안내/사이드바 뱃지/중복 작성 버튼 제거, 기존 소설 정보 표의 연결 곡 행을 확인했습니다. 운영 DB/R2 쓰기 없이 검사했고 실제 클릭/취소/재진입·시각 중앙 정렬은 사용자 QA 범위입니다. 환경변수 변경은 없습니다.
+
+
+## 관리자 QA — 소설 마크다운 작성 가이드 이전 (2026-10-21)
+
+구현 커밋: `0154bd6 소설 작성 가이드를 공용화하고 관리자로 이전`.
+
+기존 Guide의 문법 예시 11개와 실제 미리보기를 packages/ui의 NovelMarkdownGuide로 이동하고 관리자 인증 레이아웃 아래 /guide에서 제공합니다. 헤더 우측 메뉴 이름은 ‘소설 마크다운 작성 가이드’이며 기존 미저장 이동 보호를 거칩니다. 후속 사용자 요청에 따라 Mono /guide 페이지와 진입 링크는 삭제했습니다.
+
+실제 NovelMarkdown과 문법 CSS도 공용 UI로 이동했습니다. Mono는 기존 fontAtom을 연결하는 adapter만 유지하며 JSX/상수/CSS는 변경하지 않았습니다. check:ui는 이동 위치를 검사하고 상태 주입 부분만 원래 형태로 되돌려 기존 승인 해시와 비교합니다. 보존 해시는 재설정하지 않았습니다. 관리자 가이드의 KoPub 폰트는 원본 파일을 공용 패키지에서 번들하며 Mono 기존 정적 폰트 URL도 보존합니다. 읽기 색상은 가이드 범위에 기존 sRGB/P3 값을 사용하고 Radix Themes 의존성을 추가하지 않았습니다. react-markdown/remark-breaks 의존 소유자를 Mono에서 UI로 이동했고 lockfile의 패키지 버전/무결성이 동일함을 확인했습니다(공유로 인해 설치 위치만 hoist).
+
+검증: 전체 workspace lint/typecheck, 소설 UI 보존 검사, diff 공백 검사 통과. HTTP로 관리자 익명 접근의 로그인 이동, 로그인 후 가이드 200·메뉴·문법/실제 미리보기·바탕체 표시·공유 폰트 CSS/파일 응답, Mono /guide 404 및 기존 /novel/0 200을 확인했습니다. 실제 브라우저 클릭/스크롤/테마별 시각 QA는 하지 않았습니다. 운영 DB/R2 변경·빌드·푸시·배포·환경변수 변경은 없습니다.
