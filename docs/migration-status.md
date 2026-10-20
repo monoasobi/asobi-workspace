@@ -669,3 +669,10 @@ HTTP 확인은 1단계의 합성 곡 1개를 가진 같은 로컬 DB와 기존 �
 ## 저장소 이름 변경
 
 사용자 요청으로 로컬 저장소 폴더를 `/Users/nine/Documents/work/asobi-workspace`로 변경하고 루트 npm 이름/lockfile을 `asobi-workspace`로 맞췄습니다. 앱/공용 패키지의 @asobi 이름과 서비스 브랜드는 유지합니다. 현재 Git 원격은 연결되어 있지 않아 원격 저장소 이름 변경은 없습니다. 코드 동작 변경이 없어 lint/build는 반복하지 않으며 JSON 정합성과 workspace 해석을 확인합니다. 개발 서버는 같은 3100/3101/3102 포트로 재시작합니다.
+
+
+## QA 수정 — 소설 개발용 로컬 원고 누락
+
+군청 `/novel/4`에서 HTML이 본문으로 표시됐습니다. 원본 NovelReader도 개발 모드에서는 `/novel/{id}.md`, 운영 모드에서는 R2 API만 읽습니다. 로컬 누락 시 R2 fallback은 원본에 없습니다. 새 프로젝트에는 앞서 34~37 원고만 복사돼 있어 없는 `/novel/4.md` 요청이 Next HTML 응답으로 연결됐습니다. 기존 `monoasobi-contents/novel`의 숫자 ID Markdown 중 누락 28개를 바이트 동일하게 복사했고 기존 4개는 덮어쓰지 않았습니다. 현재 로컬 원고는 32개입니다. 원고는 모두 Git 제외입니다.
+
+처음 추가한 로컬 누락/R2 fallback helper와 검사 파일은 사용자의 원본 유지 지시에 따라 전부 철회했고 NovelReader를 변경 전 그대로 복구했습니다. 최종 런타임 코드 변경은 없습니다. 군청 정적 원고 HTTP 200·text/markdown·원본 SHA-256 일치·HTML 아님과 기존 UI/소설 보존 계약 검사 통과를 확인했습니다. DB/R2 객체·소설 스타일·로컬 편집 분기는 바꾸지 않았습니다.
