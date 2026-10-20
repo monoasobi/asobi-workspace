@@ -71,6 +71,7 @@ function Frame({
           {[
             ...(!readOnly ? [{ href: "/musics/new", label: "곡 추가" }] : []),
             { href: "/books", label: "서적" },
+            { href: "/guide", label: "소설 마크다운 작성 가이드" },
             { href: "/sidebar", label: "추천 정렬" },
             { href: "/musics/deleted", label: "숨긴 곡" },
           ].map((item) => (

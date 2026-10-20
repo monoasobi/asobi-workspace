@@ -11,7 +11,8 @@
     "./components/*": "./src/components/*.tsx",
     "./lib/*": "./src/lib/*.ts",
     "./styles.css": "./src/styles.css",
-    "./brand.css": "./src/brand.css"
+    "./brand.css": "./src/brand.css",
+    "./novel-guide.css": "./src/novel-guide.css"
   },
   "dependencies": {
     "@asobi/content-core": "0.1.0",
@@ -20,7 +21,9 @@
     "cn": "0.3.0",
     "lucide-react": "1.46.0",
     "radix-ui": "1.6.7",
-    "react-resizable-panels": "^4.14.5"
+    "react-resizable-panels": "^4.14.5",
+    "react-markdown": "^10.1.0",
+    "remark-breaks": "^4.0.0"
   },
   "peerDependencies": {
     "react": "^19.2.8",

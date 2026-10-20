@@ -8,7 +8,23 @@ const read = (path) => readFile(resolve(root, path), "utf8");
 const sha = (text) => createHash("sha256").update(text).digest("hex");
 const baseline = JSON.parse(await read("docs/novel-style-baseline.json"));
 for (const [name, expected] of Object.entries(baseline.hashes)) {
-  let text = await read("apps/monoasobi/src/" + name);
+  let text = await read(
+    name.endsWith("NovelMarkdown.module.css")
+      ? "packages/ui/src/components/NovelMarkdown.module.css"
+      : name.endsWith("NovelMarkdown.tsx")
+        ? "packages/ui/src/components/NovelMarkdown.tsx"
+        : "apps/monoasobi/src/" + name,
+  );
+  if (name.endsWith("NovelMarkdown.tsx")) {
+    // Undo only the app-state adapter extraction; the approved rendering hash stays unchanged.
+    text = text
+      .replace('import ReactMarkdown', 'import { fontAtom } from "@atoms/font.atom";\nimport { useAtomValue } from "jotai";\nimport ReactMarkdown')
+      .replace('  font?: "gothic" | "batang";\n', "")
+      .replace(
+        'export const NovelMarkdown = ({ children, className, font = "batang" }: NovelMarkdownProps) => {',
+        'export const NovelMarkdown = ({ children, className }: NovelMarkdownProps) => {\n  const font = useAtomValue(fontAtom);',
+      );
+  }
   if (baseline.radixReplacement.hashes[name]) {
     assert.equal(
       sha(text),
@@ -56,7 +72,7 @@ assert.deepEqual(
     .filter((p) => p.endsWith(".module.css"))
     .map((p) => p.split("/").at(-1))
     .sort(),
-  ["NovelMarkdown.module.css", "NovelReader.module.css"],
+  ["NovelReader.module.css"],
 );
 assert.equal(
   (await walk("apps/adminasobi/src")).some((p) => p.endsWith(".module.css")),

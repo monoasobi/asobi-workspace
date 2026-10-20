@@ -1,7 +1,7 @@
 // Static Tailwind variants; layout/interaction ownership stays with this component.
 export default {
   container:
-    "w-full h-[calc(100dvh_-_56px)] [&_[data-slot=scroll-area-viewport]]:[padding:32px_24px_48px] max-[480px]:[&_[data-slot=scroll-area-viewport]]:[padding:24px_12px_40px]",
+    "w-full min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]]:[padding:32px_24px_48px] max-[480px]:[&_[data-slot=scroll-area-viewport]]:[padding:24px_12px_40px]",
   pageFrame: "w-full min-h-full",
   inner: "w-full max-w-[800px]",
   sectionCard: "w-full overflow-visible p-3 border-0",

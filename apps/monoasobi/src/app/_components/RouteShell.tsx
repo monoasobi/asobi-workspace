@@ -38,7 +38,6 @@ export const RouteShell = ({
           <Link href="/">홈</Link>
           <Link href="/novel/0">소설 예시</Link>
           <Link href="/comic/0">만화 예시</Link>
-          <Link href="/guide">가이드</Link>
         </nav>
       </section>
     </main>

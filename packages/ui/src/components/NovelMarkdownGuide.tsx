@@ -1,8 +1,8 @@
 "use client";
 import { cn } from "@asobi/ui/lib/utils";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
-import { NovelMarkdown } from "@components/content/NovelMarkdown";
-import styles from "./Guide.styles";
+import { NovelMarkdown } from "./NovelMarkdown";
+import styles from "./NovelMarkdownGuide.styles";
 interface GuideItemProps {
   title: string;
   description?: string;
@@ -91,27 +91,27 @@ const GUIDE_ITEMS: GuideItemProps[] = [
     preview: "**【겟토】**\n알고 있지? 왜 내가 죽으려고 한건지.",
   },
 ];
-export const Guide = () => {
+export const NovelMarkdownGuide = ({ className, font = "batang" }: { className?: string; font?: "gothic" | "batang" }) => {
   return (
-    <ScrollArea className={styles.container}>
+    <ScrollArea className={cn(styles.container, className)}>
       <div className={cn("flex justify-center", styles.pageFrame)}>
         <div className={cn("flex flex-col gap-6", styles.inner)}>
           <div className="flex flex-col gap-1">
-            <h1 className="type-page-title">NovelReader 작성 가이드</h1>
+            <h1 className="type-page-title">소설 마크다운 작성 가이드</h1>
             <span className="type-body text-muted-foreground">
               소설 마크다운 파일에서 사용할 수 있는 문법과 실제 렌더링
               결과입니다.
             </span>
           </div>
           {GUIDE_ITEMS.map((item) => (
-            <GuideItem key={item.title} {...item} />
+            <GuideItem key={item.title} {...item} font={font} />
           ))}
         </div>
       </div>
     </ScrollArea>
   );
 };
-const GuideItem = ({ title, description, syntax, preview }: GuideItemProps) => (
+const GuideItem = ({ title, description, syntax, preview, font }: GuideItemProps & { font: "gothic" | "batang" }) => (
   <section
     className={cn(
       "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
@@ -141,7 +141,7 @@ const GuideItem = ({ title, description, syntax, preview }: GuideItemProps) => (
         </span>
       </div>
       <div className={styles.previewBox}>
-        <NovelMarkdown>{preview}</NovelMarkdown>
+        <NovelMarkdown font={font}>{preview}</NovelMarkdown>
       </div>
     </div>
   </section>

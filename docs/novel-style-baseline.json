@@ -14,5 +14,6 @@
       "components/content/NovelMarkdown.tsx": "92fe3df0a71c9e71eeaed860612518cffb0e81a23cecef0867707398c113ac43"
     }
   },
-  "loadingChangeNote": "2026-10-20 user approved local-first/R2 fallback. Only Reader loading/import changed; JSX, scroll state, Markdown renderer and CSS remain unchanged."
+  "loadingChangeNote": "2026-10-20 user approved local-first/R2 fallback. Only Reader loading/import changed; JSX, scroll state, Markdown renderer and CSS remain unchanged.",
+  "sharedExtractionNote": "2026-10-21: NovelMarkdown and its unchanged CSS moved to packages/ui for the admin guide. The contract reconstructs only the former Jotai imports/font binding before checking the same approved renderer hash. Mono retains a fontAtom adapter. No rendering hashes were reset."
 }

@@ -1,0 +1,36 @@
+/* Original Mono reading colors, scoped to the guide preview (Radix Colors 3). */
+@font-face {
+  font-family: "KoPub Batang";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("./assets/KoPubBatang-Medium.woff2") format("woff2");
+}
+.novel-guide-reading {
+  --gray-12: #211f26;
+  --red-a11: #c40006d3;
+  --accent-a3: #f3000d14;
+}
+@supports (color: color(display-p3 1 1 1)) {
+  @media (color-gamut: p3) {
+    .novel-guide-reading {
+      --gray-12: color(display-p3 0.128 0.122 0.147);
+      --red-a11: color(display-p3 0.744 0.234 0.222);
+      --accent-a3: color(display-p3 0.792 0.008 0.008 / 0.075);
+    }
+  }
+}
+.dark .novel-guide-reading {
+  --gray-12: #eeeef0;
+  --red-a11: #ff9592;
+  --accent-a3: #ff173f2d;
+}
+@supports (color: color(display-p3 1 1 1)) {
+  @media (color-gamut: p3) {
+    .dark .novel-guide-reading {
+      --gray-12: color(display-p3 0.933 0.933 0.94);
+      --red-a11: color(display-p3 1 0.57 0.55);
+      --accent-a3: color(display-p3 1 0.169 0.271 / 0.156);
+    }
+  }
+}
