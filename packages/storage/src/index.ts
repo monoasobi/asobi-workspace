@@ -65,13 +65,29 @@ const getR2Client = () => {
   return r2Client;
 };
 
-export const getR2Object = async (key: string) => {
+export const getAlbumArtBucketName = () => {
+  const bucket = process.env.R2_ALBUM_ART_BUCKET_NAME;
+  const privateBucket = process.env.R2_BUCKET_NAME ?? DEFAULT_BUCKET_NAME;
+  if (bucket === privateBucket) {
+    throw new Error(
+      "앨범아트 전용 버킷은 비공개 콘텐츠 버킷과 분리해야 합니다.",
+    );
+  }
+  if (process.env.NEXT_PUBLIC_ASSET_BASE_URL && !bucket) {
+    throw new Error(
+      "독립 이미지 주소에는 R2_ALBUM_ART_BUCKET_NAME이 필요합니다.",
+    );
+  }
+  return bucket ?? privateBucket;
+};
+
+export const getR2Object = async (key: string, bucketName?: string) => {
   const config = getR2Config();
 
   try {
     return await getR2Client().send(
       new GetObjectCommand({
-        Bucket: config.bucketName,
+        Bucket: bucketName ?? config.bucketName,
         Key: key,
       }),
     );
@@ -131,15 +147,27 @@ export const r2BodyToResponseBody = async (
   return body as BodyInit;
 };
 
-export const putR2Object = async (key: string, body: Uint8Array, contentType: string) => {
-  const { bucketName } = getR2Config();
-  await getR2Client().send(new PutObjectCommand({
-    Bucket: bucketName, Key: key, Body: body, ContentType: contentType,
-    CacheControl: "public, max-age=31536000, immutable",
-  }));
+export const putR2Object = async (
+  key: string,
+  body: Uint8Array,
+  contentType: string,
+  bucket?: string,
+) => {
+  const bucketName = bucket ?? getR2Config().bucketName;
+  await getR2Client().send(
+    new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+      CacheControl: "public, max-age=31536000, immutable",
+    }),
+  );
 };
 
-export const deleteR2Object = async (key: string) => {
-  const { bucketName } = getR2Config();
-  await getR2Client().send(new DeleteObjectCommand({ Bucket: bucketName, Key: key }));
+export const deleteR2Object = async (key: string, bucket?: string) => {
+  const bucketName = bucket ?? getR2Config().bucketName;
+  await getR2Client().send(
+    new DeleteObjectCommand({ Bucket: bucketName, Key: key }),
+  );
 };

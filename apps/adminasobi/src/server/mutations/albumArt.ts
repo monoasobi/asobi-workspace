@@ -4,7 +4,11 @@ import { and, eq, isNull } from "drizzle-orm";
 import { getDb } from "@asobi/database";
 import { musics } from "@asobi/database/schema";
 import { requireAdminWriteAccess } from "@/server/auth/access";
-import { deleteR2Object, putR2Object } from "@asobi/storage";
+import {
+  deleteR2Object,
+  putR2Object,
+  getAlbumArtBucketName,
+} from "@asobi/storage";
 
 export const saveAlbumArt = async (id: number, image: Uint8Array) => {
   await requireAdminWriteAccess();
@@ -14,7 +18,8 @@ export const saveAlbumArt = async (id: number, image: Uint8Array) => {
   });
   if (!current) return null;
   const key = `albumart/${id}/${randomUUID()}.webp`;
-  await putR2Object(key, image, "image/webp");
+  const bucket = getAlbumArtBucketName();
+  await putR2Object(key, image, "image/webp", bucket);
   try {
     const [updated] = await db
       .update(musics)
@@ -31,13 +36,17 @@ export const saveAlbumArt = async (id: number, image: Uint8Array) => {
       .returning();
     if (!updated) throw new Error("곡이 변경되었습니다. 다시 시도해주세요.");
   } catch (error) {
-    await deleteR2Object(key).catch(() =>
+    await deleteR2Object(key, bucket).catch(() =>
       console.error("Album art cleanup failed:", key),
     );
     throw error;
   }
-  if (current.albumArtKey?.startsWith(`albumart/${id}/`)) {
-    await deleteR2Object(current.albumArtKey).catch(() =>
+  // During the bucket transition, retain previous objects until cutover is verified.
+  if (
+    !process.env.R2_ALBUM_ART_BUCKET_NAME &&
+    current.albumArtKey?.startsWith(`albumart/${id}/`)
+  ) {
+    await deleteR2Object(current.albumArtKey, bucket).catch(() =>
       console.error("Previous album art cleanup failed:", current.albumArtKey),
     );
   }
