@@ -36,7 +36,6 @@ export const AlbumArtField = ({
         variant="outline"
         disabled={disabled}
         aria-label="앨범아트 이미지 선택"
-        aria-describedby={`${id}-help`}
         className="group relative size-[120px] shrink-0 cursor-pointer overflow-hidden rounded-lg p-0"
         onClick={() => input.current?.click()}
       >
@@ -72,9 +71,6 @@ export const AlbumArtField = ({
       <div className="grid min-w-0 flex-1 gap-3">
         {children}
         {filename && <p className="type-label break-all">{filename}</p>}
-        <p id={`${id}-help`} className="type-caption">
-          이미지를 눌러 JPG·PNG·WebP를 선택하세요. 비율을 유지해 저장합니다.
-        </p>
       </div>
     </div>
   );
