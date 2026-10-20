@@ -320,3 +320,7 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 - 기존 R2 account/key/bucket/endpoint를 Mono `.env.local`에만 연결했습니다. 소설/만화 API·독자 인증·DB/버킷 공개 정책은 유지합니다.
 - `NovelReader`의 개발용 로컬 Markdown 분기는 사용자 보존 요구입니다. 원본의 Git 제외 원고 4개를 새 `public/novel`에 복사했으며 개발 경로·바이트/소스 계약을 검증했습니다.
 - 원격 소설 샘플/만화 3편 목록과 첫 이미지·보호 소설 인증 경계 확인은 전체 콘텐츠/기기 QA와 구분합니다. 상세 결과는 migration-status.md와 cache-and-environments.md를 따릅니다.
+
+## 후속 운영 인계 자료
+
+최신 실제 운영 환경변수 목록/원본 대비 변경점은 [production-environment.md](production-environment.md)를 단일 인계 자료로 사용합니다. scripts/activate-album-art.mjs는 승인된 36곡 전환 전용이며 자동 실행하지 않습니다. 원본 소스 목록 자체는 최초 기준선을 유지합니다.
