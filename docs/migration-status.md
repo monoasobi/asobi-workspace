@@ -705,3 +705,10 @@ Mono 사이드바 정식 발매 배지는 공용 Badge의 bg-primary를 사용�
 ## QA 수정 — 작품 정보 헤더 상단 간격
 
 사용자 요청으로 Mono ContentsContainer의 작품 정보 헤더 위치를 top-0에서 top-1(4px)로 조정했습니다. 소설 본문/스크롤/스타일은 변경하지 않았습니다. Mono lint/typecheck 통과.
+
+
+## QA 수정 — Mono 설정 팝오버
+
+공용 shadcn Popover/Button 사용은 유지했습니다. Mono가 전체 preflight를 사용하지 않아 남은 fieldset 기본 테두리/여백을 설정 그룹에서만 초기화하고, 팝오버의 중복 gap/space-y를 정리했습니다. Mono base 레이어의 shadcn button[data-slot=button]에 글자색 상속을 추가했으며 variant utility는 그대로 우선합니다. 시스템 다크모드가 앱 라이트 테마의 네이티브 글자색에 영향을 주지 않도록 html.light/dark color-scheme을 맞췄습니다. 소설 Markdown/스타일·전체 preflight는 변경하지 않았습니다.
+
+Mono lint/typecheck·소설 UI 보존 검사 통과. 실제 개발 서버 CSS 반영을 확인했습니다. 현재 브라우저 조작 도구가 없어 열린 설정 화면과 테마 전환의 시각 검증은 사용자 QA로 남습니다. 코드 커밋: 1702c03.
