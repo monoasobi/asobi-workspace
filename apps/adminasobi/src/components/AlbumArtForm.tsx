@@ -82,6 +82,7 @@ export function AlbumArtForm({
       <AlbumArtwork
         key={preview ?? albumArtKey ?? musicId}
         src={preview ?? undefined}
+        size={120}
         albumArtKey={albumArtKey}
         className="size-[120px] rounded border object-contain"
       />

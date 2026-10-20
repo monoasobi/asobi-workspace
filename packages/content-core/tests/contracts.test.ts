@@ -12,6 +12,55 @@ import { withoutEnglish } from "../src/lyricEnglish";
 import { resolveLyricPresentation } from "../src/lyricPresentation";
 import { getActiveLineIndex, roundTime } from "../src/lyricTime";
 import { projectSidebar } from "../src/sidebarOrder";
+import { getAlbumArtSrc, getAlbumArtUrl, isAlbumArtKey } from "../src/albumArt";
+
+test("artwork delivery restricts public keys and bounds CDN variants without changing legacy paths", () => {
+  const key = "albumart/0/abc-123.webp";
+  const delivery = {
+    assetBaseUrl: "https://assets.envifloor.uk/",
+    transformImages: true,
+  };
+  assert.equal(getAlbumArtSrc({ id: 0 }), "/images/albumart/0.webp");
+  assert.equal(
+    getAlbumArtSrc({ id: 0, albumArtKey: key }),
+    `/api/content/${key}`,
+  );
+  assert.equal(
+    getAlbumArtUrl(key, delivery),
+    `https://assets.envifloor.uk/${key}`,
+  );
+  for (const [width, expected] of [
+    [72, 200],
+    [240, 400],
+    [768, 800],
+    [10000, 1600],
+    [NaN, 200],
+  ]) {
+    assert.equal(
+      getAlbumArtUrl(key, delivery, width),
+      `https://assets.envifloor.uk/cdn-cgi/image/width=${expected},fit=scale-down,format=auto,quality=85/${key}`,
+    );
+  }
+  for (const bad of [
+    "novel/0.md",
+    "albumart/0/../private.webp",
+    "https://elsewhere.test/a.webp",
+    "albumart/00/abc.webp",
+    "albumart/0/a.webp?x=1",
+  ]) {
+    assert.equal(isAlbumArtKey(bad), false);
+    assert.equal(getAlbumArtUrl(bad, delivery, 72), undefined);
+  }
+  for (const base of [
+    "http://assets.envifloor.uk",
+    "https://user:pass@example.test",
+    "https://example.test/path",
+    "https://example.test?x=1",
+    "invalid",
+  ]) {
+    assert.equal(getAlbumArtUrl(key, { assetBaseUrl: base }), undefined);
+  }
+});
 
 test("extracted contracts preserve timing precision, source validation and references", () => {
   const line = {

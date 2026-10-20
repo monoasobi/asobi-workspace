@@ -1,9 +1,8 @@
 "use client";
-
-import Image from "next/image";
+import { AlbumArtwork as SharedAlbumArtwork } from "@asobi/ui/components/album-artwork";
 import { Disc3 } from "lucide-react";
-import { useState } from "react";
 import { cn } from "@asobi/ui/lib/utils";
+import { isAlbumArtKey } from "@asobi/content-core/albumArt";
 
 const monoasobiUrl = process.env.NEXT_PUBLIC_MONOASOBI_URL?.replace(/\/+$/, "");
 
@@ -11,33 +10,33 @@ export function AlbumArtwork({
   albumArtKey,
   src,
   className,
+  size = 72,
 }: {
   albumArtKey?: string | null;
   src?: string;
   className?: string;
+  size?: number;
 }) {
-  const [failed, setFailed] = useState(false);
-  const imageSrc =
-    src ??
-    (monoasobiUrl && albumArtKey
+  const legacySrc =
+    monoasobiUrl && albumArtKey && isAlbumArtKey(albumArtKey)
       ? `${monoasobiUrl}/api/content/${albumArtKey}`
-      : undefined);
-  return imageSrc && !failed ? (
-    <Image
-      src={imageSrc}
-      alt=""
-      width={72}
-      height={72}
-      unoptimized
+      : undefined;
+  return (
+    <SharedAlbumArtwork
+      albumArtKey={albumArtKey}
+      src={src ?? legacySrc}
       className={className}
-      onError={() => setFailed(true)}
+      size={size}
+      assetBaseUrl={process.env.NEXT_PUBLIC_ASSET_BASE_URL}
+      transformImages={process.env.NEXT_PUBLIC_ASSET_TRANSFORMS === "true"}
+      fallback={
+        <span
+          aria-hidden="true"
+          className={cn("flex items-center justify-center bg-muted", className)}
+        >
+          <Disc3 className="size-8 text-muted-foreground" />
+        </span>
+      }
     />
-  ) : (
-    <span
-      aria-hidden="true"
-      className={cn("flex items-center justify-center bg-muted", className)}
-    >
-      <Disc3 className="size-8 text-muted-foreground" />
-    </span>
   );
 }
