@@ -236,7 +236,7 @@ export function AdminDocumentPanel({
       )}
       {editing ? (
         <form id={formId} key={`${node.type}-${"id" in node ? node.id : "new"}`}
-          onSubmit={submit} onChange={() => setDirty(true)}>
+          onSubmit={submit} onChange={event => { if (event.target instanceof HTMLElement && event.target.getAttribute("name")) setDirty(true); }}>
           <fieldset disabled={blocked} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {config.fields.map(field => {
               const hidden = !!field.showWhen && !field.showWhen(flags);
@@ -247,7 +247,7 @@ export function AdminDocumentPanel({
                   <Label htmlFor={`${fieldIdPrefix}-${field.name}`} className={field.type === "checkbox" ? "order-2" : ""}>
                     {documentLabels[field.name] ?? field.label}{"required" in field && field.required ? " *" : ""}
                   </Label>
-                  <AdminEditorField id={`${fieldIdPrefix}-${field.name}`} field={field} visibilityFlags={flags}
+                  <AdminEditorField id={`${fieldIdPrefix}-${field.name}`} field={field} disabled={blocked} onEdit={() => setDirty(true)} visibilityFlags={flags}
                     onVisibilityChange={(key, value) => { setFlags(prev => ({ ...prev, [key]: value })); setDirty(true); }} />
                 </div>
               );

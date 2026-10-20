@@ -12,6 +12,18 @@ export const getBookEditorConfig = (
       ? data.books.find((item) => item.id === selectedNode.id)
       : null;
 
+  // Preserve saved links even when their novels are absent from the active catalog.
+  const novels = new Map<number, Pick<(typeof data.novels)[number], "id" | "title" | "musicId">>(data.novels.map(novel => [novel.id, novel]));
+  for (const { novel } of book?.novels ?? []) {
+    if (!novels.has(novel.id)) novels.set(novel.id, novel);
+  }
+  const novelOptions = [...novels.values()].map(novel => ({
+    value: String(novel.id),
+    label: novel.title || `소설 #${novel.id}`,
+    description: data.musics.find(music => music.id === novel.musicId)?.korTitle
+      || data.musics.find(music => music.id === novel.musicId)?.title || "기존 연결 소설",
+  }));
+
   return {
     title: book ? "Edit book" : "Create book",
     submitLabel: book ? "저장" : "생성",
@@ -21,11 +33,13 @@ export const getBookEditorConfig = (
     method: book ? "PUT" : "POST",
     fields: [
       field("name", "name", book?.name, true),
-      field(
-        "novelIds",
-        "novelIds",
-        book?.novels.map(({ novel }) => novel.id).join(", ") ?? "",
-      ),
+      {
+        type: "multi-select",
+        name: "novelIds",
+        label: "연결 소설",
+        defaultValue: book?.novels.map(({ novel }) => String(novel.id)) ?? [],
+        options: novelOptions,
+      },
       urlField("kyoboUrl", "kyoboUrl", book?.purchaseLinks?.kyoboUrl ?? ""),
       urlField("yes24Url", "yes24Url", book?.purchaseLinks?.yes24Url ?? ""),
       urlField("aladinUrl", "aladinUrl", book?.purchaseLinks?.aladinUrl ?? ""),

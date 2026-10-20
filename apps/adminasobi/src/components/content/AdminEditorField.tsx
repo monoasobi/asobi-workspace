@@ -1,4 +1,5 @@
 "use client";
+import { AdminMultiSelectField } from "./AdminMultiSelectField";
 import { Checkbox } from "@asobi/ui/components/checkbox";
 import { Textarea } from "@asobi/ui/components/textarea";
 import { Input } from "@asobi/ui/components/input";
@@ -10,15 +11,21 @@ import type { EditorFieldConfig } from "./types";
 // Original field dispatch and uncontrolled FormData contract, with shared shadcn boundaries.
 export function AdminEditorField({
   id,
+  disabled,
+  onEdit,
   field,
   visibilityFlags,
   onVisibilityChange,
 }: {
   id: string;
+  disabled: boolean;
+  onEdit: () => void;
   field: EditorFieldConfig;
   visibilityFlags: Record<string, boolean>;
   onVisibilityChange: (key: string, value: boolean) => void;
 }) {
+  if (field.type === "multi-select")
+    return <AdminMultiSelectField id={id} field={field} disabled={disabled} onEdit={onEdit} />;
   if (field.type === "readonly")
     return (
       <>

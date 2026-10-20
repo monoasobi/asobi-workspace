@@ -1,4 +1,7 @@
 import { getSelectedDocument } from "../src/components/content/adminSelectedDocument";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { AdminMultiSelectField } from "../src/components/content/AdminMultiSelectField";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { novelSchema, bookSchema } from "@asobi/content-core/contentInput";
@@ -41,7 +44,16 @@ test("migrated form payloads preserve hidden book relationships and conditional 
   const form = new FormData();
   form.set("name", "Book");
   const ids = cfg.fields.find((f) => f.name === "novelIds");
-  assert(ids && "defaultValue" in ids);
+  assert(ids && ids.type === "multi-select");
+  assert.deepEqual(ids.defaultValue, ["1", "99"]);
+  assert(ids.options.some(option => option.value === "99"));
+  const html = renderToStaticMarkup(createElement(AdminMultiSelectField, {
+    id: "novel-selection", field: ids, disabled: false, onEdit: () => {},
+  }));
+  assert(html.includes('name="novelIds" value="1,99"'));
+  assert(html.includes('role="combobox"'));
+  assert(html.includes('data-slot="combobox-chip"'));
+
   form.set("novelIds", String(ids.defaultValue));
   form.set("kyoboUrl", "https://example.test/book");
   assert.deepEqual(bookSchema.parse(cfg.toPayload(form)).novelIds, [1, 99]);

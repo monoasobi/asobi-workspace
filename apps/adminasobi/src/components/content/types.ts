@@ -23,7 +23,14 @@ export type EditorFieldConfigBase = {
   showWhen?: (flags: Record<string, boolean>) => boolean;
 };
 
+export type MultiSelectFieldConfig = EditorFieldConfigBase & {
+  type: "multi-select";
+  defaultValue: string[];
+  options: { value: string; label: string; description?: string }[];
+};
+
 export type EditorFieldConfig =
+  | MultiSelectFieldConfig
   | (EditorFieldConfigBase & {
       type: "text" | "url" | "number";
       defaultValue?: string | number | null;
