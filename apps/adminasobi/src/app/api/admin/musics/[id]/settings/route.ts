@@ -2,7 +2,7 @@ import { refreshPublicCatalog } from "@/server/refresh";
 import { authorizeWrite } from "@/server/auth/write";
 import { privateHeaders } from "@/server/auth/request";
 import { parseMusicId } from "@/lib/musicId";
-import { musicSettingsSchema } from "@asobi/content-core/musicSettings";
+import { musicSettingsUpdateSchema } from "@/lib/musicSettingsInput";
 import { saveMusicSettings } from "@/server/mutations/musicSettings";
 export async function PUT(
   request: Request,
@@ -16,7 +16,7 @@ export async function PUT(
       { error: "잘못된 곡 ID입니다." },
       { status: 400, headers: privateHeaders },
     );
-  const parsed = musicSettingsSchema.safeParse(
+  const parsed = musicSettingsUpdateSchema.safeParse(
     await request.json().catch(() => null),
   );
   if (!parsed.success)

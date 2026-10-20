@@ -1,7 +1,7 @@
 "use client";
 import type { RefreshResult } from "@/types/refresh";
-import { useState, type FormEvent } from "react";
-import { AudioLines, Globe, Save, SlidersHorizontal } from "lucide-react";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { AudioLines, Globe, Save } from "lucide-react";
 import { Separator } from "@asobi/ui/components/separator";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
@@ -24,6 +24,7 @@ import type { AdminMusic } from "@/types/music";
 
 export function MusicSettingsForm({
   music,
+  editAction,
   readOnly,
   onRefresh,
   onSaved,
@@ -31,6 +32,7 @@ export function MusicSettingsForm({
   onBusyChange,
 }: {
   music: AdminMusic;
+  editAction: ReactNode;
   readOnly: boolean;
   onRefresh: (results: RefreshResult[]) => void;
   onSaved: (music: AdminMusic) => void;
@@ -44,13 +46,6 @@ export function MusicSettingsForm({
   const invalidColor =
     !!fanLightColor && !normalizeFanLightColor(fanLightColor);
   const [publish, setPublish] = useState(music.publish);
-  const [bpm, setBpm] = useState(String(music.bpm ?? ""));
-  const [syncOffset, setSyncOffset] = useState(String(music.syncOffset));
-  const [savedSyncOffset, setSavedSyncOffset] = useState(
-    String(music.syncOffset),
-  );
-  const displayedSyncOffset =
-    syncOffset === savedSyncOffset ? String(music.syncOffset) : syncOffset;
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);
@@ -77,8 +72,6 @@ export function MusicSettingsForm({
             youtubeId: youtubeId.trim(),
             fanLightColor: fanLightColor || null,
             publish,
-            bpm: bpm.trim() === "" ? null : Number(bpm),
-            syncOffset: Number(displayedSyncOffset),
           }),
         },
       );
@@ -96,9 +89,6 @@ export function MusicSettingsForm({
         updatedAt: music.updatedAt,
       });
       setYoutubeId(result.settings.youtubeId ?? "");
-      setSyncOffset(String(result.settings.syncOffset));
-      setSavedSyncOffset(String(result.settings.syncOffset));
-      setBpm(String(result.settings.bpm ?? ""));
       setFanLightColor(result.settings.fanLightColor ?? "");
       setPublish(result.settings.publish);
       onDirtyChange(false);
@@ -118,6 +108,15 @@ export function MusicSettingsForm({
       className="flex min-h-0 flex-1 flex-col"
       aria-busy={busy}
     >
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
+        <h2 className="type-section-title">콜 정보</h2>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          {editAction}
+          <Button type="submit" size="sm" disabled={readOnly || busy || invalidColor}>
+            <Save className="size-4" />{busy ? "저장 중…" : "설정 저장"}
+          </Button>
+        </div>
+      </header>
       <div>
         <div className="flex w-full flex-col gap-5 p-5 sm:p-6">
           <fieldset disabled={readOnly || busy} className="grid min-w-0 gap-5">
@@ -210,70 +209,6 @@ export function MusicSettingsForm({
             </section>
             <section
               className="min-w-0"
-              aria-labelledby="timing-heading"
-            >
-              <div className="mb-4 flex items-start gap-3">
-                <SlidersHorizontal
-                  aria-hidden="true"
-                  className="mt-0.5 size-5 text-muted-foreground"
-                />
-                <div>
-                  <h3 id="timing-heading" className="text-sm font-semibold">
-                    타이밍
-                  </h3>
-                  <p className="mt-1 type-caption">
-                    콜 패턴의 기본 속도와 음원에 맞는 가사 싱크를 조정합니다.
-                  </p>
-                </div>
-              </div>
-              <div className="grid items-start gap-5 lg:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="music-bpm">곡 BPM</Label>
-                  <Input
-                    id="music-bpm"
-                    type="number"
-                    min={20}
-                    max={400}
-                    step="any"
-                    value={bpm}
-                    placeholder="미지정"
-                    aria-describedby="bpm-help"
-                    onChange={(event) => {
-                      setBpm(event.target.value);
-                      edited();
-                    }}
-                  />
-                  <p id="bpm-help" className="type-caption">
-                    새 펄스 패턴의 기본 BPM입니다. 미지정 시 120을 사용하며 기존
-                    블록은 바뀌지 않습니다.
-                  </p>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="sync-offset">가사 싱크 보정 (초)</Label>
-                  <Input
-                    id="sync-offset"
-                    type="number"
-                    required
-                    min={-3600}
-                    max={3600}
-                    step="0.01"
-                    aria-describedby="sync-help"
-                    value={displayedSyncOffset}
-                    onChange={(event) => {
-                      setSyncOffset(event.target.value);
-                      edited();
-                    }}
-                  />
-                  <p id="sync-help" className="type-caption">
-                    MONOASOBI 기본값 {music.sourceSync}초 + 추가 보정값. 양수는
-                    가사를 늦게, 음수는 일찍 표시합니다. 기본값 0은 추가 보정
-                    없음입니다.
-                  </p>
-                </div>
-              </div>
-            </section>
-            <section
-              className="min-w-0"
               aria-labelledby="publish-heading"
             >
               <div className="mb-4 flex items-start gap-3">
@@ -342,10 +277,6 @@ export function MusicSettingsForm({
               "변경사항을 저장하면 설정이 반영됩니다."
             )}
           </div>
-          <Button type="submit" disabled={readOnly || busy || invalidColor}>
-            <Save className="size-4" />
-            {busy ? "저장 중…" : "설정 저장"}
-          </Button>
         </div>
       </footer>
     </form>

@@ -1,6 +1,6 @@
 "use client";
 import type { RefreshResult } from "@/types/refresh";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { AudioLines, Type } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
@@ -22,6 +22,9 @@ const fields = [
 ] as const;
 export function MusicInfoForm({
   music,
+  heading,
+  editAction,
+  showFields = true,
   readOnly,
   onRefresh,
   onSaved,
@@ -29,6 +32,9 @@ export function MusicInfoForm({
   onBusyChange,
 }: {
   music: AdminMusic;
+  heading: ReactNode;
+  editAction: ReactNode;
+  showFields?: boolean;
   readOnly: boolean;
   onRefresh: (results: RefreshResult[]) => void;
   onSaved: (music: SavedMusic) => void;
@@ -77,6 +83,14 @@ export function MusicInfoForm({
   }
   return (
     <form onSubmit={save} aria-busy={busy} className="flex flex-col">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
+        {heading}
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          {editAction}
+          {showFields && <Button type="submit" size="sm" disabled={readOnly || busy}>{busy ? "저장 중…" : "곡 정보 저장"}</Button>}
+        </div>
+      </header>
+      <div hidden={!showFields}>
       <fieldset
         disabled={busy || readOnly}
         className="grid gap-5 p-5 sm:p-6"
@@ -123,10 +137,8 @@ export function MusicInfoForm({
                 ? "저장하지 않은 변경사항이 있습니다."
                 : "공통 곡 정보를 수정할 수 있습니다.")}
         </p>
-        <Button type="submit" disabled={readOnly || busy}>
-          {busy ? "저장 중…" : "곡 정보 저장"}
-        </Button>
       </footer>
+      </div>
     </form>
   );
 }

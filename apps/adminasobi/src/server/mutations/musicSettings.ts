@@ -6,14 +6,12 @@ import {
   musics,
   loudasobiMusicSettings as musicSettings,
 } from "@asobi/database/schema";
-import {
-  musicSettingsSchema,
-  type MusicSettingsInput,
-} from "@asobi/content-core/musicSettings";
+import { musicSettingsUpdateSchema } from "@/lib/musicSettingsInput";
+import type { z } from "zod";
 
-export async function saveMusicSettings(id: number, input: MusicSettingsInput) {
+export async function saveMusicSettings(id: number, input: z.infer<typeof musicSettingsUpdateSchema>) {
   await requireAdminWriteAccess();
-  const values = musicSettingsSchema.parse(input);
+  const values = musicSettingsUpdateSchema.parse(input);
   return getDb().transaction(async (tx) => {
     const [music] = await tx
       .select({ id: musics.id })

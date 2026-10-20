@@ -43,19 +43,17 @@ export function MusicDetail({
   }, [setDirty, setBusy]);
   return (
     <div className="min-h-0 flex-1 overflow-auto p-4 sm:p-6">
-      <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div className="grid min-w-0 gap-1">
-          <h1 lang="ja" className="type-page-title break-words">{music.title}</h1>
-          <p className="type-description">{music.korTitle} · {music.enTitle}</p>
-        </div>
-        <Badge variant={music.publish ? "secondary" : "outline"}>
+      <RefreshStatus results={refresh} onRefresh={reportRefresh} />
+      <section className="relative mb-5 min-w-0 rounded-xl border bg-card" aria-label="곡 개요">
+        <Badge className="absolute right-5 top-5" variant={music.publish ? "secondary" : "outline"}>
           {music.publish ? "콜 공개 중" : "콜 비공개"}
         </Badge>
-      </header>
-      <RefreshStatus results={refresh} onRefresh={reportRefresh} />
-      <section className="mb-5 min-w-0 rounded-xl border bg-card" aria-label="공통 앨범아트">
-        <header className="border-b px-5 py-4"><h2 className="type-card-title">앨범아트</h2></header>
         <AlbumArtForm
+          details={<div className="grid gap-1">
+            <h1 lang="ja" className="type-page-title break-words">{music.title}</h1>
+            <p className="type-description">{music.korTitle}</p>
+            <p className="type-description">{music.enTitle}</p>
+          </div>}
           onRefresh={reportRefresh}
           musicId={music.id}
           albumArtKey={music.albumArtKey}
@@ -70,17 +68,15 @@ export function MusicDetail({
       </section>
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <section className="min-w-0 rounded-xl border bg-card">
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-            <div className="flex flex-wrap gap-1" role="group" aria-label="곡 관리 영역">
-              <Button variant={showContent ? "ghost" : "secondary"} size="sm" aria-pressed={!showContent} disabled={guard.busy} onClick={() => setView({ source, content: false })}>곡 정보</Button>
-              <Button variant={showContent ? "secondary" : "ghost"} size="sm" aria-pressed={showContent} disabled={guard.busy} onClick={() => setView({ source, content: true })}>원작·가사 문서</Button>
-            </div>
-            <Button variant="outline" size="sm" disabled={!initialMusic.hasLyrics || guard.busy} title="가사 타임라인 편집" onClick={() => {
-              if (guard.confirmLeave()) router.push(`/musics/${music.id}/lyrics`);
-            }}>가사 편집</Button>
-          </header>
-          <div hidden={showContent}>
-            <MusicInfoForm
+          <MusicInfoForm
+              heading={<div className="flex flex-wrap gap-1" role="group" aria-label="곡 관리 영역">
+                <Button type="button" variant={showContent ? "ghost" : "secondary"} size="sm" aria-pressed={!showContent} disabled={guard.busy} onClick={() => setView({ source, content: false })}>곡 정보</Button>
+                <Button type="button" variant={showContent ? "secondary" : "ghost"} size="sm" aria-pressed={showContent} disabled={guard.busy} onClick={() => setView({ source, content: true })}>원작·가사 문서</Button>
+              </div>}
+              editAction={<Button type="button" variant="outline" size="sm" disabled={!initialMusic.hasLyrics || guard.busy} title="가사 타임라인 편집" onClick={() => {
+                if (guard.confirmLeave()) router.push(`/musics/${music.id}/lyrics`);
+              }}>가사 편집</Button>}
+              showFields={!showContent}
               onRefresh={reportRefresh}
               music={music}
               readOnly={readOnly || guard.busy}
@@ -91,8 +87,7 @@ export function MusicDetail({
                 router.refresh();
               }}
             />
-            {!readOnly && <div className="border-t p-5"><MusicLifecycle id={music.id} /></div>}
-          </div>
+            {!readOnly && <div hidden={showContent} className="border-t p-5"><MusicLifecycle id={music.id} /></div>}
           <div hidden={!showContent}>
             <MusicContentAccordion
               key={contentNode ? getSelectedNodeKey(contentNode) : "unselected"}
@@ -105,13 +100,10 @@ export function MusicDetail({
           </div>
         </section>
         <section className="min-w-0 rounded-xl border bg-card">
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-            <h2 className="type-section-title">콜 정보</h2>
-            <Button variant="outline" size="sm" disabled={guard.busy} onClick={() => {
-              if (guard.confirmLeave()) router.push(`/musics/${music.id}/calls`);
-            }}>콜 편집</Button>
-          </header>
           <MusicSettingsForm
+            editAction={<Button type="button" variant="outline" size="sm" disabled={guard.busy} onClick={() => {
+              if (guard.confirmLeave()) router.push(`/musics/${music.id}/calls`);
+            }}>콜 편집</Button>}
             onRefresh={reportRefresh}
             music={{ ...music, sourceSync: initialMusic.sourceSync, hasLyrics: initialMusic.hasLyrics }}
             readOnly={readOnly || guard.busy}
