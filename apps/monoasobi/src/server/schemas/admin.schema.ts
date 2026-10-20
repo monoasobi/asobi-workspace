@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { musicSchema } from "@asobi/content-core/music";
+export { musicSchema };
 
 const optionalText = z
   .string()
@@ -28,14 +30,6 @@ const optionalId = z
   .transform((value) => value ?? null);
 
 const musicId = z.coerce.number().int().nonnegative();
-
-export const musicSchema = z.object({
-  title: requiredText,
-  korTitle: requiredText,
-  enTitle: requiredText,
-  youtubeId: optionalText,
-  specialPath: optionalText,
-});
 
 export const novelSchema = z
   .object({

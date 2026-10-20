@@ -8,7 +8,12 @@ const workspaceRoot = realpathSync(
 );
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@asobi/ui", "@asobi/content-core", "@asobi/database"],
+  transpilePackages: [
+    "@asobi/ui",
+    "@asobi/content-core",
+    "@asobi/database",
+    "@asobi/storage",
+  ],
   turbopack: { root: workspaceRoot },
   outputFileTracingRoot: workspaceRoot,
 };

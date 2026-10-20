@@ -82,3 +82,40 @@ test("extracted contracts preserve timing precision, source validation and refer
   assert.deepEqual(projected.ungrouped, [1]);
   assert.deepEqual(original.groups[0].musicIds, [0, 9]);
 });
+
+test("shared song/settings schemas retain their separate field ownership", async () => {
+  const { musicSchema } = await import("../src/music");
+  const { musicSettingsSchema } = await import("../src/musicSettings");
+  const music = musicSchema.parse({
+    title: " 曲 ",
+    korTitle: "곡",
+    enTitle: "Song",
+    youtubeId: "",
+    specialPath: "",
+    publish: true,
+  });
+  assert.equal(music.title, "曲");
+  assert.equal(music.youtubeId, null);
+  assert.equal(music.specialPath, null);
+  assert.equal("publish" in music, false);
+  const settings = {
+    youtubeId: "",
+    fanLightColor: null,
+    bpm: null,
+    publish: false,
+    syncOffset: 0,
+  };
+  assert.equal(musicSettingsSchema.parse(settings).youtubeId, null);
+  assert.equal(
+    musicSettingsSchema.safeParse({ ...settings, publish: true }).success,
+    false,
+  );
+  assert.equal(
+    musicSettingsSchema.safeParse({ ...settings, title: "overwrite" }).success,
+    false,
+  );
+  assert.equal(
+    musicSettingsSchema.safeParse({ ...settings, bpm: 401 }).success,
+    false,
+  );
+});

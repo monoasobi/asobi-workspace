@@ -1,0 +1,21 @@
+{
+  "name": "@asobi/storage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "check": "node --conditions=react-server --test tests/albumArt.test.mjs"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./albumArt": "./src/albumArt.ts"
+  },
+  "dependencies": {
+    "@asobi/content-core": "0.1.0",
+    "@aws-sdk/client-s3": "3.1076.0",
+    "sharp": "0.34.5",
+    "server-only": "0.0.1"
+  }
+}

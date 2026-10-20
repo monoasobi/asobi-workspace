@@ -8,7 +8,11 @@ const nextConfigDir = realpathSync(dirname(fileURLToPath(import.meta.url)));
 const workspaceRoot = resolve(nextConfigDir, "../..");
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@asobi/content-core", "@asobi/database"],
+  transpilePackages: [
+    "@asobi/content-core",
+    "@asobi/database",
+    "@asobi/storage",
+  ],
   cacheComponents: true,
   reactCompiler: {
     compilationMode: "infer",

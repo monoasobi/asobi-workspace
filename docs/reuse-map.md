@@ -95,3 +95,6 @@
 | Loud 인증·로그인 폼·Origin 검사 | adminasobi의 auth/API/로그인 폼 | 새 cookie/audience 사용. 기존 관리자 전용 인증은 9단계 전환 후 종료 |
 | Loud SongList·앨범 정렬·스크롤 복원 | ui의 song-list/sidebarScroll + content-core의 albumOrder/sidebarSongs | 기존 Loud는 locale·이미지 adapter만 유지. 새 관리자도 같은 목록 사용 |
 | Loud fanlights 색상/키 | content-core/fanlights | 기존 Loud 진입점은 호환 re-export. 관리자 설정 schema가 같은 키 사용 |
+
+| Mono musicSchema / Loud musicSettingsSchema | content-core/music, musicSettings | 기존 앱도 re-export로 연결. 공유 Zod 버전 4.6.5로 타입 경계 정렬 |
+| Mono storage.ts / albumArtImage.ts / albumArt.ts | storage 패키지 + content-core/albumArt | Mono 읽기와 관리자 업로드의 실제 공용 구현. 기존 앱 진입점은 re-export |

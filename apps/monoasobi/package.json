@@ -29,9 +29,10 @@
     "react-resizable-panels": "^4.14.5",
     "remark-breaks": "^4.0.0",
     "sharp": "^0.34.5",
-    "zod": "^4.4.3",
+    "zod": "4.6.5",
     "@asobi/content-core": "0.1.0",
-    "@asobi/database": "0.1.0"
+    "@asobi/database": "0.1.0",
+    "@asobi/storage": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
