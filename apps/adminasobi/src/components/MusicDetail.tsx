@@ -37,9 +37,9 @@ export function MusicDetail({
     }
   }, [setDirty, setBusy]);
   return (
-    <div className="min-h-0 flex-1 overflow-auto p-4 sm:p-6">
+    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-hidden p-4 sm:p-6">
       <RefreshStatus results={refresh} onRefresh={reportRefresh} />
-      <section className="relative mb-5 min-w-0 rounded-xl border bg-card" aria-label="곡 개요">
+      <section className="max-h-[45dvh] min-w-0 shrink-0 overflow-y-auto rounded-xl border bg-card xl:max-h-none" aria-label="곡 개요">
         <MusicInfoForm
           music={music}
           readOnly={readOnly || guard.busy}
@@ -66,8 +66,8 @@ export function MusicDetail({
           }}
         />
       </section>
-      <div className="grid items-start gap-5 xl:grid-cols-2">
-        <section className="min-w-0 rounded-xl border bg-card">
+      <div className="grid min-h-0 flex-1 grid-rows-2 gap-5 xl:grid-cols-2 xl:grid-rows-1">
+        <section className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border bg-card">
           <MusicContentTabs
             data={contentData} musicId={music.id} readOnly={readOnly}
             initialNode={contentNode} revision={contentRevision} contentActive={contentActive}
@@ -77,7 +77,7 @@ export function MusicDetail({
             }}>가사 편집</Button>}
           />
         </section>
-        <section className="min-w-0 rounded-xl border bg-card">
+        <section className="max-h-full min-h-0 min-w-0 self-start overflow-y-auto rounded-xl border bg-card">
           <MusicSettingsForm
             editAction={<Button type="button" variant="outline" size="sm" disabled={guard.busy} onClick={() => {
               if (guard.confirmLeave()) router.push(`/musics/${music.id}/calls`);

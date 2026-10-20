@@ -61,19 +61,19 @@ export function MusicContentTabs({
   return (
     <Tabs value={tab} onValueChange={value => {
       if (!guard.busy) setView({ source, tab: value });
-    }} className="gap-0">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-        <TabsList aria-label="곡 콘텐츠 구분" className="max-w-full overflow-x-auto">
+    }} className="min-h-0 flex-1 gap-0 overflow-hidden">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5 shrink-0">
+        <TabsList aria-label="곡 콘텐츠 구분">
           <TabsTrigger value="media" disabled={guard.busy}>음원·페이지</TabsTrigger>
           {groups.map(group => <TabsTrigger key={group.value} value={group.value} disabled={guard.busy}>{group.label}</TabsTrigger>)}
         </TabsList>
         {editAction}
       </header>
-      <TabsContent value="media" forceMount className="p-5 data-[state=inactive]:hidden sm:p-6">{media}</TabsContent>
+      <TabsContent value="media" forceMount className="min-h-0 overflow-y-auto p-5 data-[state=inactive]:hidden sm:p-6">{media}</TabsContent>
       {groups.map(group => {
         const node = nodeFor(group);
         return (
-          <TabsContent key={group.value} value={group.value} forceMount className="data-[state=inactive]:hidden">
+          <TabsContent key={group.value} value={group.value} forceMount className="min-h-0 overflow-y-auto data-[state=inactive]:hidden">
             <div className="flex items-center justify-between gap-2 px-5 py-4">
               <h3 className="type-label">{group.label} <span className="ml-1 text-muted-foreground">{group.items.length}</span></h3>
               {!readOnly && group.create && (
@@ -86,7 +86,7 @@ export function MusicContentTabs({
               </div>
             )}
             {node ? (
-              <AdminDocumentPanel key={getSelectedNodeKey(node)} data={data} node={node}
+              <AdminDocumentPanel key={getSelectedNodeKey(node)} embedded data={data} node={node}
                 revision={node.type === "lyric" ? revision : undefined} readOnly={readOnly}
                 onNavigate={navigateSaved}
                 onDeleted={() => { router.replace(`/musics/${musicId}?tab=content`); router.refresh(); }} />
