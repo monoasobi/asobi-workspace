@@ -67,7 +67,25 @@ function Frame({
           <h1 className="text-sm font-semibold">ASOBI 관리자</h1>
           <Badge variant="secondary">{readOnly ? "열람 전용" : "관리자"}</Badge>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            ...(!readOnly ? [{ href: "/musics/new", label: "곡 추가" }] : []),
+            { href: "/books", label: "서적" },
+            { href: "/sidebar", label: "추천 정렬" },
+            { href: "/musics/deleted", label: "숨긴 곡" },
+          ].map((item) => (
+            <Button
+              key={item.href}
+              size="sm"
+              variant="ghost"
+              disabled={guard.busy}
+              onClick={() => {
+                if (guard.confirmLeave()) router.push(item.href);
+              }}
+            >
+              {item.label}
+            </Button>
+          ))}
           <Button
             variant="ghost"
             size="icon"
