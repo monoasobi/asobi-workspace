@@ -18,3 +18,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## 8단계 공개 데이터 반영과 환경 경계
+
+- 사용자 결정으로 공개 화면의 실시간 갱신을 제거했습니다. Mono의 기존 `public-catalog` 서버 캐시만 관리자 저장 후 무효화하고 Loud는 요청별 DB 조회를 유지합니다. Loud 카탈로그 focus/storage 훅·새 캐시/폴링을 되살리지 않습니다.
+- 재생/볼륨·읽던 위치/언어·선택곡 같은 로컬 동작은 보존합니다. 볼륨 storage와 재생 clock visibilitychange는 제거 대상이 아닙니다.
+- 실제 환경 변경 전에 개발/프리뷰/운영 분리 계획을 보고합니다. 현재는 기존 로컬 설정의 읽기 점검과 계획만 기록했으며 운영 분리/배포 완료가 아닙니다. 루트 `docs/cache-and-environments.md`를 먼저 확인합니다.

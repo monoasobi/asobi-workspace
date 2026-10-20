@@ -299,3 +299,11 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 - 사용자 결정으로 Tailwind/CSS Modules 혼용 금지를 철회했습니다. 소설 문법별 두 모듈은 유지하고 Themes 표시 부품은 HTML/Tailwind·공용 shadcn으로 대체했습니다.
 - 소설의 Themes 부품 import는 없으며, 공개 영역의 Theme provider/CSS는 종료 전 관리자와 읽기 색상/애니메이션·기본 상속 때문에 남습니다. shared ScrollArea의 Radix primitive는 재사용합니다.
 - Markdown 모듈의 사용자 스타일은 그대로이며 Reader 모듈은 viewport data-slot 선택자만 이관했습니다. 실제 검증은 ui-migration.md 후속 기록을 봅니다.
+
+
+## 8단계 캐시·환경 경계
+
+- Mono 공개 카탈로그/가사/서적 구매 정보의 기존 캐시와 internal/revalidate를 재사용합니다. 관리자 알림은 Mono만 전송합니다.
+- Loud 공개 useCatalogRefresh와 internal/revalidate는 제거했습니다. 홈 connection()/비캐시 DB 조회·로컬 재생/설정 저장은 유지합니다. 기존 관리자 storage marker의 공개 구독은 없습니다.
+- `.env.example`에서 불필요한 Loud 무효화 비밀값 항목만 정리했습니다. 실제 `.env.local`·DB/R2·Vercel 값은 변경하지 않았습니다.
+- 개발/프리뷰/운영 분리 계획과 실제 로컬 읽기 결과는 cache-and-environments.md를 따릅니다. 운영 분리/배포를 완료했다고 보고하지 않습니다.

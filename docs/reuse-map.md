@@ -53,7 +53,7 @@
 | M `src/server/queries/{publicCatalog,lyric,music,novel,comic,book,sidebar,mapper,activeMusic}.ts`; L `src/server/queries/{catalog,sidebar}.ts` | 공개 조회·논리 삭제/publish 필터·캐시 | 각 공개 앱 서버 | DB 정의만 공유. Mono cacheTag/hours와 Loud 동적 조회를 임의 통일하지 않음. 공개 영어 제거/포함 계약 유지 | query를 거대 공용 서비스로 옮기지 않음. 공유할 순수 변환이 확인될 때만 content-core 추출 |
 | M `src/server/storage.ts`, `src/server/albumArtImage.ts`, `src/server/mutations/albumArt.ts`, `src/lib/albumArt.ts`; M/L `src/components/common/AlbumArtwork.tsx` | R2·Sharp·키 검증·업로드/조건부 교체·이미지 fallback | 업로드는 관리자 서버, 보호 파일 읽기는 Mono 서버, 범용 표시/loader는 `packages/ui` | 공용 loader에 서버 secret/인증 의존 금지. 보호 R2 읽기를 유지하며 관리자 쓰기와 필요한 저수준 연결만 실제 중복 시 추출. 별도 업로드 서비스/이미지 API 앱 금지 | assets 전환·캐시/교체/삭제 확인 후 옛 앨범아트 읽기 호환 경로 종료 검토. 소설/만화 R2 경로는 유지 |
 | M `src/app/api/content/`, `src/server/auth/private-reader.ts`, `src/app/private/`, `src/app/api/private-reader/`, `src/server/auth/agent.ts`, `src/server/queries/agent.ts`, `src/app/api/agent/` | 공개/보호 콘텐츠 제공·독자 인증·Agent 읽기 | `apps/monoasobi` | 공개 URL·토큰·쿠키·독자 접근 조건 보존. 관리자 통합을 이유로 admin 앱에 이동/삭제하지 않음 | 제거 대상 아님. 앨범아트만 별도 전환 계획을 따름 |
-| M `src/app/api/admin/_utils.ts`; L `src/lib/catalogUpdates.ts`, `src/components/layout/AppFrame/useCatalogRefresh.ts` | 저장 후 캐시/열린 화면 갱신 | 각 공개 앱 무효화 진입점 + 관리자 서버 알림 | 기존 focus 재조회 재사용. 앱 간 서버 인증 알림 추가, 저장/알림 실패 분리. cross-domain storage 가정 제거 | 각 앱의 새 갱신 연결 QA 후 같은 앱 안에서만 쓰던 임시 경로 정리 |
+| M `src/app/api/admin/_utils.ts`; L `src/lib/catalogUpdates.ts`, `src/components/layout/AppFrame/useCatalogRefresh.ts` | 저장 후 캐시/열린 화면 갱신 | 각 공개 앱 무효화 진입점 + 관리자 서버 알림 | 8단계 사용자 결정: Mono 기존 태그 무효화/실패 재시도만 유지. Loud 자동 focus/storage 갱신 제거, 비캐시 조회 유지 | 각 앱의 새 갱신 연결 QA 후 같은 앱 안에서만 쓰던 임시 경로 정리 |
 | M/L `public/`, `src/app` 아이콘·메타데이터, `src/lib/metadata.ts`, M `public/fonts/` | 로고·책/갤러리 이미지·로컬 폰트·manifest·OG | 각 공개 앱의 기존 URL 위치 | 파일명을 임의 변경하지 않음. 공유 폰트/자산은 실제 소비 확인 후 추출. 외부 Pretendard JP CSS 참조도 보존 | 기존 정적 앨범아트는 fallback 사용 여부와 R2 전환 확인 전 삭제하지 않음 |
 | M `scripts/`, `src/server/db/seed*`; L `src/data/preview/` | 기존 집중 검사·운영 이전 도구·보관 자료 | 검사: 앱/소유 패키지별, 운영 도구: 최종 DB 소유 위치, 보관 자료: 구분 보존 | 경로만 필요한 만큼 조정. seed·backfill·이전 도구를 install/dev/build에 자동 연결 금지. preview fallback 금지 | 도구별 사용 여부 확인 후 정리. 운영 데이터 작업은 별도 승인, 과거 이전을 재실행하지 않음 |
 | M/L `AGENTS.md`, 기존 계획·운영 docs, config/lockfile | 작업 규칙·운영 지식·실행 기준 | 새 루트 지침 + 앱별 정합화 문서, root lockfile | 이전 Radix-only/가사 Mono 전용/마이그레이션 Mono 전용 규칙을 단계에 맞게 인계. npm script는 실제 workspace 호출 | 새 소유권 확인 후 모순되는 복사 지침·앱별 lockfile 정리 |
@@ -99,7 +99,7 @@
 | Mono storage.ts / albumArtImage.ts / albumArt.ts | storage 패키지 + content-core/albumArt | Mono 읽기와 관리자 업로드의 실제 공용 구현. 기존 앱 진입점은 re-export |
 | Mono updateMusic/음악 필드 + Loud saveMusicSettings/설정 폼 | adminasobi의 music/musicSettings mutation·개별 저장 폼 | 기존 관리자의 임시 사본은 기능별 전환 확인 후 9단계에 제거. 가사/콜 본문 소유권 유지 |
 | Mono 앨범아트 body 제한·saveAlbumArt | adminasobi album-art API/mutation·미리보기 폼 | 기존 조건부 교체/실패 정리 재사용. 실제 R2 QA와 독립 주소는 4단계 |
-| Mono 카탈로그 tag / Loud 공개 경로 갱신 | 각 공개 앱 internal/revalidate + 관리자 refresh | 인증된 고정 범위의 서버 간 알림. 열린 화면 갱신은 8단계 |
+| Mono 카탈로그 tag / Loud 공개 경로 갱신 | Mono internal/revalidate + 관리자 refresh | 8단계: Mono 캐시만 무효화. Loud endpoint/자동 훅 제거, 열린 화면 자동 갱신 없음 |
 
 
 ## 4단계 실제 이미지 소유권 인계
@@ -157,3 +157,11 @@
 | 사용자 직접 조정 NovelReader/NovelMarkdown | 문법 모듈 유지 + 승인된 Themes 부품의 HTML/Tailwind 전환 | 혼용 금지 철회. Markdown 규칙/정확한 제목·행간 보존, shared ScrollArea viewportRef/onScroll 사용. 읽기 테마 값·종료 전 관리자용 Theme/CSS legacy 유지 |
 
 소설 외 남은 3개 모듈은 종료 예정인 옛 Mono 관리자용이며 9단계 기능 전환 확인 후 제거합니다. Radix 완전 제거를 완료했다고 보고하지 않습니다. 자세한 기준·실제 브라우저 비교·미검증은 [ui-migration.md](ui-migration.md)를 따릅니다.
+
+
+## 8단계 실제 인계
+
+- 기존 Mono `public-catalog` 캐시/보호된 무효화 endpoint와 관리자 서버의 알림/실패 재시도를 재사용합니다. 태그 범위/TTL이나 DB 스키마를 새로 설계하지 않았습니다.
+- Loud는 기존 request-time DB 조회를 유지하고 공개 `useCatalogRefresh`와 불필요한 internal/revalidate를 제거했습니다. 관리자 `refreshPublicCatalog`에서 비캐시 Loud는 알림 대상에서 제외합니다. 콜 저장은 Loud 전용 범위입니다.
+- 플레이어/볼륨/로컬 상태 구현은 변경하지 않았습니다. 새 캐시/실시간 동기화/환경 프레임워크도 만들지 않았습니다.
+- 환경 분리는 기존 로컬 설정을 읽기 대조하고 계획을 보고했습니다. 실제 환경값·Vercel·DB/R2 변경은 아직입니다. 상세 계약/한계/검사는 [cache-and-environments.md](cache-and-environments.md)를 따릅니다.

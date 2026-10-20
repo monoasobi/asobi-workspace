@@ -1,6 +1,6 @@
 # ASOBI
 
-MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. 현재는 **7단계: 공개 UI·최소 공통 디자인 시스템까지 이관하고 로컬 검증을 완료**했습니다. 4단계 CDN 연결도 검증했으며, 실제 화면·재생 QA와 운영 전환은 남아 있습니다.
+MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. 현재는 **8단계: 기존 서버 캐시 무효화·자동 공개 갱신 제거까지 로컬 검증을 완료**했습니다. 개발/운영 환경 분리는 계획 보고·로컬 읽기 점검까지 진행했습니다. 4단계 CDN 연결도 검증했으며, 실제 화면·재생 QA와 운영 전환은 남아 있습니다.
 
 ## 현재 구조
 
@@ -130,7 +130,9 @@ npm run typecheck --workspace=@asobi/loudasobi
 
 공통 곡 정보는 `/api/admin/musics/[id]`, 콜 설정은 `/settings`, 앨범아트는 `/album-art`로 각각 저장합니다. 각 섹션의 필드만 갱신합니다. 가사 본문은 `/lyrics`, 콜과 전용 offset은 `/guide` API에서 저장합니다. 가사 트랙이 없는 곡은 원작·가사 문서에서 추가할 수 있습니다.
 
-공개 앱별 `REVALIDATION_SECRET`과 관리자 서버의 해당 `MONOASOBI_REVALIDATION_SECRET`/`LOUDASOBI_REVALIDATION_SECRET`을 맞추고 `MONOASOBI_URL`/`LOUDASOBI_URL`에 각 서버 주소를 설정합니다. 비밀값에는 `NEXT_PUBLIC_`를 붙이지 않습니다. 저장 후 각 앱이 자기 카탈로그를 갱신하며, 알림 실패는 저장 성공과 따로 표시하고 재시도할 수 있습니다. 이미 열린 화면의 자동 갱신은 8단계 작업입니다.
+기존 서버 캐시가 있는 Mono의 `REVALIDATION_SECRET`과 관리자 `MONOASOBI_REVALIDATION_SECRET`을 맞추고 `MONOASOBI_URL`을 같은 환경의 Mono로 설정합니다. 비밀값에 `NEXT_PUBLIC_`를 붙이지 않습니다. 공통 자료 저장 후 Mono 캐시만 초기화하고, 실패는 저장 성공과 따로 표시하며 알림만 재시도합니다. 캐시가 없는 Loud에는 알림/새 캐시를 추가하지 않습니다.
+
+이미 열린 공개 화면은 DB 변경·focus·카탈로그 storage 신호로 자동 갱신하지 않습니다. 새 서버 요청에서 자료를 다시 읽습니다. 재생·볼륨 등 로컬 상태는 그대로입니다. 외부 SQL 수정은 자동 감지하지 않으므로 Mono 무효화 API를 별도 호출하거나 기존 캐시 만료를 기다려야 합니다. [캐시 계약과 환경 분리 계획](docs/cache-and-environments.md)을 확인하세요. 실제 환경값/자원 변경은 아직 하지 않았습니다.
 
 앱 내 곡 선택·로그아웃은 미저장 확인과 저장 중 이동 차단을 적용합니다. 새로고침/문서 이탈에는 beforeunload가 적용됩니다. 같은 문서 내 뒤로/앞으로 가기에도 이동 보호를 연결했습니다. 브라우저별 실제 동작은 QA 대기이며 구형 브라우저 fallback 한계는 [편집기 이관 기록](docs/editor-migration.md)에 명시했습니다.
 
