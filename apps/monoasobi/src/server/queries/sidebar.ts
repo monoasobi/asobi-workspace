@@ -1,0 +1,1 @@
+export { getSidebarItems } from "./publicCatalog";

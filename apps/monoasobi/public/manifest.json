@@ -1,0 +1,14 @@
+{
+  "name": "MONOASOBI",
+  "short_name": "monoasobi",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#F2285A",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
