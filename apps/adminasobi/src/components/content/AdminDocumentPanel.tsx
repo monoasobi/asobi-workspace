@@ -22,6 +22,7 @@ import { AdminSrtExport } from "@/components/editors/AdminSrtExport";
 
 export function AdminDocumentPanel({
   embedded = false,
+  reserveActionSpace = false,
   data,
   node,
   readOnly,
@@ -30,6 +31,7 @@ export function AdminDocumentPanel({
   onNavigate,
 }: {
   embedded?: boolean;
+  reserveActionSpace?: boolean;
   data: AdminDashboardData;
   node: SelectedNode;
   readOnly: boolean;
@@ -204,7 +206,7 @@ export function AdminDocumentPanel({
   }
   return (
     <section className={embedded ? "min-w-0 p-5 pt-0" : "min-h-0 min-w-0 flex-1 overflow-y-auto p-5"} aria-busy={busy}>
-      <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+      <header className={`mb-4 flex flex-wrap items-start justify-between gap-3 ${reserveActionSpace ? "pr-10" : ""}`}>
         <h2 className="min-w-0 flex-1 break-words type-card-title">{document.title}</h2>
         <div className="flex flex-wrap items-center gap-2">
           {node.type === "lyric" && (
