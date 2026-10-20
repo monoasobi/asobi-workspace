@@ -7,7 +7,7 @@ export const Loading = ({
   <div
     role="status"
     aria-live="polite"
-    className="flex w-full min-h-[160px] p-4 gap-3 flex-col justify-center items-center"
+    className="flex flex-1 w-full min-h-[160px] p-4 gap-3 flex-col justify-center items-center"
   >
     <span
       aria-hidden="true"

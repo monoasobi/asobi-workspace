@@ -690,3 +690,8 @@ NovelReader의 로딩 부분만 작은 helper로 분리했습니다. JSX·스크
 Mono 사이드바 정식 발매 배지는 공용 Badge의 bg-primary를 사용하며 앱별 별도 배지색은 없었습니다. 짙은 색의 원인은 공용 라이트 primary가 magenta-600을 사용한 것이었습니다. 사용자 지정 #F2285A를 magenta-500에 명시하고 라이트/다크 primary·sidebar-primary를 모두 해당 값으로 통일했습니다. Mono/Loud/Admin은 같은 토큰을 소비합니다. 소설 문법별 스타일과 별도 읽기 색상은 변경하지 않았습니다.
 
 검증: 전체 workspace lint/typecheck와 소설 UI 보존 검사 통과. 실제 localhost Mono/Loud의 제공 CSS에서 #f2285a와 두 모드의 primary/sidebar-primary → magenta-500 연결을 확인했습니다. 소설 로딩 변경 커밋은 `edd1a25`이며 브랜드 변경은 별도 커밋으로 남깁니다.
+
+
+## QA 수정 — 본문 로딩 세로 중앙 정렬
+
+공용 Loading이 최소 높이 160px만 사용해 소설 본문 상단에 머물렀습니다. 기존 flex column 본문 안에서 남은 높이를 채우도록 flex-1만 추가했습니다. 기존 justify-center/items-center·문구·스피너·접근성은 유지합니다. 소설 원고/렌더러/스타일은 변경하지 않았습니다. Mono lint/typecheck 통과. 실제 브라우저 화면 위치 확인은 사용자 QA로 진행합니다.
