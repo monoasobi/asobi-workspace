@@ -35,7 +35,7 @@ export function ContentsContainer({
   const isLyrics = params.get("view") === "lyrics";
   return (
     <div className="relative flex w-full flex-col items-center p-2">
-      <header className="absolute top-0 z-5 flex w-[95%] items-center rounded-xl border border-border bg-card px-14 py-3 shadow-xs max-[480px]:px-11">
+      <header className="absolute top-1 z-5 flex w-[95%] items-center rounded-xl border border-border bg-card px-14 py-3 shadow-xs max-[480px]:px-11">
         <div className="min-w-0 w-full text-center">
           <p className="type-label block truncate text-primary">
             {music.korTitle} {music.korTitle !== music.title && music.title}

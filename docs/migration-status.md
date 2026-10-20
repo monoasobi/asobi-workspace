@@ -700,3 +700,8 @@ Mono 사이드바 정식 발매 배지는 공용 Badge의 bg-primary를 사용�
 ## 커밋 언어 지침 정정
 
 사용자가 커밋 언어는 한글임을 재확인하고 지침 자체의 수정을 요청했습니다. 공통 ~/.codex/AGENTS.md, 루트 AGENTS.md/AGENT.md, 세 앱 AGENTS.md와 README의 현재 규칙을 간결한 한글 한 줄로 통일했습니다. 위 과거 영어 커밋 실행 기록과 기존 Git 이력은 재작성하지 않습니다. 앞으로는 세부 작업별 커밋을 한글로 남깁니다.
+
+
+## QA 수정 — 작품 정보 헤더 상단 간격
+
+사용자 요청으로 Mono ContentsContainer의 작품 정보 헤더 위치를 top-0에서 top-1(4px)로 조정했습니다. 소설 본문/스크롤/스타일은 변경하지 않았습니다. Mono lint/typecheck 통과.
