@@ -1,4 +1,5 @@
 import type { AdminDashboardData, SelectedNode } from "./data";
+import { documentLabels } from "./documentLabels";
 import type { DocumentField, SelectedDocument } from "./types";
 
 export const getSelectedDocument = (
@@ -6,36 +7,36 @@ export const getSelectedDocument = (
   selectedNode: SelectedNode,
 ): SelectedDocument => {
   if (selectedNode.type === "newMusic") {
-    return emptyDocument("musics", "Create music");
+    return emptyDocument("musics", "곡 추가");
   }
 
   if (selectedNode.type === "newNovel") {
     const music = data.musics.find((item) => item.id === selectedNode.musicId);
-    return emptyDocument("novels", `Create novel for ${music?.title ?? ""}`);
+    return emptyDocument("novels", `소설 추가 · ${music?.title ?? ""}`);
   }
 
   if (selectedNode.type === "newComic") {
     const music = data.musics.find((item) => item.id === selectedNode.musicId);
-    return emptyDocument("comics", `Create comic for ${music?.title ?? ""}`);
+    return emptyDocument("comics", `만화 추가 · ${music?.title ?? ""}`);
   }
 
   if (selectedNode.type === "newLyric") {
     const music = data.musics.find((item) => item.id === selectedNode.musicId);
     return emptyDocument(
       "lyric_tracks",
-      `Create lyricTrack for ${music?.title ?? ""}`,
+      `가사 추가 · ${music?.title ?? ""}`,
     );
   }
 
   if (selectedNode.type === "newBook") {
-    return emptyDocument("books", "Create book");
+    return emptyDocument("books", "서적 추가");
   }
 
   if (selectedNode.type === "music") {
     const music = data.musics.find((item) => item.id === selectedNode.id);
     return {
       collection: "musics",
-      title: music ? `${music.id}: ${music.title}` : "Unknown music",
+      title: music ? music.title : "곡 정보 없음",
       fields: toFields([
         ["id", music?.id],
         ["title", music?.title],
@@ -51,12 +52,10 @@ export const getSelectedDocument = (
     const novel = data.novels.find((item) => item.id === selectedNode.id);
     return {
       collection: "novels",
-      title: novel ? `${novel.id}: ${novel.title}` : "Unknown novel",
+      title: novel ? novel.title : "소설 정보 없음",
       fields: toFields([
         ["id", novel?.id],
-        ["musicId", novel?.musicId],
         ["music", novel?.music?.title],
-        ["bookId", novel?.bookId ?? null],
         ["book", novel?.book?.name ?? null],
         ["title", novel?.title],
         ["writer", novel?.writer],
@@ -73,10 +72,9 @@ export const getSelectedDocument = (
     const comic = data.comics.find((item) => item.id === selectedNode.id);
     return {
       collection: "comics",
-      title: comic ? `${comic.id}: ${comic.title}` : "Unknown comic",
+      title: comic ? comic.title : "만화 정보 없음",
       fields: toFields([
         ["id", comic?.id],
-        ["musicId", comic?.musicId],
         ["music", comic?.music?.title],
         ["title", comic?.title],
         ["writer", comic?.writer],
@@ -94,9 +92,9 @@ export const getSelectedDocument = (
     );
     return {
       collection: "lyric_tracks",
-      title: track ? `${track.musicId}: lyricTrack` : "Unknown lyricTrack",
+      title: track ? "가사 정보" : "가사 정보 없음",
       fields: toFields([
-        ["musicId", track?.musicId],
+        ["music", data.musics.find(music => music.id === selectedNode.id)?.title],
         ["sync", track?.sync],
         ["lineCount", track?.lineCount],
       ]),
@@ -107,31 +105,24 @@ export const getSelectedDocument = (
   const book = data.books.find((item) => item.id === selectedNode.id);
   return {
     collection: "books",
-    title: book ? `${book.id}: ${book.name}` : "Unknown book",
+    title: book ? book.name : "서적 정보 없음",
     fields: toFields([
       ["id", book?.id],
       ["name", book?.name],
       [
         "novels",
-        book?.novels.map(({ novel }) => `${novel.id}: ${novel.title}`) ?? [],
+        book?.novels.map(({ novel }) => novel.title) ?? [],
       ],
-      ["purchaseLinks", getPurchaseLabels(book?.purchaseLinks ?? null)],
+      ...getPurchaseFields(book?.purchaseLinks ?? null),
     ]),
   };
 };
 
-const getPurchaseLabels = (
-  purchaseLinks: AdminDashboardData["books"][number]["purchaseLinks"],
-) => {
-  if (!purchaseLinks) return [];
-
-  return [
-    purchaseLinks.kyoboUrl && "교보",
-    purchaseLinks.yes24Url && "yes24",
-    purchaseLinks.aladinUrl && "알라딘",
-    purchaseLinks.ridiUrl && "리디",
-    purchaseLinks.naverUrl && "네이버",
-  ].filter((label): label is string => Boolean(label));
+const getPurchaseFields = (
+  links: AdminDashboardData["books"][number]["purchaseLinks"],
+): [string, unknown][] => {
+  const fields = links ? Object.entries(links).filter(([key, value]) => key.endsWith("Url") && key in documentLabels && Boolean(value)) : [];
+  return fields.length ? fields : [["purchaseLinks", null]];
 };
 
 const emptyDocument = (
@@ -147,10 +138,12 @@ const toFields = (fields: [string, unknown][]) => fields.map(toField);
 
 const toField = ([key, value]: [string, unknown]): DocumentField => ({
   key,
+  label: documentLabels[key] ?? key,
+  kind: typeof value === "boolean" ? "status" : typeof value === "string" && URL.canParse(value) && ["https:", "http:"].includes(new URL(value).protocol) ? "link" : "text",
   value:
     value === null || value === undefined
-      ? "null"
+      ? "미등록"
       : Array.isArray(value)
-        ? value.join(", ")
+        ? value.length ? value.join(", ") : "연결 없음"
         : String(value),
 });

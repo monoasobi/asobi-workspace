@@ -34,7 +34,7 @@ export const AdminSrtExport = ({ music, lyrics }: AdminSrtExportProps) => {
   return (
     <div className="flex flex-col gap-2">
       <span className="font-semibold text-muted-foreground text-xs">
-        SRT Export
+        SRT 다운로드
       </span>
       <div className="flex flex-wrap gap-1">
         {SRT_EXPORTS.map((config) => (
@@ -42,7 +42,7 @@ export const AdminSrtExport = ({ music, lyrics }: AdminSrtExportProps) => {
             key={config.key}
             type="button"
             size="sm"
-            variant="secondary"
+            variant="outline"
 
             onClick={() => download(config)}
           >

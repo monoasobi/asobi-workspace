@@ -1,3 +1,4 @@
+import { getSelectedDocument } from "../src/components/content/adminSelectedDocument";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { novelSchema, bookSchema } from "@asobi/content-core/contentInput";
@@ -104,4 +105,30 @@ test("JSON import keeps existing IDs and English rather than producing a differe
   form.set("sync", "-0.01");
   form.set("lyricJson", JSON.stringify([line]));
   assert.deepEqual(cfg.toPayload(form).lyricJson, [line]);
+});
+
+
+test("object presentation preserves lyric JSON and distinguishes safe links and statuses", () => {
+  const lyric = [{ id: "line-0", start: 0, end: 1, jp: "原文", kr: "원문" }];
+  const data = {
+    musics: [{ id: 0, title: "Song" }],
+    novels: [{ id: 1, musicId: 0, music: { title: "Song" }, title: "Novel", translated: false, isPublished: true, bookId: null, book: null, originUrl: "https://example.test/story" }],
+    comics: [],
+    books: [{ id: 2, name: "Book", novels: [], purchaseLinks: { bookId: 2, kyoboUrl: "https://example.test/book", yes24Url: "javascript:alert(1)", ridiUrl: "https://" } }],
+    lyricTracks: [{ musicId: 0, sync: -0.1, lineCount: 1, lyricJson: lyric }],
+  } as unknown as AdminDashboardData;
+  const novel = getSelectedDocument(data, { type: "novel", id: 1 });
+  assert.equal(novel.title, "Novel");
+  assert.equal(novel.fields.find(f => f.key === "translated")?.kind, "status");
+  assert.equal(novel.fields.find(f => f.key === "originUrl")?.label, "원문 링크");
+  assert.equal(novel.fields.find(f => f.key === "originUrl")?.kind, "link");
+  assert.equal(novel.fields.find(f => f.key === "book")?.value, "미등록");
+  assert(!novel.fields.some(f => f.key === "musicId" || f.key === "bookId"));
+  const book = getSelectedDocument(data, { type: "book", id: 2 });
+  assert.equal(book.fields.find(f => f.key === "novels")?.value, "연결 없음");
+  assert.equal(book.fields.find(f => f.key === "yes24Url")?.kind, "text");
+  assert.equal(book.fields.find(f => f.key === "ridiUrl")?.kind, "text");
+  assert(!book.fields.some(f => f.key === "bookId"));
+  const lyrics = getSelectedDocument(data, { type: "lyric", id: 0 });
+  assert.deepEqual(JSON.parse(lyrics.jsonText!), lyric);
 });

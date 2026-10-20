@@ -1,4 +1,6 @@
 "use client";
+import { Checkbox } from "@asobi/ui/components/checkbox";
+import { Textarea } from "@asobi/ui/components/textarea";
 import { Input } from "@asobi/ui/components/input";
 import {
   NativeSelect,
@@ -21,24 +23,23 @@ export function AdminEditorField({
     return (
       <>
         <input type="hidden" name={field.name} value={field.defaultValue} />
-        <span>{field.displayValue ?? field.defaultValue}</span>
+        <span className="flex min-h-8 items-center rounded-lg border bg-muted/40 px-2.5 py-1 text-sm">{field.displayValue ?? field.defaultValue}</span>
       </>
     );
   if (field.type === "checkbox")
     return (
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
         name={field.name}
         checked={visibilityFlags[field.name] ?? field.defaultChecked ?? false}
-        onChange={(e) => onVisibilityChange(field.name, e.target.checked)}
+        onCheckedChange={checked => onVisibilityChange(field.name, checked === true)}
       />
     );
   if (field.type === "textarea")
     return (
-      <textarea
+      <Textarea
         id={id}
-        className="min-h-64 w-full rounded-md border bg-background p-3 font-mono text-sm"
+        className="min-h-64 resize-y font-mono text-xs"
         name={field.name}
         defaultValue={field.defaultValue ?? ""}
         required={field.required}

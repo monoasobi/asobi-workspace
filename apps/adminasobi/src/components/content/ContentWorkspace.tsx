@@ -6,7 +6,7 @@ import { AdminDocumentPanel } from "./AdminDocumentPanel";
 import { getSelectedNodeKey } from "./utils";
 import type { AdminDashboardData, SelectedNode } from "./data";
 
-// Standalone book management stays here; song documents use MusicContentAccordion.
+// Standalone book management stays here; song documents use MusicContentTabs.
 export function ContentWorkspace({ data, node, readOnly }: {
   data: AdminDashboardData;
   node: SelectedNode | null;

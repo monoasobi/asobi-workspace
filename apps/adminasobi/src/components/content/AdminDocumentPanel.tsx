@@ -1,6 +1,12 @@
 "use client";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Pencil, Save, Trash2, X, ExternalLink } from "lucide-react";
+import { Badge } from "@asobi/ui/components/badge";
+import { Label } from "@asobi/ui/components/label";
+import { Table, TableBody, TableRow, TableHead, TableCell } from "@asobi/ui/components/table";
+import { Popover, PopoverTrigger, PopoverContent } from "@asobi/ui/components/popover";
+import { documentLabels } from "./documentLabels";
 import { Button } from "@asobi/ui/components/button";
 import { getEditorConfig } from "./adminEditorConfig";
 import { getSelectedDocument } from "./adminSelectedDocument";
@@ -15,6 +21,7 @@ import type { RefreshResult } from "@/types/refresh";
 import { AdminSrtExport } from "@/components/editors/AdminSrtExport";
 
 export function AdminDocumentPanel({
+  embedded = false,
   data,
   node,
   readOnly,
@@ -22,6 +29,7 @@ export function AdminDocumentPanel({
   onDeleted,
   onNavigate,
 }: {
+  embedded?: boolean;
   data: AdminDashboardData;
   node: SelectedNode;
   readOnly: boolean;
@@ -183,140 +191,95 @@ export function AdminDocumentPanel({
       setBusy(false);
     }
   }
+  const formId = `${fieldIdPrefix}-form`;
+  function cancel() {
+    if (dirty && !window.confirm("변경사항을 버릴까요?")) return;
+    setDirty(false);
+    setFlags(getInitialVisibilityFlags(config));
+    setEditing(false);
+    if (savedMusicId.current !== null) {
+      navigate(`/musics/${savedMusicId.current}`);
+      router.refresh();
+    }
+  }
   return (
-    <section className="min-w-0 flex-1 overflow-y-auto p-4" aria-busy={busy}>
-      <header className="mb-4 flex flex-wrap items-center gap-2">
-        <h2 className="mr-auto font-semibold">{document.title}</h2>
-        {node.type === "lyric" && (
-          <Button
-            variant="outline"
-            disabled={dirty || blocked}
-            onClick={() => {
+    <section className={embedded ? "min-w-0 p-5 pt-0" : "min-h-0 min-w-0 flex-1 overflow-y-auto p-5"} aria-busy={busy}>
+      <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <h2 className="min-w-0 flex-1 break-words type-card-title">{document.title}</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          {node.type === "lyric" && (
+            <Button type="button" size="sm" variant="outline" disabled={dirty || blocked} onClick={() => {
               if (guard.confirmLeave()) router.push(`/musics/${node.id}/lyrics`);
-            }}
-          >
-            타임라인 편집
-          </Button>
-        )}
-        {!readOnly && !editing && !nextHref && !deleted && (
-          <Button
-            onClick={() => {
-              setEditRevision(revision);
-              setEditing(true);
-            }}
-            disabled={blocked}
-          >
-            수정
-          </Button>
-        )}
-        {!readOnly && config.deleteEndpoint && !deleted && (
-          <Button variant="destructive" disabled={blocked} onClick={remove}>
-            삭제
-          </Button>
-        )}
+            }}>타임라인 편집</Button>
+          )}
+          {!readOnly && !nextHref && !deleted && (editing ? <>
+            <Button type="button" size="sm" variant="outline" disabled={blocked} onClick={cancel}><X />취소</Button>
+            <Button type="submit" form={formId} size="sm" disabled={blocked}><Save />{busy ? "저장 중…" : config.submitLabel}</Button>
+          </> : <Button type="button" size="sm" variant="outline" disabled={blocked} onClick={() => {
+            setEditRevision(revision); setEditing(true);
+          }}><Pencil />{config.method === "POST" ? "작성" : "수정"}</Button>)}
+          {!readOnly && config.deleteEndpoint && !deleted && (
+            <Button type="button" size="sm" variant="destructive" disabled={blocked} onClick={remove}><Trash2 />삭제</Button>
+          )}
+        </div>
       </header>
       <RefreshStatus results={refresh} onRefresh={setRefresh} />
-      {nextHref && (
-        <Button onClick={() => navigate(nextHref)}>
-          저장한 문서로 이동
-        </Button>
-      )}
-      {deleted && (
-        <Button
-          onClick={() => {
-            onDeleted();
-            router.refresh();
-          }}
-        >
-          목록으로
-        </Button>
-      )}
+      {nextHref && <Button size="sm" onClick={() => navigate(nextHref)}>저장한 문서로 이동</Button>}
+      {deleted && <Button size="sm" onClick={() => { onDeleted(); router.refresh(); }}>목록으로</Button>}
       {lyric && music && (
-        <AdminSrtExport music={music} lyrics={lyric.lyricJson} />
+        <Popover>
+          <PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="mb-4">SRT 다운로드</Button></PopoverTrigger>
+          <PopoverContent align="start" className="w-80"><AdminSrtExport music={music} lyrics={lyric.lyricJson} /></PopoverContent>
+        </Popover>
       )}
       {editing ? (
-        <form
-          key={`${node.type}-${"id" in node ? node.id : "new"}`}
-          onSubmit={submit}
-          onChange={() => setDirty(true)}
-          className="space-y-4"
-        >
-          <fieldset disabled={blocked} className="space-y-4">
-            {config.fields.map((field) => (
-              <div
-                key={field.name}
-                hidden={!!field.showWhen && !field.showWhen(flags)}
-                className="space-y-2"
-              >
-                <label
-                  htmlFor={`${fieldIdPrefix}-${field.name}`}
-                  className="block text-sm font-medium"
-                >
-                  {field.label}
-                  {"required" in field && field.required ? " *" : ""}
-                </label>
-                <AdminEditorField
-                  id={`${fieldIdPrefix}-${field.name}`}
-                  field={field}
-                  visibilityFlags={flags}
-                  onVisibilityChange={(key, value) => {
-                    setFlags((prev) => ({ ...prev, [key]: value }));
-                    setDirty(true);
-                  }}
-                />
-              </div>
-            ))}
-            {node.type === "newMusic" && <AlbumArtField disabled={blocked} />}
+        <form id={formId} key={`${node.type}-${"id" in node ? node.id : "new"}`}
+          onSubmit={submit} onChange={() => setDirty(true)}>
+          <fieldset disabled={blocked} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {config.fields.map(field => {
+              const hidden = !!field.showWhen && !field.showWhen(flags);
+              const wide = field.type === "textarea" || field.type === "url" || field.type === "readonly" || field.name === "novelIds";
+              return (
+                <div key={field.name} hidden={hidden}
+                  className={hidden ? "hidden" : field.type === "checkbox" ? "flex min-h-9 items-center gap-3 rounded-lg border px-3 py-2" : `grid min-w-0 content-start gap-2 ${wide ? "sm:col-span-2" : ""}`}>
+                  <Label htmlFor={`${fieldIdPrefix}-${field.name}`} className={field.type === "checkbox" ? "order-2" : ""}>
+                    {documentLabels[field.name] ?? field.label}{"required" in field && field.required ? " *" : ""}
+                  </Label>
+                  <AdminEditorField id={`${fieldIdPrefix}-${field.name}`} field={field} visibilityFlags={flags}
+                    onVisibilityChange={(key, value) => { setFlags(prev => ({ ...prev, [key]: value })); setDirty(true); }} />
+                </div>
+              );
+            })}
+            {node.type === "newMusic" && <div className="sm:col-span-2"><AlbumArtField disabled={blocked} /></div>}
           </fieldset>
-          <div className="flex gap-2">
-            <Button type="submit" disabled={blocked}>
-              {busy ? "저장 중…" : config.submitLabel}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={blocked}
-              onClick={() => {
-                if (!dirty || window.confirm("변경사항을 버릴까요?")) {
-                  setDirty(false);
-                  setFlags(getInitialVisibilityFlags(config));
-                  setEditing(false);
-                  if (savedMusicId.current !== null) {
-                    navigate(`/musics/${savedMusicId.current}`);
-                    router.refresh();
-                  }
-                }
-              }}
-            >
-              취소
-            </Button>
-          </div>
         </form>
       ) : (
-        <dl className="space-y-3">
-          {document.fields.map((field) => (
-            <div key={field.key} className="border-b pb-2">
-              <dt className="text-xs text-muted-foreground">{field.key}</dt>
-              <dd className="break-words whitespace-pre-wrap text-sm">
-                {field.value}
-              </dd>
-            </div>
-          ))}
-          {document.jsonText && (
-            <pre className="overflow-x-auto rounded border p-3 text-xs">
-              {document.jsonText}
-            </pre>
-          )}
-        </dl>
+        <div className="grid min-w-0 gap-4">
+          {document.fields.length > 0 && <div className="overflow-hidden rounded-lg border">
+            <Table className="table-fixed">
+              <TableBody>
+                {document.fields.map(field => (
+                  <TableRow key={field.key}>
+                    <TableHead scope="row" className="h-auto w-28 whitespace-normal bg-muted/30 px-3 py-2.5 align-top text-xs text-muted-foreground">{field.label}</TableHead>
+                    <TableCell className="break-words whitespace-pre-wrap px-3 py-2.5 align-top">
+                      {field.kind === "status" ? <Badge variant={field.value === "true" ? "secondary" : "outline"}>
+                        {field.key === "translated" ? field.value === "true" ? "번역됨" : "미번역" : field.value === "true" ? "발매됨" : "미발매"}
+                      </Badge> : field.kind === "link" ? <a href={field.value} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-1.5 text-primary underline-offset-4 hover:underline" title={field.value}>
+                        <span className="break-all">{new URL(field.value).hostname}</span><ExternalLink className="size-3.5 shrink-0" aria-hidden />
+                      </a> : field.value}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>}
+          {document.jsonText && <details className="min-w-0 rounded-lg border">
+            <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium">가사 JSON 보기</summary>
+            <pre className="overflow-x-auto border-t p-3 text-xs">{document.jsonText}</pre>
+          </details>}
+        </div>
       )}
-      {message && (
-        <p
-          role="status"
-          className="mt-4 whitespace-pre-wrap rounded border p-3 text-sm"
-        >
-          {message}
-        </p>
-      )}
+      {message && <p role="status" className="mt-4 whitespace-pre-wrap rounded-lg border p-3 text-sm">{message}</p>}
     </section>
   );
 }

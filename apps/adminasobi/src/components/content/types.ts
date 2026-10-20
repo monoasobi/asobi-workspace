@@ -5,6 +5,8 @@ export type AdminMessage = {
 
 export type DocumentField = {
   key: string;
+  label: string;
+  kind: "text" | "status" | "link";
   value: string;
 };
 
