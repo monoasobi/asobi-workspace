@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { Check, Moon, Sun, Type } from "lucide-react";
+import { Check, Monitor, Moon, Sun, Type } from "lucide-react";
 import { appearanceAtom } from "@atoms/appearance.atom";
 import { fontAtom } from "@atoms/font.atom";
 import { Button } from "@asobi/ui/components/button";
@@ -20,32 +20,6 @@ export function SettingsMenu() {
       description="편하게 읽을 수 있도록 화면을 설정하세요."
       closeLabel="닫기"
     >
-      <fieldset className="m-0 min-w-0 border-0 p-0">
-        <legend className="type-label mb-3 flex items-center gap-2 p-0 font-semibold">
-          <Sun className="size-4 text-muted-foreground" aria-hidden />
-          테마
-        </legend>
-        <div className="grid grid-cols-2 gap-2">
-          {([
-            { value: "light", label: "라이트", Icon: Sun },
-            { value: "dark", label: "다크", Icon: Moon },
-          ] as const).map(({ value, label, Icon }) => (
-            <Button
-              key={value}
-              variant="outline"
-              aria-pressed={appearance === value}
-              onClick={() => setAppearance(value)}
-              className={cn(
-                "h-auto min-h-20 flex-col gap-2 px-1 py-3 text-xs",
-                appearance === value && selectedStyle,
-              )}
-            >
-              <Icon className="size-5" aria-hidden />
-              {label}
-            </Button>
-          ))}
-        </div>
-      </fieldset>
       <fieldset className="m-0 min-w-0 border-0 p-0">
         <legend className="type-label mb-1 flex items-center gap-2 p-0 font-semibold">
           <Type className="size-4 text-muted-foreground" aria-hidden />
@@ -76,6 +50,33 @@ export function SettingsMenu() {
                 className={cn("size-4 text-primary", font !== value && "invisible")}
                 aria-hidden
               />
+            </Button>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset className="m-0 min-w-0 border-0 p-0">
+        <legend className="type-label mb-3 flex items-center gap-2 p-0 font-semibold">
+          <Sun className="size-4 text-muted-foreground" aria-hidden />
+          테마
+        </legend>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { value: "light", label: "라이트", Icon: Sun },
+            { value: "dark", label: "다크", Icon: Moon },
+            { value: "system", label: "시스템 설정", Icon: Monitor },
+          ] as const).map(({ value, label, Icon }) => (
+            <Button
+              key={value}
+              variant="outline"
+              aria-pressed={appearance === value}
+              onClick={() => setAppearance(value)}
+              className={cn(
+                "h-auto min-h-20 flex-col gap-2 px-1 py-3 text-xs",
+                appearance === value && selectedStyle,
+              )}
+            >
+              <Icon className="size-5" aria-hidden />
+              {label}
             </Button>
           ))}
         </div>

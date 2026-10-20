@@ -733,3 +733,10 @@ Mono Header에서 SettingsMenu를 분리해 같은 틀을 사용하고 기존 �
 공용 SettingsPopover의 space-y-5가 Mono fieldset의 m-0과 충돌해 테마/글꼴 그룹 간격이 사라졌습니다. 공용 본문을 flex column + gap-5(20px)로 변경해 자식 margin reset과 분리했습니다. 공용 제목/설명은 gap-1(4px), 두 앱의 글꼴/언어 선택 목록은 grid + gap-1.5(6px)로 명시했습니다. 패널 padding 16px·제목과 선택 항목 간격 12px·테마 카드 간격 8px은 유지합니다. 전체 lint/typecheck·소설 보존 검사 및 두 개발 홈 200 확인. 브라우저 시각 확인은 미검증입니다.
 
 Mono 정식 발매 배지는 기존 공용 shadcn Badge 기본 variant를 그대로 사용하며 앱별 class override는 없습니다. 배경은 공용 primary #F2285A이고 글자는 primary-foreground(라이트 white-500, 다크 black-500)입니다. shadcn의 고정 색상이라고 설명하지 않습니다.
+
+
+## QA 개선 — Mono 시스템 테마·설정 순서
+
+사용자 요청으로 Mono 설정을 글꼴 → 테마 순서로 배치하고 Loud와 같은 라이트/다크/시스템 설정 세 카드로 구성했습니다. 기존 appearance 저장 키와 light/dark 값을 유지하며 저장값이 없는 경우 기본값은 Loud와 같은 system입니다. matchMedia change를 useSyncExternalStore로 구독해 시스템 설정 선택 중 OS 모드 변경을 반영합니다. 공개 html 클래스와 기존 Radix 읽기 테마는 같은 resolved light/dark를 사용합니다. 글꼴 선택/KoPub 미리보기와 기존 소설 스타일은 유지합니다.
+
+Mono lint/typecheck·소설 UI 보존 검사 통과. OS 테마 변경/새로고침 후 선택 유지와 실제 화면 전환은 사용자 QA로 확인합니다.

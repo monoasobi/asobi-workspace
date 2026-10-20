@@ -6,7 +6,16 @@ import { sidebarAtom } from "@atoms/sidebar.atom";
 import { Theme } from "@radix-ui/themes";
 import { Analytics } from "@vercel/analytics/next";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+
+const subscribeToSystemTheme = (notify: () => void) => {
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  media.addEventListener("change", notify);
+  return () => media.removeEventListener("change", notify);
+};
+const getSystemDarkMode = () =>
+  window.matchMedia("(prefers-color-scheme: dark)").matches;
+const getServerDarkMode = () => false;
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -14,13 +23,20 @@ interface ProvidersProps {
 
 export const Providers = ({ children }: ProvidersProps) => {
   const appearance = useAtomValue(appearanceAtom);
+  const systemDark = useSyncExternalStore(
+    subscribeToSystemTheme,
+    getSystemDarkMode,
+    getServerDarkMode,
+  );
+  const resolvedAppearance =
+    appearance === "system" ? (systemDark ? "dark" : "light") : appearance;
   const setIsSidebar = useSetAtom(sidebarAtom);
   const setHasPrivateReaderAccess = useSetAtom(privateReaderAtom);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", appearance === "dark");
-    document.documentElement.classList.toggle("light", appearance === "light");
-  }, [appearance]);
+    document.documentElement.classList.toggle("dark", resolvedAppearance === "dark");
+    document.documentElement.classList.toggle("light", resolvedAppearance === "light");
+  }, [resolvedAppearance]);
 
   useEffect(() => {
     const width = window.innerWidth;
@@ -45,7 +61,7 @@ export const Providers = ({ children }: ProvidersProps) => {
 
   return (
     <Theme
-      appearance={appearance}
+      appearance={resolvedAppearance}
       accentColor="red"
       panelBackground="solid"
       radius="small"

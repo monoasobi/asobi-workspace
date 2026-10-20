@@ -1,6 +1,6 @@
 import { atomWithStorage } from "jotai/utils";
 
-export const appearanceAtom = atomWithStorage<"light" | "dark">(
+export const appearanceAtom = atomWithStorage<"light" | "dark" | "system">(
   "appearance",
-  "light",
+  "system",
 );

@@ -50,3 +50,5 @@
 ## 공용 설정 패널
 
 Loud의 기존 설정 팝오버 틀을 @asobi/ui/components/settings-popover로 추출해 Mono/Loud가 함께 사용합니다. 공용 shadcn Popover/Button/Separator와 제목·설명·닫기·320px 폭/모바일 최대 폭·스크롤·여백을 한곳에서 유지합니다. 앱별 선택 항목과 상태는 각 SettingsMenu가 소유합니다. Mono는 기존 light/dark와 gothic/batang 저장값을 유지하며 테마 아이콘 카드·글꼴 체크 목록은 공용 Button을 사용합니다. KoPub 글꼴 미리보기는 유지합니다.
+
+Mono/Loud의 테마 선택은 라이트·다크·시스템 설정으로 통일합니다. Mono 설정 순서는 글꼴 다음 하단 테마이며, 기존 저장값을 보존하고 미설정 기본은 시스템 설정입니다. 시스템 설정에서는 OS 색상 모드 변경을 따라갑니다.
