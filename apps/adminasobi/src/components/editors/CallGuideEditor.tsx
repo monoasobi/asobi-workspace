@@ -124,8 +124,9 @@ export function CallGuideEditor({
     () => resolveLyricPresentation(guide, track.lyric, track.sync),
     [guide, track.lyric, track.sync],
   );
+  const invalidBpm = draftBpm !== null && (!Number.isFinite(draftBpm) || draftBpm < 20 || draftBpm > 400);
   const invalid =
-    (draftBpm !== null && (!Number.isFinite(draftBpm) || draftBpm < 20 || draftBpm > 400)) ||
+    invalidBpm ||
     guide.guides?.some((item) => !item.labels.ko.trim()) ||
     Object.keys(presentation.issues).length > 0 ||
     Object.keys(resolved.issues).length > 0 ||
@@ -422,7 +423,7 @@ export function CallGuideEditor({
         {(message || invalid || !music.youtubeId) && (
           <p role="status" className="shrink-0 border-b px-4 py-2 text-xs">
             {message ||
-              (!music.youtubeId
+              (invalidBpm ? "곡 BPM은 20~400 범위로 입력하거나 비워 주세요." : !music.youtubeId
                 ? "전용 YouTube ID가 없어 재생은 불가능합니다. 곡 설정에서 연결해 주세요."
                 : "저장 전 재확인이 필요한 블록이 있습니다. 블록 설정에서 확인해 주세요.")}
           </p>
