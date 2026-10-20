@@ -132,3 +132,20 @@ test("object presentation preserves lyric JSON and distinguishes safe links and 
   const lyrics = getSelectedDocument(data, { type: "lyric", id: 0 });
   assert.deepEqual(JSON.parse(lyrics.jsonText!), lyric);
 });
+
+
+test("song books include direct and join links through its novels without unrelated books or duplicates", () => {
+  const data = {
+    musics: [{ id: 0 }, { id: 1 }],
+    novels: [{ id: 10, musicId: 0, bookId: 0 }, { id: 20, musicId: 1, bookId: 2 }],
+    comics: [], lyricTracks: [],
+    books: [
+      { id: 0, novels: [{ novel: { id: 10 } }] },
+      { id: 1, novels: [{ novel: { id: 10 } }] },
+      { id: 2, novels: [{ novel: { id: 20 } }] },
+      { id: 3, novels: [] },
+    ],
+  } as unknown as AdminDashboardData;
+  assert.deepEqual(getMusicDocuments(data, 0).books.map(book => book.id), [0, 1]);
+  assert.deepEqual(getMusicDocuments(data, 1).books.map(book => book.id), [2]);
+});

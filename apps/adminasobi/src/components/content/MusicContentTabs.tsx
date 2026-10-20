@@ -37,7 +37,7 @@ export function MusicContentTabs({
     { value: "novel", label: "소설", items: docs.novels.map(n => ({ label: n.title, node: { type: "novel", id: n.id } })), create: docs.novels.length ? undefined : { type: "newNovel", musicId } },
     { value: "comic", label: "만화", items: docs.comics.map(c => ({ label: c.title, node: { type: "comic", id: c.id } })), create: docs.comics.length ? undefined : { type: "newComic", musicId } },
     { value: "lyric", label: "가사", items: docs.lyric ? [{ label: `가사 문서 · ${docs.lyric.lineCount}줄`, node: { type: "lyric", id: musicId } }] : [], create: docs.lyric ? undefined : { type: "newLyric", musicId } },
-    { value: "book", label: "서적", items: docs.books.map(b => ({ label: b.name, node: { type: "book", id: b.id } })), create: { type: "newBook" } },
+    { value: "book", label: "서적", items: docs.books.map(b => ({ label: b.name, node: { type: "book", id: b.id } })) },
   ];
   const source = `${contentActive}:${initialNode ? getSelectedNodeKey(initialNode) : ""}`;
   const [view, setView] = useState<{ source: string; tab: string } | null>(null);
@@ -45,9 +45,13 @@ export function MusicContentTabs({
   const tab = view?.source === source ? view.tab : contentActive ? (initialNode ? categoryOf(initialNode) : "novel") : "media";
   function nodeFor(group: typeof groups[number]) {
     const selected = selections[group.value];
-    return selected?.source === source ? selected.node
+    const node = selected?.source === source ? selected.node
       : initialNode && categoryOf(initialNode) === group.value ? initialNode
       : group.items[0]?.node ?? null;
+    // A song's book tab only displays books linked through its novels.
+    if (group.value === "book")
+      return group.items.find(item => node && getSelectedNodeKey(item.node) === getSelectedNodeKey(node))?.node ?? group.items[0]?.node ?? null;
+    return node;
   }
   function select(target: SelectedNode) {
     if (!guard.confirmLeave()) return;
@@ -87,7 +91,7 @@ export function MusicContentTabs({
             )}
             {node ? (
               <AdminDocumentPanel key={getSelectedNodeKey(node)} embedded data={data} node={node}
-                revision={node.type === "lyric" ? revision : undefined} readOnly={readOnly}
+                revision={node.type === "lyric" ? revision : undefined} readOnly={readOnly || group.value === "book"}
                 onNavigate={navigateSaved}
                 onDeleted={() => { router.replace(`/musics/${musicId}?tab=content`); router.refresh(); }} />
             ) : <p className="px-5 pb-5 type-caption">연결된 {group.label}이 없습니다.</p>}
