@@ -26,7 +26,7 @@
 
 ## 읽기는 별도 역할
 
-- **소설:** 사용자 조정 Markdown/뷰어 전체 CSS Modules. 일반 UI 클래스나 Typography 플러그인으로 교체하지 않습니다. 기존 Radix의 실제 타입 스케일·테마도 이 화면을 위해 유지합니다.
+- **소설:** 사용자 조정 문법 CSS Modules를 유지하고 기존 Themes 부품은 HTML/Tailwind·공용 shadcn으로 대체합니다. 사용자가 혼용 금지를 철회했습니다. 일반 UI의 제목 역할/Typography 플러그인을 일괄 적용하지 않으며 기존 28/24/18px 제목·행간·자간·색상을 보존합니다. 읽기 색상 변수/애니메이션은 아직 기존 Theme/CSS에 의존합니다.
 - **Mono 가사:** `type-lyric-jp` 13px, `type-lyric-reading` 14px, `type-lyric-translation` 16px/700, 줄간격 1.2. 기존 언어별 강조를 유지합니다.
 - **Loud 콜/가사:** `type-call-source`, `type-call-translation`은 기존 container-responsive clamp 크기·자간·relaxed 줄간격 그대로입니다. 활성 줄의 굵기와 pulse/박수 표시는 원래 컴포넌트가 담당합니다.
 - 영상 자막과 편집 타임라인은 공간/선택 상태에 따른 기존 전용 위계를 유지합니다. 일반 본문 역할로 일괄 축소하지 않습니다.

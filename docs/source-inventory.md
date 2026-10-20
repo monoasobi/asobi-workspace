@@ -291,4 +291,11 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 
 공개 URL/API는 추가·삭제하지 않았습니다. Mono의 일반 공개 UI는 ui 패키지의 shadcn과 Tailwind를 사용합니다. 기존 공개 CSS Modules 18개와 새 관리자 모듈 2개는 제거했으며, 실제 공통 패널 조절은 `@asobi/ui/components/resizable`로 인계했습니다.
 
-소설의 `NovelReader.module.css`, `NovelMarkdown.module.css`와 두 렌더러는 보존 계약입니다. 원래 CSS/Markdown 문법 hash는 `docs/novel-style-baseline.json`에서 확인하고 `npm run check:ui`로 검사합니다. Radix는 이 보존 화면과 종료 전 관리자 때문에 유지합니다. 다른 페이지의 새 ScrollArea는 viewportRef/data-slot을 명시하며 소설의 기존 스크롤 구현을 함께 바꾸지 않았습니다.
+소설의 `NovelReader.module.css`, `NovelMarkdown.module.css`와 승인된 두 렌더러는 보존 계약입니다. 원래 CSS/Markdown 문법 hash와 후속 렌더러 hash는 `docs/novel-style-baseline.json`에서 확인하고 `npm run check:ui`로 검사합니다. 읽기 테마 값과 종료 전 관리자용 Radix는 유지하며, 소설도 공용 ScrollArea의 viewportRef/data-slot을 사용합니다. 아래 후속 결정이 초기 전체 모듈 유지 방침을 대체합니다.
+
+
+### 7단계 후속 소설 표시 경계
+
+- 사용자 결정으로 Tailwind/CSS Modules 혼용 금지를 철회했습니다. 소설 문법별 두 모듈은 유지하고 Themes 표시 부품은 HTML/Tailwind·공용 shadcn으로 대체했습니다.
+- 소설의 Themes 부품 import는 없으며, 공개 영역의 Theme provider/CSS는 종료 전 관리자와 읽기 색상/애니메이션·기본 상속 때문에 남습니다. shared ScrollArea의 Radix primitive는 재사용합니다.
+- Markdown 모듈의 사용자 스타일은 그대로이며 Reader 모듈은 viewport data-slot 선택자만 이관했습니다. 실제 검증은 ui-migration.md 후속 기록을 봅니다.

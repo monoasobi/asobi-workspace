@@ -154,6 +154,6 @@
 | M LyricsDisplayV2 / L LyricRow 읽기 스케일 | ui의 lyric/call 역할 + 기존 표시 컴포넌트 | Mono 13/14/16px와 Loud clamp·자간·활성 굵기 보존 |
 | M/새 관리자 Resizable 동일 구현 | ui/components/resizable | 기존 Group/Panel과 18px handle. 옛 진입점은 re-export |
 | 새 관리자 가사 타임라인 CSS Module | 기존 타임라인 + Tailwind 정적 변형 | drag/resize/snap/history/재생 훅 유지. 일반 면/텍스트 공통 토큰 정합화 |
-| 사용자 직접 조정 NovelReader/NovelMarkdown | 기존 모듈/CSS 방식 전체 유지 | 뷰어 혼용 금지. Markdown 원래 규칙 보존, 상속색만 기존 값으로 명시. 필요한 Radix Theme/CSS legacy 레이어 유지 |
+| 사용자 직접 조정 NovelReader/NovelMarkdown | 문법 모듈 유지 + 승인된 Themes 부품의 HTML/Tailwind 전환 | 혼용 금지 철회. Markdown 규칙/정확한 제목·행간 보존, shared ScrollArea viewportRef/onScroll 사용. 읽기 테마 값·종료 전 관리자용 Theme/CSS legacy 유지 |
 
 소설 외 남은 3개 모듈은 종료 예정인 옛 Mono 관리자용이며 9단계 기능 전환 확인 후 제거합니다. Radix 완전 제거를 완료했다고 보고하지 않습니다. 자세한 기준·실제 브라우저 비교·미검증은 [ui-migration.md](ui-migration.md)를 따릅니다.

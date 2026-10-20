@@ -170,4 +170,4 @@ node apps/adminasobi/scripts/content-flow-check.mjs
 6단계 기능 대조·코드 위치·숨김/복원·서적 관계·동시 편집 한계는 [콘텐츠 이관 기록](docs/content-migration.md)을 확인하세요. 상단 메뉴에서 곡 추가·서적·추천 정렬·숨긴 곡으로 이동할 수 있습니다. 사용자 QA와 운영 검토사항은 별도 진행 중이며 결정이 모이면 반영합니다.
 
 
-7단계 일반 공개 UI와 새 관리자는 Tailwind·공용 shadcn/타이포 역할을 사용합니다. 소설 뷰어는 사용자 지정 외형 보존을 위해 전체 CSS Modules와 필요한 Radix를 유지하며 혼용하지 않습니다. [최소 디자인 시스템](docs/ui-design-system.md), [소설 보존·실제 검증 범위](docs/ui-migration.md)를 확인하세요. 종료 예정인 옛 Mono 관리자만 별도 CSS Modules를 임시 유지합니다.
+7단계 일반 공개 UI와 새 관리자는 Tailwind·공용 shadcn/타이포 역할을 사용합니다. 소설은 사용자 지정 문법 CSS Modules를 유지하고 기존 Radix Themes 부품을 HTML/Tailwind·공용 shadcn으로 대체했습니다. 읽기 테마 값과 종료 전 관리자를 위해 Radix Theme/CSS는 임시 유지합니다. [최소 디자인 시스템](docs/ui-design-system.md), [소설 보존·실제 검증 범위](docs/ui-migration.md)를 확인하세요. 종료 예정인 옛 Mono 관리자만 별도 CSS Modules를 임시 유지합니다.
