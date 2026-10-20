@@ -18,7 +18,7 @@ import {
 import type { CatalogEntry } from "@/types/catalog";
 import { useCatalogRefresh } from "./AppFrame/useCatalogRefresh";
 import { useIsCompact } from "./AppFrame/useIsCompact";
-import { sidebarMusicIds, type SidebarLayout } from "@/lib/sidebarOrder";
+import { sidebarMusicIds, type SidebarLayout } from "@asobi/content-core/sidebarOrder";
 
 export function AppFrame({
   catalog,

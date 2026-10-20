@@ -1,8 +1,8 @@
 "use client";
 import { useRef, useState, type PointerEvent, type RefObject } from "react";
-import { roundTime } from "@/lib/callGuide";
-import { lyricResizeLimits } from "@/lib/lyricPresentation";
-import type { LyricLine } from "@/types/lyric";
+import { roundTime } from "@asobi/content-core/callGuide";
+import { lyricResizeLimits } from "@asobi/content-core/lyricPresentation";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import { snapCueBounds, type LyricSnapTarget } from "./timelineSnap";
 
 type Resize = {

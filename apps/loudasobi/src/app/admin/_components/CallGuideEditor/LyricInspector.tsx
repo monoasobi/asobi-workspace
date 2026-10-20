@@ -12,13 +12,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { roundTime, type CallCue, type CallGuide } from "@/lib/callGuide";
+import { roundTime, type CallCue, type CallGuide } from "@asobi/content-core/callGuide";
 import {
   lyricResizeLimits,
   setLyricBounds,
   resolveLyricPresentation,
-} from "@/lib/lyricPresentation";
-import type { LyricLine } from "@/types/lyric";
+} from "@asobi/content-core/lyricPresentation";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import { NumberField } from "./NumberField";
 
 export function LyricInspector({

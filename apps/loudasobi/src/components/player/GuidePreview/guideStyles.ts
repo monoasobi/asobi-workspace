@@ -1,4 +1,4 @@
-import type { CallSection } from "@/types/lyric";
+import type { CallSection } from "@asobi/content-core/lyrics";
 
 export const callLabels: Record<CallSection["type"], string> = {
   clap: "박수",

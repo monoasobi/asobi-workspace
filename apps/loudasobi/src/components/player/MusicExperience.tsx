@@ -2,7 +2,7 @@
 
 import ReactPlayer from "react-player";
 import { useLayoutEffect, type ReactNode } from "react";
-import type { LyricTrack, CallSection } from "@/types/lyric";
+import type { LyricTrack, CallSection } from "@asobi/content-core/lyrics";
 import { GuidePreview } from "./GuidePreview";
 import { PlayerBar } from "./PlayerBar";
 import { usePlaybackShortcuts } from "./MusicExperience/usePlaybackShortcuts";

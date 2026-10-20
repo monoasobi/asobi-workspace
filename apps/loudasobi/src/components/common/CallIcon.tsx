@@ -1,8 +1,8 @@
 import { Hand, HandFist, MicVocal } from "lucide-react";
 import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import { HandSwing } from "./HandSwing";
-import { isCallIconName, legacyCallIcon } from "@/lib/callIcons";
-import type { CallSection } from "@/types/lyric";
+import { isCallIconName, legacyCallIcon } from "@asobi/content-core/callIcons";
+import type { CallSection } from "@asobi/content-core/lyrics";
 
 export function CallIcon({
   type,

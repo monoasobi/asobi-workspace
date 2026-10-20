@@ -1,5 +1,5 @@
 import { Info } from "lucide-react";
-import type { LyricLocale, LyricTrack } from "@/types/lyric";
+import type { LyricLocale, LyricTrack } from "@asobi/content-core/lyrics";
 import { cn } from "@/lib/utils";
 
 export function LyricGuideCard({

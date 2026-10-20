@@ -7,7 +7,7 @@ import {
   sidebarLayoutSchema,
   sidebarMusicIds,
   type SidebarLayout,
-} from "@/lib/sidebarOrder";
+} from "@asobi/content-core/sidebarOrder";
 
 export async function saveSidebar(revision: string, input: SidebarLayout) {
   await requireAdminWriteAccess();

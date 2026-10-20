@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { cuePulses, type CallCue } from "@/lib/callGuide";
+import { cuePulses, type CallCue } from "@asobi/content-core/callGuide";
 import type { PlaybackClock } from "@/components/player/MusicExperience/playbackClock";
 import { upperBound } from "@/components/player/GuidePreview/timeline";
 

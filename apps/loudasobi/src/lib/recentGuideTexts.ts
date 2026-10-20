@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { CallGuide } from "./callGuide";
+import type { CallGuide } from "@asobi/content-core/callGuide";
 
 export type GuideTextKind = "call" | "badge" | "note" | "guide";
 export type GuideTextValue = { ko: string; ja: string; en: string };

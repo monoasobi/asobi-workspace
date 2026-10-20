@@ -1,4 +1,4 @@
-import type { CallSection, LyricLine } from "@/types/lyric";
+import type { CallSection, LyricLine } from "@asobi/content-core/lyrics";
 
 // Add display-only instrumental cards; never write these into shared lyrics.
 export function displayTimeline(source: LyricLine[], sections: CallSection[]) {

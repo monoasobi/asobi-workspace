@@ -1,4 +1,4 @@
-import type { CallSection } from "@/types/lyric";
+import type { CallSection } from "@asobi/content-core/lyrics";
 
 export function groupLyrics(sectionByLine: CallSection[][]) {
   const lastRow = new Map<string, number>();

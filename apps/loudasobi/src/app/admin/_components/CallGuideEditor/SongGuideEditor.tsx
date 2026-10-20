@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import type { CallGuide } from "@/lib/callGuide";
+import type { CallGuide } from "@asobi/content-core/callGuide";
 
 export function SongGuideEditor({
   value,

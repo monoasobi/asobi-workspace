@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { Button } from "@/components/ui/button";
-import type { CallGuide } from "@/lib/callGuide";
+import type { CallGuide } from "@asobi/content-core/callGuide";
 import {
   getTextSuggestions,
   parseRecentTexts,

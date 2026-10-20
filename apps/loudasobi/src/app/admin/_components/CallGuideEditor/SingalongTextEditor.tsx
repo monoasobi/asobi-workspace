@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { HighlightedText } from "@/components/player/HighlightedText";
-import { cueTextSelections, snapshotLine, type CallCue } from "@/lib/callGuide";
+import { cueTextSelections, snapshotLine, type CallCue } from "@asobi/content-core/callGuide";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,8 +10,8 @@ import {
   lyricTextLabels,
   lyricTextLang,
   type LyricTextField,
-} from "@/lib/lyricText";
-import type { LyricLine } from "@/types/lyric";
+} from "@asobi/content-core/lyricText";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 
 export function SingalongTextEditor({
   cue,

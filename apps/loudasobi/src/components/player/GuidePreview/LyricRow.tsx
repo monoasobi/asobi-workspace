@@ -4,12 +4,12 @@ import { callBadgeStyles, callStyles } from "./guideStyles";
 import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import type { CallSection, LyricLine, LyricLocale } from "@/types/lyric";
+import type { CallSection, LyricLine, LyricLocale } from "@asobi/content-core/lyrics";
 import { HighlightedText } from "../HighlightedText";
 import { LyricGuideCard } from "../LyricGuideCard";
 import { ClapIndicator } from "../ClapIndicator";
 import type { PlaybackClock } from "../MusicExperience/playbackClock";
-import type { LyricTextField } from "@/lib/lyricText";
+import type { LyricTextField } from "@asobi/content-core/lyricText";
 
 export const LyricRow = memo(function LyricRow({
   line,

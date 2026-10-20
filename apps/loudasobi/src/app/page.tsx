@@ -2,7 +2,7 @@ import { AppFrame } from "@/components/layout/AppFrame";
 import { connection } from "next/server";
 import { getPublicCatalog } from "@/server/queries/catalog";
 import { readSidebarLayout } from "@/server/queries/sidebar";
-import { projectSidebar } from "@/lib/sidebarOrder";
+import { projectSidebar } from "@asobi/content-core/sidebarOrder";
 
 export default async function Home() {
   await connection();

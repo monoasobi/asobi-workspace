@@ -14,7 +14,7 @@ import type {
   LyricLine,
   LyricLocale,
   LyricTrack,
-} from "@/types/lyric";
+} from "@asobi/content-core/lyrics";
 import { LyricGuideCard } from "./LyricGuideCard";
 import { LyricRow } from "./GuidePreview/LyricRow";
 import { groupLyrics } from "./GuidePreview/groupLyrics";

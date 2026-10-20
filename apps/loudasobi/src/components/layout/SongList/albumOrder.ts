@@ -1,4 +1,4 @@
-import type { SidebarLayout } from "@/lib/sidebarOrder";
+import type { SidebarLayout } from "@asobi/content-core/sidebarOrder";
 import type { SongListItem } from "@/types/catalog";
 
 export type SongSort = "recommended" | "album" | "release";

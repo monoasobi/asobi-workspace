@@ -1,4 +1,4 @@
-import type { LyricLine } from "@/types/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 
 export function upperBound(values: readonly number[], time: number) {
   let low = 0,

@@ -1,4 +1,4 @@
-import { roundTime } from "@/lib/callGuide";
+import { roundTime } from "@asobi/content-core/callGuide";
 
 export type LyricSnapTarget = {
   time: number;

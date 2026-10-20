@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getAdminSession } from "@/server/auth/access";
 import { privateHeaders, rejectCrossOrigin } from "@/server/auth/request";
-import { guideSchema } from "@/lib/callGuide";
+import { guideSchema } from "@asobi/content-core/callGuide";
 import { saveGuide } from "@/server/mutations/guide";
 import { readGuide } from "@/server/queries/guide";
 

@@ -4,8 +4,8 @@ import { callGuides, musicSettings } from "@/server/db/schema";
 import { z } from "zod";
 import { requireAdminWriteAccess } from "@/server/auth/access";
 import { readGuide } from "@/server/queries/guide";
-import { resolveLyricPresentation } from "@/lib/lyricPresentation";
-import { guideSchema, resolveGuide, type CallGuide } from "@/lib/callGuide";
+import { resolveLyricPresentation } from "@asobi/content-core/lyricPresentation";
+import { guideSchema, resolveGuide, type CallGuide } from "@asobi/content-core/callGuide";
 
 export async function saveGuide(
   id: number,

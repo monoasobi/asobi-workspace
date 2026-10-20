@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
   type RefObject,
 } from "react";
-import type { CallSection, LyricLine } from "@/types/lyric";
+import type { CallSection, LyricLine } from "@asobi/content-core/lyrics";
 import type { PlaybackClock } from "../MusicExperience/playbackClock";
 import { activeLineAt, upperBound } from "./timeline";
 

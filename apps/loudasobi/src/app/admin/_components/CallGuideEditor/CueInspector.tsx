@@ -3,7 +3,7 @@ import { TextSuggestions } from "./TextSuggestions";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CallIcon } from "@/components/common/CallIcon";
 import { CustomIconField } from "./CustomIconField";
-import { legacyCallIcon } from "@/lib/callIcons";
+import { legacyCallIcon } from "@asobi/content-core/callIcons";
 import {
   Accordion,
   AccordionContent,
@@ -24,11 +24,11 @@ import {
   defaultPulsePattern,
   customCueEffects,
   type CallCue,
-} from "@/lib/callGuide";
+} from "@asobi/content-core/callGuide";
 import { NumberField } from "./NumberField";
 import { PatternEditor } from "./PatternEditor";
 import { SingalongTextEditor } from "./SingalongTextEditor";
-import type { LyricLine } from "@/types/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 
 export function CueInspector({
   cue,

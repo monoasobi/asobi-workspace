@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { CallIcon } from "@/components/common/CallIcon";
-import type { CallSection } from "@/types/lyric";
+import type { CallSection } from "@asobi/content-core/lyrics";
 import { clapSteps, clapStepAt } from "./ClapIndicator/clapSteps";
 import type { PlaybackClock } from "./MusicExperience/playbackClock";
 import { upperBound } from "./GuidePreview/timeline";

@@ -11,7 +11,7 @@ import {
   moveSidebarSong,
   sidebarLayoutSchema,
   type SidebarLayout,
-} from "@/lib/sidebarOrder";
+} from "@asobi/content-core/sidebarOrder";
 import type { SidebarDocument } from "@/server/queries/sidebar";
 import {
   SidebarGroupEditor,

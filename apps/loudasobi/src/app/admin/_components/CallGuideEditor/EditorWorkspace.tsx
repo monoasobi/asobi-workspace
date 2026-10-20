@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/native-select";
 import { GuidePreview } from "@/components/player/GuidePreview";
 import type { Playback } from "@/components/player/MusicExperience/usePlayback";
-import type { LyricTrack, CallSection } from "@/types/lyric";
+import type { LyricTrack, CallSection } from "@asobi/content-core/lyrics";
 import type { Music } from "@/types/music";
 import {
   roundTime,
@@ -21,13 +21,13 @@ import {
   snapshotLine,
   type CallCue,
   type CallGuide,
-} from "@/lib/callGuide";
+} from "@asobi/content-core/callGuide";
 import { VerticalTimeline } from "./VerticalTimeline";
 import { LyricInspector } from "./LyricInspector";
 import {
   setLyricBounds,
   resolveLyricPresentation,
-} from "@/lib/lyricPresentation";
+} from "@asobi/content-core/lyricPresentation";
 import { CueInspector } from "./CueInspector";
 import { useEditorShortcuts } from "./useEditorShortcuts";
 

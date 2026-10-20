@@ -18,7 +18,7 @@ import { MusicSettingsForm } from "./MusicSettingsForm";
 import { CallEditorPanel } from "./AdminMusicManager/CallEditorPanel";
 import { Button } from "@/components/ui/button";
 import { SongList } from "@/components/layout/SongList";
-import { projectSidebar, type SidebarLayout } from "@/lib/sidebarOrder";
+import { projectSidebar, type SidebarLayout } from "@asobi/content-core/sidebarOrder";
 
 export function AdminMusicManager({
   initialMusics,

@@ -1,4 +1,4 @@
-import type { LyricTrack } from "@/types/lyric";
+import type { LyricTrack } from "@asobi/content-core/lyrics";
 import track0 from "./lyrics/0.json";
 import track1 from "./lyrics/1.json";
 import track2 from "./lyrics/2.json";

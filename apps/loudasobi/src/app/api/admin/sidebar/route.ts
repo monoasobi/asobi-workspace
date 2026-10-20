@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getAdminSession } from "@/server/auth/access";
 import { privateHeaders, rejectCrossOrigin } from "@/server/auth/request";
-import { sidebarLayoutSchema } from "@/lib/sidebarOrder";
+import { sidebarLayoutSchema } from "@asobi/content-core/sidebarOrder";
 import { readAdminSidebar } from "@/server/queries/sidebar";
 import { saveSidebar } from "@/server/mutations/sidebar";
 

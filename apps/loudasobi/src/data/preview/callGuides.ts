@@ -1,4 +1,4 @@
-import type { CallSection, LyricTrack } from "@/types/lyric";
+import type { CallSection, LyricTrack } from "@asobi/content-core/lyrics";
 
 // Only reviewed call guides belong here. Imported lyrics alone do not imply availability.
 export const callGuides: Record<number, CallSection[] | undefined> = {};

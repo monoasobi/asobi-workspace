@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import type { CallGuide } from "@/lib/callGuide";
+import type { CallGuide } from "@asobi/content-core/callGuide";
 export type GuideDraft = { guide: CallGuide; syncOffset: number };
 export function useGuideHistory(initial: GuideDraft) {
   const [state, setState] = useState({

@@ -4,7 +4,7 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@/server/db";
 import { musics, musicSettings, sidebarSettings } from "@/server/db/schema";
 import { requireAdminSession } from "@/server/auth/access";
-import { projectSidebar, sidebarLayoutSchema } from "@/lib/sidebarOrder";
+import { projectSidebar, sidebarLayoutSchema } from "@asobi/content-core/sidebarOrder";
 
 type Reader = Pick<ReturnType<typeof getDb>, "select">;
 export async function readSidebarLayout(db: Reader = getDb()) {

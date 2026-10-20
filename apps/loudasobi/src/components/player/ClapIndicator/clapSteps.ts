@@ -1,4 +1,4 @@
-import type { CallSection } from "@/types/lyric";
+import type { CallSection } from "@asobi/content-core/lyrics";
 
 function displayDivisor(pattern: NonNullable<CallSection["clapPattern"]>) {
   let divisor = pattern.subdivision;

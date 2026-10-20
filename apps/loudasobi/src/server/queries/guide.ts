@@ -9,8 +9,8 @@ import {
   lyricTracks,
   callGuides,
 } from "@/server/db/schema";
-import { linesSchema } from "@/server/queries/catalog";
-import { parseGuide } from "@/lib/callGuide";
+import { linesSchema } from "@asobi/content-core/catalogLyrics";
+import { parseGuide } from "@asobi/content-core/callGuide";
 
 export async function readGuide(
   id: number,

@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { FanLightBadge } from "@/components/common/FanLightBadge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import type { SidebarLayout } from "@/lib/sidebarOrder";
+import type { SidebarLayout } from "@asobi/content-core/sidebarOrder";
 import { Button } from "@/components/ui/button";
 import type { Locale } from "@/i18n/config";
 import {

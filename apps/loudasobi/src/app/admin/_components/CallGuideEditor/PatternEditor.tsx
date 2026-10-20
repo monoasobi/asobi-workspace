@@ -14,7 +14,7 @@ import {
   resizeCue,
   roundTime,
   type CallCue,
-} from "@/lib/callGuide";
+} from "@asobi/content-core/callGuide";
 import { NumberField } from "./NumberField";
 
 export function PatternEditor({

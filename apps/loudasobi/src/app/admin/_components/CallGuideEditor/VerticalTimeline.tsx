@@ -1,7 +1,7 @@
 "use client";
 import { CallIcon } from "@/components/common/CallIcon";
 import { Info } from "lucide-react";
-import type { CallGuide } from "@/lib/callGuide";
+import type { CallGuide } from "@asobi/content-core/callGuide";
 import {
   callLabels,
   callStyles,
@@ -14,15 +14,15 @@ import {
   NativeSelectOption,
 } from "@/components/ui/native-select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cuePulses, cueTextSelections, type CallCue } from "@/lib/callGuide";
+import { cuePulses, cueTextSelections, type CallCue } from "@asobi/content-core/callGuide";
 import {
   lyricTextFields,
   lyricTextLabels,
   lyricTextLang,
   type LyricTextField,
-} from "@/lib/lyricText";
+} from "@asobi/content-core/lyricText";
 import { cn } from "@/lib/utils";
-import type { LyricLine } from "@/types/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import { Minus, Plus } from "lucide-react";
 import {
   Fragment,

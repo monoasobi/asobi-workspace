@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, type PointerEvent, type RefObject } from "react";
 import { snapCueBounds, type LyricSnapTarget } from "./timelineSnap";
-import { moveCue, resizeCue, roundTime, type CallCue } from "@/lib/callGuide";
+import { moveCue, resizeCue, roundTime, type CallCue } from "@asobi/content-core/callGuide";
 type Drag = {
   pointer: number;
   y: number;
