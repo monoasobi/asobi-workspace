@@ -1,6 +1,6 @@
 # 기존 코드 재사용·소유권 지도
 
-기준일: 2026-10-20. 상태: **6단계 콘텐츠·추천 관리까지 로컬 검증 완료. 화면/실제 콘텐츠/R2 통합 QA와 운영 전환 대기**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
+기준일: 2026-10-20. 상태: **7단계 UI·최소 디자인 시스템까지 로컬 검증 완료. 조건별 전체 화면·사용자 QA/운영 전환 대기**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
 
 기존 소스 전체는 각각 `apps/monoasobi`, `apps/loudasobi`에 Git 이력과 함께 가져왔습니다. 2단계에서는 아래 실제 이동 목록의 공통 구현을 packages로 옮기고 소비자 import를 변경했습니다. public 자산과 편집기/재생 알고리즘은 보존했습니다. 아래 본문 표에는 이후 관리자/미리보기 이관 목표도 포함되며, 모든 목표가 구현됐다는 뜻은 아닙니다.
 
@@ -142,3 +142,18 @@
 | L SidebarOrderEditor/SidebarGroupEditor·sidebar query/mutation/API | 관리자 동일 이름 경로 | 그룹명 다국어·drag/button 정렬·membership/revision 그대로, 공통 guard/공개 갱신 결과 연결 |
 
 새 관리자에서 실제 사용하는 것만 이관했고 기존 updateMusic을 콘텐츠 mutation에 중복 추가하지 않았습니다. JSON 가사 수정은 기존 saveLyrics, UI 테마/부품은 ui, 추천 계산은 content-core 단일 구현을 사용합니다. 사용자 QA/검토사항은 별도 진행 중이며 [content-migration.md](content-migration.md)의 미검증 목록과 함께 추후 반영합니다.
+
+
+## 7단계 실제 UI 인계
+
+| 기존 구현 | 새 위치/방식 | 보존·예외 |
+| --- | --- | --- |
+| M 일반 UI의 Radix Text/Heading·Flex·Card·Button·입력/Popover/ScrollArea | 기존 컴포넌트 유지, HTML + ui shadcn + Tailwind | 상태/조회/URL/권한/자료는 유지. ScrollArea viewportRef/viewportProps·data-slot 연결 |
+| M 공개 일반 UI 18개 CSS Modules | 컴포넌트 Tailwind 또는 정적 `.styles.ts` | 상태/반응형/가상 요소는 Tailwind 컴파일. 별도 CSS-in-JS/새 UI 엔진 없음 |
+| M/L 반복 제목·설명·라벨·소형 메타 + 공용 기본 부품 | ui/styles.css의 공통 `type-*` | Mono 공개 UI·Loud 설정/곡 목록·새 관리자 실제 소비. 가사/콜 읽기 위계 별도 |
+| M LyricsDisplayV2 / L LyricRow 읽기 스케일 | ui의 lyric/call 역할 + 기존 표시 컴포넌트 | Mono 13/14/16px와 Loud clamp·자간·활성 굵기 보존 |
+| M/새 관리자 Resizable 동일 구현 | ui/components/resizable | 기존 Group/Panel과 18px handle. 옛 진입점은 re-export |
+| 새 관리자 가사 타임라인 CSS Module | 기존 타임라인 + Tailwind 정적 변형 | drag/resize/snap/history/재생 훅 유지. 일반 면/텍스트 공통 토큰 정합화 |
+| 사용자 직접 조정 NovelReader/NovelMarkdown | 기존 모듈/CSS 방식 전체 유지 | 뷰어 혼용 금지. Markdown 원래 규칙 보존, 상속색만 기존 값으로 명시. 필요한 Radix Theme/CSS legacy 레이어 유지 |
+
+소설 외 남은 3개 모듈은 종료 예정인 옛 Mono 관리자용이며 9단계 기능 전환 확인 후 제거합니다. Radix 완전 제거를 완료했다고 보고하지 않습니다. 자세한 기준·실제 브라우저 비교·미검증은 [ui-migration.md](ui-migration.md)를 따릅니다.

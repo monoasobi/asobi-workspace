@@ -9,7 +9,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## 모노레포 이관 범위
 
 - 이 디렉터리는 기존 MONOASOBI를 이관한 사본입니다. 상세 단계·보존 계약·승인은 루트 `../../AGENT.md`와 `../../docs/migration-status.md`를 따릅니다.
-- 현재 기존 관리자와 Radix Themes UI를 유지합니다. 가사/관리자 기능은 3~6단계에 adminasobi로, 공통 UI는 2·7단계에 인계합니다. 기존 편집기·재생 로직을 재개발하지 않습니다.
+- 공개 일반 UI는 공용 shadcn/Tailwind로 전환했습니다. 사용자 지정 소설 뷰어와 종료 예정인 기존 관리자만 Radix Themes/CSS Modules를 보존합니다. 가사/관리자 기능은 3~6단계에 adminasobi로, 공통 UI는 2·7단계에 인계했습니다. 기존 편집기·재생 로직을 재개발하지 않습니다.
 - DB 정의·연결·마이그레이션의 단일 소유자는 `packages/database`입니다. 이 앱에 스키마/마이그레이션 사본을 만들지 않습니다. 운영 migrate/seed는 별도 승인 없이 실행하지 않습니다.
 - Next 문서는 이 workspace에서 실제로 resolve되는 `next/package.json` 옆 `dist/docs/`를 확인합니다. 의존성이 루트로 hoist될 수 있습니다.
 
@@ -23,7 +23,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - 이 프로젝트는 YOASOBI의 노래와 연결된 원작 소설, 만화, 가사 콘텐츠를 감상하는 MONOASOBI 웹 앱입니다.
 - Next.js 16 App Router, React 19, TypeScript를 사용합니다.
-- UI는 Radix UI Themes와 CSS Modules 중심으로 구성합니다.
+- 일반 UI는 `@asobi/ui` shadcn·Tailwind·공통 타이포그래피 역할을 사용합니다. 소설 뷰어는 전체 CSS Modules 방식이며 Tailwind와 혼용하지 않습니다.
 - 전역 UI 상태는 Jotai atom을 사용합니다.
 - DB는 Turso와 Drizzle ORM을 사용합니다.
 - 소설 Markdown과 만화 이미지는 Cloudflare R2에 저장하고, 앱 API를 통해 제공합니다.
@@ -99,12 +99,14 @@ src/app/admin/_components/
 
 ## UI 작성 기준
 
-- Radix UI Themes 컴포넌트를 최대한 활용합니다.
-- Radix UI가 제공하는 props를 기본 스타일링 수단으로 먼저 사용합니다.
-  - 예: `size`, `variant`, `color`, `gap`, `align`, `justify`, `direction`, `wrap`, `p`, `px`, `py`, `m`, `width`
-- Radix UI props로 표현할 수 없는 레이아웃, 상태, 반응형, 복합 스타일만 CSS Module에 작성합니다.
-- 단순 간격, 정렬, 색상, 버튼 스타일을 위해 불필요한 CSS class를 추가하지 않습니다.
-- 기존 CSS Module을 수정할 때도 Radix props로 대체 가능한 스타일인지 먼저 확인합니다.
+- 일반 공개 UI는 공용 shadcn 부품과 Tailwind를 사용합니다. 일반 제목/본문/설명/라벨은 ui의 `type-*` 역할을 우선 사용하고 색상은 공용 Loud 토큰을 사용합니다.
+- 정적 Tailwind 상태/반응형 조합은 컴포넌트의 `.styles.ts`에 둘 수 있습니다. 여기에 CSS 규칙이나 런타임 스타일 엔진을 추가하지 않습니다. 반복되는 실제 공통 부품은 ui로 추출합니다.
+- **소설 뷰어는 사용자 직접 조정 화면이므로 외형 변경을 금지합니다.** NovelReader/NovelMarkdown은 CSS Modules 방식 전체를 유지하며 뷰어 내부 Tailwind 혼용·prose/Typeset 일괄 적용을 금지합니다. Markdown 문법/remark-breaks/폰트/들여쓰기/대사/인용문 등을 보존합니다.
+- 소설을 위해 필요한 Radix Theme와 CSS는 legacy 레이어에 유지합니다. Tailwind preflight를 전역에 추가하지 않습니다. 기존 색상 상속은 Markdown 모듈 경계에서 명시하고 원래 읽기 배경은 viewer marker로 유지합니다.
+- 새 UI의 ScrollArea는 viewportRef/viewportProps와 data-slot을 명시합니다. 소설의 기존 Radix ScrollArea와 내부 클래스 의존은 보존 계약 예외입니다.
+- 가사·콜의 읽기 위계는 일반 UI 타이포그래피와 별도입니다. 재생/시간/스냅/영상 크롭·기존 iframe 전체화면 fallback을 UI 통일 때문에 바꾸지 않습니다.
+- 9단계 종료 예정인 기존 관리자는 전환 검증 전까지 유지하며 그 사본을 새 디자인 시스템으로 재개발하지 않습니다.
+- 상세 역할과 검증 경계는 루트 `docs/ui-design-system.md`, `docs/ui-migration.md`를 읽습니다. `npm run check:ui`는 소설 원문 스타일/렌더러 보존과 혼용 방지를 점검합니다. 실제 픽셀/모바일 QA를 대신하지 않습니다.
 
 ## App Router 작업 주의
 

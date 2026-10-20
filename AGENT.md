@@ -51,7 +51,7 @@
 | 앱 | Next.js 16 App Router, React 19, TypeScript strict |
 | 패키지 관리 | npm workspaces, 루트 `package-lock.json` 하나 |
 | 기본 UI | shadcn/ui, Radix 기반 `radix-nova`, Tailwind CSS 4, Lucide |
-| 스타일·테마 | 공통 CSS 변수, 필요한 전용 CSS Modules 유지 |
+| 스타일·테마 | 공통 CSS 변수·Tailwind. 소설 뷰어 전체 CSS Modules와 종료 전 관리자만 예외 |
 | 상태·검증 | 기존 Jotai와 로컬 상태, Zod |
 | 재생·편집 | 기존 react-player와 react-resizable-panels 구현 재사용 |
 | 데이터 | Turso/libSQL, Drizzle ORM, 기존 R2·Sharp |
@@ -253,15 +253,19 @@ asobi/
 
 ### 7단계 — MONOASOBI 공개 UI를 shadcn으로 전환
 
+현재 코드 전환과 로컬 검증을 마쳤고 조건별 전체 화면/사용자 QA는 대기입니다. `docs/ui-design-system.md`, `docs/ui-migration.md`, `docs/novel-style-baseline.json`을 먼저 확인합니다.
+
+사용자 확정: Mono/Loud 일반 UI는 기존 반복 패턴 기반 최소 디자인 시스템으로 통일합니다. 소설 본문·가사·콜 읽기는 별도 역할입니다. 소설 Markdown 문법별 사용자 지정 화면은 절대 변경하지 않으며 뷰어 내부 Tailwind/CSS Modules 혼용은 금지합니다. 새 관리자 잔여 모듈도 정리하되 종료 예정 관리자에는 역이식하지 않습니다.
+
 작업:
 - 공통 틀/테마 → 일반 콘텐츠 → 소설·만화 읽기 → 가사·영상 플레이어 순서로 기존 화면을 교체합니다. 공개 기능과 URL은 그대로 유지합니다.
 - 브랜드 색상은 확정된 공용 LOUDASOBI 팔레트를 사용합니다. 기존 Radix 색상 참조를 공통 semantic token으로 연결하고 라이트·다크 양쪽을 확인합니다. 색상 사본을 앱 안에 만들지 않습니다.
-- Radix Themes의 Flex/Text/Heading 등은 기존 JSX를 바탕으로 필요한 태그/클래스만 교체합니다. 복잡한 CSS Modules는 유지 가능하며 테마 변수 참조만 새 기준으로 옮깁니다.
+- Radix Themes의 Flex/Text/Heading 등은 기존 JSX를 바탕으로 필요한 태그/클래스만 교체합니다. 사용자 결정에 따라 일반 공개 UI와 새 관리자 잔여 CSS Modules는 Tailwind로 정리합니다. 소설 뷰어는 혼용을 금지하며 화면 동일성이 최우선입니다. 재현이 불확실하면 뷰어 전체 CSS Modules와 필요한 기존 렌더링/테마를 보존합니다.
 - `.rt-ScrollAreaViewport` 내부 클래스 의존을 제거하고 실제 viewport/ref를 명시합니다. 독립 스크롤, 읽던 위치 복원, 가사 따라가기와 레이아웃 높이를 검증합니다.
 - Tailwind 기본 스타일이 소설 글꼴·문단·Markdown·링크·일본어 표기를 깨뜨리지 않게 합니다. 다크모드·popover portal·영상 전체화면의 z-index/상단 레이어도 확인합니다.
-- 모든 소비 경로가 옮겨진 뒤에만 Radix Themes provider/CSS/패키지를 제거합니다. 기존 성능 구조와 React 경계를 무조건 확대하지 않습니다.
+- 소설의 강한 화면 보존 계약 때문에 기존 Radix Theme/CSS/패키지는 legacy 레이어에 유지합니다. 예전 관리자도 9단계 전환 전까지 유지합니다. Tailwind preflight 추가·Radix 일괄 제거·소설 스타일 변경은 이관 정리로 간주하지 않습니다. 기존 성능 구조와 React 경계를 무조건 확대하지 않습니다.
 
-완료 기준: MONOASOBI 공개 기능·읽기·재생을 유지하며 기본 UI가 공통 shadcn을 사용하고 제거한 테마의 참조가 남지 않습니다.
+완료 기준: MONOASOBI 공개 기능·읽기·재생을 유지하며 기본 UI가 공통 shadcn을 사용합니다. 소설/종료 전 관리자에만 남긴 CSS Modules·Radix 예외와 실제 검증 범위를 명시하며 전체 화면 동일성을 미검증 상태에서 완료로 표현하지 않습니다.
 
 사용자 확인: 실제 화면과 기존 화면 비교로 시각 QA를 요청합니다. 새 브랜드 색상·레이아웃 변경은 사용자 지정이 먼저입니다. 합의된 UI 이전 외의 리디자인은 하지 않습니다.
 

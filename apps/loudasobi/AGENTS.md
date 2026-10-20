@@ -6,9 +6,9 @@
 
 - 한국어와 존댓말을 사용합니다.
 - 제품 설계는 `PROJECT_PLAN.md`를 참고합니다.
-- 공유 DB 연결·관리자 인증·전용 곡 설정·싱크 보정·공유 가사 조회·콜 편집 및 관리자 전용 미리보기를 구현했습니다. 가사 편집은 MONOASOBI에서만 진행합니다.
+- 공유 DB 연결·관리자 인증·전용 곡 설정·싱크 보정·공유 가사 조회·콜 편집 및 관리자 전용 미리보기를 구현했습니다. 공통 가사 편집은 adminasobi로 인계했으며 기존 Mono 관리자는 전환 기간 동안 임시 유지합니다.
 - 이후 디자인과 브랜드 색상은 사용자가 먼저 정합니다. 요청 없이 기능을 확대하지 않습니다.
-- shadcn/ui, Tailwind CSS, TypeScript, App Router를 사용합니다.
+- shadcn/ui, Tailwind CSS, TypeScript, App Router를 사용합니다. 일반 UI는 공용 `type-*` 역할을 사용하고, 콜 원문/독음과 번역은 별도 읽기 역할로 기존 container 크기·자간·강조를 보존합니다. 실제 규칙은 루트 `docs/ui-design-system.md`를 따릅니다.
 - Next.js 변경 전에 설치된 `node_modules/next/dist/docs/`의 관련 문서를 읽습니다.
 - 주 컴포넌트는 상위에, 보조 hooks와 utils는 같은 이름의 하위 폴더에 둡니다.
 - 컴포넌트 파일은 PascalCase, hooks는 useSomething 형식입니다. shadcn 생성 파일은 원래 이름을 유지합니다.

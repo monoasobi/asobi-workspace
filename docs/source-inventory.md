@@ -285,3 +285,10 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 | API GET/PUT | `/api/admin/sidebar` | 추천 자료·revision·현재 공개곡 배치 검증 |
 
 소설/만화 공개 제공·독자 인증 API는 원래 Mono 위치에 유지합니다. 상세 대조와 미검증은 [content-migration.md](content-migration.md)를 따릅니다.
+
+
+## 7단계 UI 소유 경계
+
+공개 URL/API는 추가·삭제하지 않았습니다. Mono의 일반 공개 UI는 ui 패키지의 shadcn과 Tailwind를 사용합니다. 기존 공개 CSS Modules 18개와 새 관리자 모듈 2개는 제거했으며, 실제 공통 패널 조절은 `@asobi/ui/components/resizable`로 인계했습니다.
+
+소설의 `NovelReader.module.css`, `NovelMarkdown.module.css`와 두 렌더러는 보존 계약입니다. 원래 CSS/Markdown 문법 hash는 `docs/novel-style-baseline.json`에서 확인하고 `npm run check:ui`로 검사합니다. Radix는 이 보존 화면과 종료 전 관리자 때문에 유지합니다. 다른 페이지의 새 ScrollArea는 viewportRef/data-slot을 명시하며 소설의 기존 스크롤 구현을 함께 바꾸지 않았습니다.

@@ -1,6 +1,6 @@
 # ASOBI
 
-MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. 현재는 **6단계: 콘텐츠·추천 관리까지 이관하고 로컬 검증을 완료**했습니다. 4단계 CDN 연결도 검증했으며, 실제 화면·재생 QA와 운영 전환은 남아 있습니다.
+MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. 현재는 **7단계: 공개 UI·최소 공통 디자인 시스템까지 이관하고 로컬 검증을 완료**했습니다. 4단계 CDN 연결도 검증했으며, 실제 화면·재생 QA와 운영 전환은 남아 있습니다.
 
 ## 현재 구조
 
@@ -96,7 +96,7 @@ node --env-file=../../apps/monoasobi/.env.local --run db:migrate
 
 | 패키지 | 실제 역할 | 소비자와 경계 |
 | --- | --- | --- |
-| `@asobi/ui` | 기존 shadcn 기본 부품·cn·LOUDASOBI 공용 브랜드 팔레트/라이트·다크 테마·Tailwind 매핑 | Loud·새 관리자에서 사용. 곡 목록 구현도 공유. 화면 높이/스크롤 CSS·아이콘 선택기는 앱에 유지. Mono는 7단계 UI 전환에서 같은 색상 사용 |
+| `@asobi/ui` | 기존 shadcn 기본 부품·cn·LOUDASOBI 공용 브랜드 팔레트/라이트·다크 테마·Tailwind 매핑 | Loud·새 관리자에서 사용. 곡 목록 구현도 공유. 화면 높이/스크롤 CSS·아이콘 선택기는 앱에 유지. Mono 일반 공개 UI도 공용 색상/타이포 사용. 소설은 보존 계약 예외 |
 | `@asobi/content-core` | 공통 가사 타입·콜/가사 표시 계산·카탈로그 검증·시간·영어 필드 제거·순수 추천 정렬 | 세 앱에서 실제 사용. DB·인증·Next 캐시를 import하지 않음. Mono 편집 입력과 Loud 공개 타임라인의 검증 차이 보존 |
 | `@asobi/database` | 정식 schema/relations·서버 전용 지연 연결·Drizzle config·0000~0008 SQL/journal/snapshots | 세 앱 서버에서 사용. query/mutation과 공개 필터·캐시는 각 앱에 유지. 운영 DB 적용은 별도 승인 |
 | `@asobi/loudasobi-view` | 기존 콜 렌더러·재생기·공용 볼륨·미리보기 메시지 | Loud 공개/기존 관리자와 새 관리자에서 사용. 가사 재생 컨트롤러는 강제 통합하지 않음 |
@@ -114,6 +114,7 @@ node --env-file=../../apps/monoasobi/.env.local --run db:migrate
 npm run lint
 npm run typecheck
 npm run check:core
+npm run check:ui
 ```
 
 `typecheck`는 앱별 Next route 타입 생성 후 TypeScript를 검사합니다. 특정 앱만 확인할 수도 있습니다.
@@ -160,10 +161,13 @@ node apps/adminasobi/scripts/content-flow-check.mjs
 - 두 원본 HEAD를 squash하지 않는 subtree로 연결했습니다. 기존 커밋 ID는 보존됩니다. 과거 커밋 내부 경로는 원래 저장소 경로이며 apps 경로로 과거 이력 전체를 재작성하지 않았습니다.
 - 원본 폴더/원격은 그대로입니다. 새 저장소의 원격은 아직 없고 푸시하지 않았습니다.
 - 요청받은 단계의 작업은 검증 후 세부 기능·작업 단위로 로컬 커밋합니다. 최신 사용자 지침에 따라 메시지는 간결한 영어 한 줄이며, 푸시는 별도 요청이 필요합니다. 커밋별 이력은 docs/migration-status.md와 Git 로그를 봅니다.
-- 5단계 두 편집기의 공통 조작·독립 페이지·충돌 보호를 연결하고 정적/로컬 저장 검사를 마쳤습니다. 화면·입력·재생 QA는 대기이며 6단계 콘텐츠·추천 관리까지 로컬 검증을 마쳤고 다음 이관 대상은 7단계 Mono 공개 UI입니다.
+- 5단계 두 편집기의 공통 조작·독립 페이지·충돌 보호를 연결하고 정적/로컬 저장 검사를 마쳤습니다. 화면·입력·재생 QA는 대기이며 6단계 콘텐츠·추천 관리까지 로컬 검증을 마쳤고 7단계 공개 UI 전환도 로컬 검증했고 다음은 8단계 갱신·캐시 검증입니다.
 - 4단계 공용 코드와 36곡 3000px 수집, 승인된 독립 도메인/전용 버킷/Free 변환 연결·72개 객체 검증까지 마쳤습니다. 운영 앱 환경변수/배포와 DB의 고해상도 키 교체는 미실행입니다. 화면 QA는 사용자 요청에 따라 나중에 함께 진행합니다. [이미지 연결·검증 절차](docs/album-art-delivery.md), [수집 파일·출처](assets/album-art/README.md)를 확인하세요.
 
 작업 전 [AGENT.md](AGENT.md)를 읽고, [현재 진행·검증 결과](docs/migration-status.md), [재사용 지도](docs/reuse-map.md), [원본 목록](docs/source-inventory.md)을 확인하세요.
 
 
 6단계 기능 대조·코드 위치·숨김/복원·서적 관계·동시 편집 한계는 [콘텐츠 이관 기록](docs/content-migration.md)을 확인하세요. 상단 메뉴에서 곡 추가·서적·추천 정렬·숨긴 곡으로 이동할 수 있습니다. 사용자 QA와 운영 검토사항은 별도 진행 중이며 결정이 모이면 반영합니다.
+
+
+7단계 일반 공개 UI와 새 관리자는 Tailwind·공용 shadcn/타이포 역할을 사용합니다. 소설 뷰어는 사용자 지정 외형 보존을 위해 전체 CSS Modules와 필요한 Radix를 유지하며 혼용하지 않습니다. [최소 디자인 시스템](docs/ui-design-system.md), [소설 보존·실제 검증 범위](docs/ui-migration.md)를 확인하세요. 종료 예정인 옛 Mono 관리자만 별도 CSS Modules를 임시 유지합니다.
