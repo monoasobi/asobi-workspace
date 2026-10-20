@@ -1,11 +1,11 @@
 "use client";
 
-import type { CallType, LyricLine } from "@appTypes/lyric";
+import type { CallType, LyricLine } from "@asobi/content-core/lyrics";
 import { HandRaisedIcon, MicrophoneIcon } from "@heroicons/react/24/solid";
 import { Badge, Button, Flex, Text } from "@radix-ui/themes";
 import { useMemo, useRef } from "react";
 import styles from "./LyricsDisplayV2.module.css";
-import { getDisplayStart } from "./YouTubeLyricsPlayer/time";
+import { getDisplayStart } from "@asobi/content-core/lyricTime";
 
 type GroupPos = "solo" | "first" | "middle" | "last";
 

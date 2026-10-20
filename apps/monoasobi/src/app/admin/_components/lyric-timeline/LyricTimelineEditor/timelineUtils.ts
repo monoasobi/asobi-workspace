@@ -1,4 +1,4 @@
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import { roundTime } from "../time";
 
 export const ZOOM_FACTOR = 1.18;

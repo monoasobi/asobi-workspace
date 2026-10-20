@@ -1,4 +1,4 @@
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 
 interface LyricOverlayProps {
   line: LyricLine | null;

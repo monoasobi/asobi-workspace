@@ -1,11 +1,11 @@
 "use client";
 
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import { useState } from "react";
 import { useYouTubePlayback } from "../VideoPlayer/useYouTubePlayback";
 import { usePlayerVolume } from "../VideoPlayer/usePlayerVolume";
 import { useActiveLyric } from "./useActiveLyric";
-import { roundTime } from "./time";
+import { roundTime } from "@asobi/content-core/lyricTime";
 
 const YOUTUBE_CONFIG = {
   youtube: {

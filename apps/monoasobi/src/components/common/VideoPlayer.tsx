@@ -3,7 +3,7 @@
 import { LyricOverlay } from "./LyricOverlay";
 import { usePlayerFullscreen } from "./VideoPlayer/usePlayerFullscreen";
 import type { LyricPlayer } from "./YouTubeLyricsPlayer/useLyricPlayer";
-import { formatTime } from "./YouTubeLyricsPlayer/time";
+import { formatTime } from "@asobi/content-core/lyricTime";
 import {
   PauseIcon,
   PlayIcon,

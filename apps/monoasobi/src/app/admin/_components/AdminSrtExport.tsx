@@ -1,8 +1,8 @@
 "use client";
 
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import type { Music } from "@appTypes/music";
-import { roundTime } from "@components/common/YouTubeLyricsPlayer/time";
+import { roundTime } from "@asobi/content-core/lyricTime";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Button, Flex, Text } from "@radix-ui/themes";
 import {

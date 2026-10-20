@@ -1,6 +1,6 @@
 "use client";
 
-import type { LyricTrack } from "@appTypes/lyric";
+import type { LyricTrack } from "@asobi/content-core/lyrics";
 import type { Music } from "@appTypes/music";
 import type { Novel } from "@appTypes/novel";
 import { privateReaderAtom } from "@atoms/privateReader.atom";

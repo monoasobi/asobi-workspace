@@ -4,7 +4,7 @@ import { useSetAtom } from "jotai";
 import { adminNavigationAtom } from "@/atoms/adminNavigation.atom";
 import { AlbumArtwork } from "@/components/common/AlbumArtwork";
 import { AdminSrtExport } from "./AdminSrtExport";
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import type { AdminRole } from "@appTypes/admin";
 import {
   CheckIcon,

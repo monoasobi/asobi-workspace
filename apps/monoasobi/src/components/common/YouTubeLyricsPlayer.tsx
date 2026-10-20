@@ -1,6 +1,6 @@
 "use client";
 
-import type { LyricTrack } from "@appTypes/lyric";
+import type { LyricTrack } from "@asobi/content-core/lyrics";
 import type { Music } from "@appTypes/music";
 import { LyricsDisplayV2 } from "@components/common/LyricsDisplayV2";
 import {

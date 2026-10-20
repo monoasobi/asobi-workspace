@@ -1,6 +1,6 @@
 "use client";
 
-import type { LyricTrack } from "@appTypes/lyric";
+import type { LyricTrack } from "@asobi/content-core/lyrics";
 import type { Music } from "@appTypes/music";
 import { YouTubeLyricsPlayer } from "@components/common/YouTubeLyricsPlayer";
 import { MusicalNoteIcon } from "@heroicons/react/16/solid";

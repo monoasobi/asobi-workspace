@@ -1,9 +1,9 @@
 import { activeMusicIds } from "./activeMusic";
-import type { LyricLine, LyricTrack } from "@appTypes/lyric";
+import type { LyricLine, LyricTrack } from "@asobi/content-core/lyrics";
 import { db } from "@/server/db";
 import { cacheLife, cacheTag } from "next/cache";
 import { PUBLIC_CATALOG_CACHE_TAG } from "./publicCatalog";
-import { withoutEnglish } from "@/lib/lyricEnglish";
+import { withoutEnglish } from "@asobi/content-core/lyricEnglish";
 
 export const getLyricTrackByMusicId = async (
   musicId: number,

@@ -1,6 +1,6 @@
 import { activeMusicIds } from "./activeMusic";
 import { db } from "@/server/db";
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 
 export const getAdminDashboard = async () => {
   const [musics, novels, comics, books, lyricTracks] = await Promise.all([

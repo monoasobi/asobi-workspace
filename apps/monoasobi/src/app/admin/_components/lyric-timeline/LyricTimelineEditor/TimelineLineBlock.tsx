@@ -1,6 +1,6 @@
 "use client";
 
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import { Popover } from "@radix-ui/themes";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import styles from "../LyricTimelineEditor.module.css";

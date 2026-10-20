@@ -1,10 +1,10 @@
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import {
   roundTime,
   getDisplayStart,
   getDisplayEnd,
   formatTime as formatPlayerTime,
-} from "@components/common/YouTubeLyricsPlayer/time";
+} from "@asobi/content-core/lyricTime";
 
 export const MIN_LINE_DURATION = 0.1;
 export const DEFAULT_PIXELS_PER_SECOND = 72;

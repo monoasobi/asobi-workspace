@@ -1,7 +1,7 @@
 "use client";
 
 import type { AdminRole } from "@appTypes/admin";
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import type { Music } from "@appTypes/music";
 import { useLyricPlayer } from "@components/common/YouTubeLyricsPlayer/useLyricPlayer";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@components/common/Resizable";

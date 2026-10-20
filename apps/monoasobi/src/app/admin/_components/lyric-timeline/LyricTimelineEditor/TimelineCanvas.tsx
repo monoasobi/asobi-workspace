@@ -1,6 +1,6 @@
 "use client";
 
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import {
   type MouseEvent as ReactMouseEvent,
   type RefObject,

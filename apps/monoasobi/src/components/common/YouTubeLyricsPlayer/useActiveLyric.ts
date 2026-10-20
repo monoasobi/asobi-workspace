@@ -1,8 +1,8 @@
 "use client";
 
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 import { useMemo } from "react";
-import { getActiveLineIndex } from "./time";
+import { getActiveLineIndex } from "@asobi/content-core/lyricTime";
 
 export const useActiveLyric = (
   lyrics: LyricLine[] | undefined,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { roundTime } from "../YouTubeLyricsPlayer/time";
+import { roundTime } from "@asobi/content-core/lyricTime";
 
 export const useYouTubePlayback = (youtubeId: string) => {
   const playerRef = useRef<HTMLVideoElement | null>(null);

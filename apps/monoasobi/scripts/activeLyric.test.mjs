@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { getActiveLineIndex } from "../src/components/common/YouTubeLyricsPlayer/time.ts";
+import { getActiveLineIndex } from "../../../packages/content-core/src/lyricTime.ts";
 
 test("shared boundaries use the next lyric at the editor's hundredth-second precision", () => {
   const lines = [

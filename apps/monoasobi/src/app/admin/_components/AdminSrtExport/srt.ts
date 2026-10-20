@@ -1,4 +1,4 @@
-import type { LyricLine } from "@appTypes/lyric";
+import type { LyricLine } from "@asobi/content-core/lyrics";
 
 export const SRT_EXPORTS = [
   { key: "jp", label: "일어", suffix: "일어" },
