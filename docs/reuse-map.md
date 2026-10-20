@@ -174,3 +174,8 @@
 ## 앨범아트 전환·배포 인계 후속
 
 범용 이미지 표시의 선택적 requestWidth를 재사용해 세 앱 사이드바만 200px로 고정했습니다. 전환 도구는 기존 storage get/put·Sharp·libSQL을 사용하며 새 API 서버를 만들지 않았습니다. 36곡 구버전 호환본은 전환용이고 향후 업로드 자동 복제는 추가하지 않았습니다. 새 배포 성공을 사용자가 확인하면 기존 관리자 쓰기를 제거합니다. 공개 콘텐츠/독자 인증/Agent API와 소설 로컬 편집은 유지합니다. 앱별 운영 변수는 production-environment.md를 따릅니다.
+
+
+## 관리자 곡 상세 QA 재구성
+
+기존 MusicInfoForm/MusicSettingsForm/AlbumArtForm은 저장 핸들러를 유지하며 배치·그룹 스타일만 조정했습니다. 기존 콘텐츠 Workspace의 곡 탐색은 MusicContentAccordion으로 인계하고 AdminDocumentPanel/editorConfigs를 그대로 사용합니다. ContentWorkspace는 독립 서적 관리만 남깁니다. AlbumArtField는 곡 등록/수정 공용 이미지 클릭 선택 UI이며 이미지 표시는 기존 AlbumArtwork를 사용합니다. 신규 이미지 서버/관리자 CRUD/편집기를 만들지 않았습니다.
