@@ -1,0 +1,107 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { novelSchema, bookSchema } from "@asobi/content-core/contentInput";
+import { getBookEditorConfig } from "../src/components/content/editorConfigs/book";
+import { getNovelEditorConfig } from "../src/components/content/editorConfigs/novel";
+import { getLyricEditorConfig } from "../src/components/content/editorConfigs/lyric";
+import { getMusicDocuments } from "../src/components/content/selection";
+import { contentSelection } from "../src/components/content/routeSelection";
+import type { AdminDashboardData } from "../src/components/content/data";
+
+test("migrated form payloads preserve hidden book relationships and conditional fields", () => {
+  const data = {
+    musics: [{ id: 0, title: "Song" }],
+    novels: [
+      {
+        id: 1,
+        musicId: 0,
+        title: "Novel",
+        writer: "Writer",
+        originUrl: "https://example.test",
+        bookId: 1,
+        translated: true,
+        translator: "Name",
+        translatorUrl: "https://example.test",
+        isPublished: true,
+      },
+    ],
+    comics: [],
+    lyricTracks: [],
+    books: [
+      {
+        id: 1,
+        name: "Book",
+        novels: [{ novel: { id: 1 } }, { novel: { id: 99 } }],
+        purchaseLinks: null,
+      },
+    ],
+  } as unknown as AdminDashboardData;
+  const cfg = getBookEditorConfig(data, { type: "book", id: 1 });
+  const form = new FormData();
+  form.set("name", "Book");
+  const ids = cfg.fields.find((f) => f.name === "novelIds");
+  assert(ids && "defaultValue" in ids);
+  form.set("novelIds", String(ids.defaultValue));
+  form.set("kyoboUrl", "https://example.test/book");
+  assert.deepEqual(bookSchema.parse(cfg.toPayload(form)).novelIds, [1, 99]);
+  assert.equal(getMusicDocuments(data, 0).books.length, 1);
+  const novel = getNovelEditorConfig(data, { type: "novel", id: 1 }, []);
+  const plain = new FormData();
+  for (const [key, value] of Object.entries({
+    musicId: "0",
+    title: "Novel",
+    writer: "Writer",
+    originUrl: "https://example.test",
+    bookId: "1",
+    translator: "Old",
+    translatorUrl: "https://example.test",
+  }))
+    plain.set(key, value);
+  const payload = novel.toPayload(plain);
+  assert.equal(payload.bookId, "");
+  assert.equal(payload.translator, "");
+  assert.equal(novelSchema.parse(payload).musicId, 0);
+  assert.equal(
+    novelSchema.safeParse({ ...payload, translated: true }).success,
+    false,
+  );
+  assert.equal(
+    novelSchema.safeParse({ ...payload, isPublished: true }).success,
+    false,
+  );
+  assert.equal(
+    contentSelection({ type: "newLyric" }, data, true, 0)?.type,
+    "newLyric",
+  );
+  assert.equal(contentSelection({ type: "newLyric" }, data, false, 0), null);
+  assert.equal(
+    contentSelection({ type: "novel", id: "99" }, data, true, 0),
+    null,
+  );
+  assert.equal(
+    contentSelection({ type: "book", id: "1" }, data, true)?.type,
+    "book",
+  );
+});
+test("JSON import keeps existing IDs and English rather than producing a different lyric format", () => {
+  const data = {
+    musics: [{ id: 0, title: "Song" }],
+    lyricTracks: [],
+  } as unknown as AdminDashboardData;
+  const cfg = getLyricEditorConfig(data, { type: "newLyric", musicId: 0 });
+  const line = {
+    id: "same-id",
+    start: 0,
+    end: 1,
+    jp: "原文",
+    kr: "원문",
+    jpReading: "げんぶん",
+    en: "Original",
+    enReading: "Reading",
+  };
+  const form = new FormData();
+  form.set("musicId", "0");
+  form.set("sync", "-0.01");
+  form.set("lyricJson", JSON.stringify([line]));
+  assert.deepEqual(cfg.toPayload(form).lyricJson, [line]);
+});
