@@ -14,11 +14,12 @@
     "./brand.css": "./src/brand.css"
   },
   "dependencies": {
-    "cn": "0.3.0",
+    "@asobi/content-core": "0.1.0",
+    "@base-ui/react": "^1.9.0",
     "class-variance-authority": "0.7.1",
+    "cn": "0.3.0",
     "lucide-react": "1.46.0",
     "radix-ui": "1.6.7",
-    "@asobi/content-core": "0.1.0",
     "react-resizable-panels": "^4.14.5"
   },
   "peerDependencies": {
