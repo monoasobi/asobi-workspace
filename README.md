@@ -152,6 +152,6 @@ node apps/adminasobi/scripts/local-flow-check.mjs
 - 두 원본 HEAD를 squash하지 않는 subtree로 연결했습니다. 기존 커밋 ID는 보존됩니다. 과거 커밋 내부 경로는 원래 저장소 경로이며 apps 경로로 과거 이력 전체를 재작성하지 않았습니다.
 - 원본 폴더/원격은 그대로입니다. 새 저장소의 원격은 아직 없고 푸시하지 않았습니다.
 - 요청받은 단계의 작업은 검증 후 세부 기능·작업 단위로 로컬 커밋합니다. 최신 사용자 지침에 따라 메시지는 간결한 영어 한 줄이며, 푸시는 별도 요청이 필요합니다. 커밋별 이력은 docs/migration-status.md와 Git 로그를 봅니다.
-- 현재 4단계 공용 이미지 코드와 36곡 3000px 수집본까지 준비했습니다. 실제 독립 주소/버킷 연결·운영 이미지 교체는 미실행입니다. 화면 QA는 사용자 요청에 따라 나중에 함께 진행합니다. [이미지 연결·검증 절차](docs/album-art-delivery.md), [수집 파일·출처](assets/album-art/README.md)를 확인하세요.
+- 현재 4단계 공용 코드와 36곡 3000px 수집, 승인된 독립 도메인/전용 버킷/Free 변환 연결·72개 객체 검증까지 마쳤습니다. 운영 앱 환경변수/배포와 DB의 고해상도 키 교체는 미실행입니다. 화면 QA는 사용자 요청에 따라 나중에 함께 진행합니다. [이미지 연결·검증 절차](docs/album-art-delivery.md), [수집 파일·출처](assets/album-art/README.md)를 확인하세요.
 
 작업 전 [AGENT.md](AGENT.md)를 읽고, [현재 진행·검증 결과](docs/migration-status.md), [재사용 지도](docs/reuse-map.md), [원본 목록](docs/source-inventory.md)을 확인하세요.

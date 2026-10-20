@@ -39,6 +39,7 @@ async function sample(key, width, expectedWidth) {
     width: info.width,
     height: info.height,
     format: info.format,
+    contentType: response.headers.get("content-type"),
     bytes: bytes.length,
     ttfbMs: Math.round(ttfb - start),
     totalMs: Math.round(end - start),

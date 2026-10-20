@@ -3,8 +3,9 @@
 2026-10-20 공개 MONOASOBI 목록(https://monoasobi.vercel.app)에서 확인한 **36곡(ID 0–35)**입니다. 소스 seed의 35곡에 최근 추가된 `咲き誇れ`도 포함했습니다. 운영 DB나 기존 정적 파일은 수정하지 않았습니다.
 
 - `originals/<id>.jpg`: Apple Music 일본 카탈로그가 제공한 **3000×3000 JPEG 그대로** 보존. 총 약 80MiB입니다. 아티스트 제작용 마스터라는 뜻은 아니며, 다운로드 후 확대하지 않았습니다.
-- `prepared/albumart/<id>/<sha256 앞 32자리>.webp`: 동일 해상도의 업로드 준비본. 총 약 51.3MiB, 각 파일 3MiB 이하입니다. 기존 앱의 public에 복사하지 않았고 R2 업로드도 하지 않았습니다.
+- `prepared/albumart/<id>/<sha256 앞 32자리>.webp`: 동일 해상도의 업로드 준비본. 총 약 51.3MiB, 각 파일 3MiB 이하입니다. 기존 앱의 public에는 복사하지 않았습니다. 이후 사용자 승인으로 전용 R2 버킷에 업로드했고, 운영 DB의 키는 아직 변경하지 않았습니다.
 - `manifest.json`: 곡 ID·제목·싱글명·Apple 출처 페이지/이미지 URL·해상도·바이트·SHA-256·준비본 키. `observedKeyAtCollection`은 공개 목록의 수집 시점 키이며, 운영 변경 시 반드시 최신 DB와 다시 비교해야 합니다.
+- `published.json`: 전용 버킷에 복사한 기존 키 36개의 크기/SHA-256 기록과 고해상도 manifest 참조입니다. 업로드 후 S3 읽기로 72개 객체를 대조했습니다.
 - `comparison.jpg`: 각 쌍의 왼쪽은 기존 정적 파일, 오른쪽은 수집본입니다. ID 35는 기존 파일이 없어 왼쪽이 비어 있습니다. 작은 비교판이므로 실제 품질 확인은 원본 파일로 합니다.
 
 일본어 원곡의 싱글을 선택했습니다. 영어판·리믹스·앨범 커버로 임의 대체하지 않았습니다. **ID 34 Orion만 사용자 지정에 따라 THE BOOK for, 커버**를 사용합니다. 앙코르와 만약 생명을 그릴 수 있다면도 개별 싱글 커버입니다. 출처는 [YOASOBI Apple Music](https://music.apple.com/jp/artist/yoasobi/1490256993), 각 곡의 정확한 페이지는 manifest에 있습니다. 제안받은 나무위키는 이번 조회에서 접근되지 않아 공식 배급 카탈로그로 대체했습니다.
@@ -21,4 +22,17 @@ node scripts/album-art-assets.mjs --download
 
 수집용 원본의 최대 다운로드 크기는 10MiB/40MP이며, **관리자 업로드의 기존 3MiB/40MP/정지 JPG·PNG·WebP 제한은 유지**됩니다. 일부 원본 JPEG는 3MiB보다 커서 관리 화면에는 `prepared` WebP를 선택해야 합니다. 변환은 품질 90부터 필요할 때 80/70/60/50 순으로 낮추며 픽셀 크기는 유지합니다. 3MiB 안에 들어오지 않으면 실패합니다. 수집본 JPEG는 어떤 경우에도 덮어쓰지 않습니다.
 
-공개 도메인 전환과 운영 앨범아트 교체는 [4단계 연결·검증 절차](../../docs/album-art-delivery.md)를 따릅니다. 이 폴더가 존재한다는 사실은 실제 서비스가 고해상도 파일로 전환됐다는 뜻이 아닙니다.
+공개 도메인 전환과 운영 앨범아트 교체는 [4단계 연결·검증 절차](../../docs/album-art-delivery.md)를 따릅니다. 전용 CDN의 원본/크기 변환은 검증됐지만, 기존 운영 앱은 아직 고해상도 파일로 전환되지 않았습니다.
+
+
+도메인 연결 승인 후 `https://assets.envifloor.uk`에 업로드했습니다. 모바일에서도 [밤을 달리다 800px 예시](https://assets.envifloor.uk/cdn-cgi/image/width=800,fit=scale-down,format=auto,quality=85/albumart/0/13d37506994ae390f948066d0d119475.webp)를 볼 수 있습니다.
+
+```sh
+# 외부 객체 비교. 해당 환경의 R2 인증과 전용 버킷 설정이 필요합니다.
+R2_ALBUM_ART_BUCKET_NAME=asobi-album-art node --conditions=react-server scripts/publish-album-art.mjs --verify
+# 옵션 없이 실행하면 계획만 출력합니다. --apply는 실제 복사/업로드이므로 대상 승인 후 사용합니다.
+# 기존 키/원본을 지우거나 운영 DB 키를 변경하지 않습니다.
+
+# 공개 HTTP 원본·변환 크기·캐시·없는 파일 검사 (R2 인증 불필요)
+node scripts/check-album-art-cdn.mjs
+```
