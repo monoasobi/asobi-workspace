@@ -45,6 +45,7 @@ export function SongList({
   expandedGroups,
   onExpandedGroupsChange,
   restoreReady = true,
+  showBadges = true,
 }: {
   catalog: SongListItem[];
   locale: Locale;
@@ -61,6 +62,7 @@ export function SongList({
   expandedGroups?: string[];
   onExpandedGroupsChange?: (groups: string[]) => void;
   restoreReady?: boolean;
+  showBadges?: boolean;
 }) {
   const t = (key: keyof SongListLabels) => labels[key];
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -182,8 +184,8 @@ export function SongList({
               {locale === "ko" ? music.korTitle : music.enTitle}
             </span>
           )}
-          {isPending && <Badge variant="outline">{t("pending")}</Badge>}
-          {entry.publish !== undefined && (
+          {showBadges && isPending && <Badge variant="outline">{t("pending")}</Badge>}
+          {showBadges && entry.publish !== undefined && (
             <Badge variant={entry.publish ? "secondary" : "outline"}>
               {entry.publish ? labels.published : labels.unpublished}
             </Badge>

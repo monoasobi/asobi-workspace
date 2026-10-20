@@ -109,6 +109,7 @@ function Frame({
           }
         >
           <SongList
+            showBadges={false}
             catalog={musics.map((music) => ({
               music: {
                 ...music,

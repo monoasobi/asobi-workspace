@@ -1,5 +1,7 @@
+import { SongList } from "@asobi/ui/components/song-list";
+import type { ComponentProps } from "react";
 import { getSelectedDocument } from "../src/components/content/adminSelectedDocument";
-import { createElement } from "react";
+import React, { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AdminMultiSelectField } from "../src/components/content/AdminMultiSelectField";
 import assert from "node:assert/strict";
@@ -160,4 +162,28 @@ test("song books include direct and join links through its novels without unrela
   } as unknown as AdminDashboardData;
   assert.deepEqual(getMusicDocuments(data, 0).books.map(book => book.id), [0, 1]);
   assert.deepEqual(getMusicDocuments(data, 1).books.map(book => book.id), [2]);
+});
+
+
+test("shared sidebar badges stay enabled by default and can be hidden only by the admin", context => {
+  // Shared JSX is preserved for app builds; the Node runner needs its classic runtime.
+  const originalReact = Reflect.get(globalThis, "React");
+  Reflect.set(globalThis, "React", React);
+  context.after(() => {
+    if (originalReact === undefined) Reflect.deleteProperty(globalThis, "React");
+    else Reflect.set(globalThis, "React", originalReact);
+  });
+  const props: ComponentProps<typeof SongList> = {
+    catalog: [{ music: { id: 0, title: "Song", korTitle: "곡", enTitle: "Song" }, hasLyrics: false, publish: false }],
+    locale: "ko", layout: { groups: [], ungrouped: [0] }, sort: "release",
+    labels: { pending: "STATUS_PENDING", published: "STATUS_PUBLIC", unpublished: "STATUS_PRIVATE", songSort: "정렬", recommendedSort: "추천", albumSort: "앨범", releaseSort: "발매순", songs: "곡", selectSong: "선택" },
+    onSort: () => {}, onSelect: () => {}, renderArtwork: () => null,
+  };
+  const publicHtml = renderToStaticMarkup(createElement(SongList, props));
+  assert(publicHtml.includes("STATUS_PENDING"));
+  assert(publicHtml.includes("STATUS_PRIVATE"));
+  const adminHtml = renderToStaticMarkup(createElement(SongList, { ...props, showBadges: false }));
+  assert(!adminHtml.includes("STATUS_PENDING"));
+  assert(!adminHtml.includes("STATUS_PRIVATE"));
+  assert(adminHtml.includes("Song"));
 });
