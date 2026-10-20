@@ -1,0 +1,35 @@
+import type { LyricLine } from "./lyrics";
+
+export const roundTime = (value: number) => Number(value.toFixed(2));
+export const getDisplayStart = (line: LyricLine, offset: number) =>
+  line.start + offset;
+export const getDisplayEnd = (line: LyricLine, offset: number) =>
+  line.end + offset;
+
+export const getActiveLineIndex = (
+  lyrics: readonly Pick<LyricLine, "start" | "end">[] | undefined,
+  currentTime: number,
+  offset: number,
+) => {
+  // Match the editor's 0.01s precision; shared boundaries belong to the next line.
+  const time = Math.round(currentTime * 100);
+  return lyrics?.findIndex(
+    (line) =>
+      time >= Math.round((line.start + offset) * 100) &&
+      time < Math.round((line.end + offset) * 100),
+  ) ?? -1;
+};
+
+export const formatTime = (seconds: number, precise = false) => {
+  if (!Number.isFinite(seconds)) return precise ? "0:00.00" : "0:00";
+  const sign = seconds < 0 ? "-" : "";
+  const ticks = precise
+    ? Math.round(Math.abs(seconds) * 100)
+    : Math.floor(Math.abs(seconds)) * 100;
+  const minutes = Math.floor(ticks / 6000);
+  const wholeSeconds = Math.floor(ticks / 100) % 60;
+  const fraction = precise
+    ? `.${(ticks % 100).toString().padStart(2, "0")}`
+    : "";
+  return `${sign}${minutes}:${wholeSeconds.toString().padStart(2, "0")}${fraction}`;
+};

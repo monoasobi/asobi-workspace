@@ -1,0 +1,20 @@
+{
+  "name": "@asobi/content-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src tests",
+    "typecheck": "tsc --noEmit",
+    "check": "node --import tsx --test tests/contracts.test.ts"
+  },
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "tsx": "4.23.13"
+  }
+}
