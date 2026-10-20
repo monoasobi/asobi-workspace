@@ -34,8 +34,8 @@ export function MusicContentTabs({
   const guard = useNavigationGuard();
   const docs = getMusicDocuments(data, musicId);
   const groups: { value: string; label: string; items: { label: string; node: SelectedNode }[]; create?: SelectedNode }[] = [
-    { value: "novel", label: "소설", items: docs.novels.map(n => ({ label: n.title, node: { type: "novel", id: n.id } })), create: docs.novels.length ? undefined : { type: "newNovel", musicId } },
-    { value: "comic", label: "만화", items: docs.comics.map(c => ({ label: c.title, node: { type: "comic", id: c.id } })), create: docs.comics.length ? undefined : { type: "newComic", musicId } },
+    { value: "novel", label: "소설", items: docs.novels.map(n => ({ label: n.title, node: { type: "novel", id: n.id } })), create: { type: "newNovel", musicId } },
+    { value: "comic", label: "만화", items: docs.comics.map(c => ({ label: c.title, node: { type: "comic", id: c.id } })), create: { type: "newComic", musicId } },
     { value: "lyric", label: "가사", items: docs.lyric ? [{ label: `가사 문서 · ${docs.lyric.lineCount}줄`, node: { type: "lyric", id: musicId } }] : [], create: docs.lyric ? undefined : { type: "newLyric", musicId } },
     { value: "book", label: "서적", items: docs.books.map(b => ({ label: b.name, node: { type: "book", id: b.id } })) },
   ];
@@ -76,17 +76,17 @@ export function MusicContentTabs({
       <TabsContent value="media" forceMount className="min-h-0 overflow-y-auto p-5 data-[state=inactive]:hidden sm:p-6">{media}</TabsContent>
       {groups.map(group => {
         const node = nodeFor(group);
+        const creating = node?.type.startsWith("new") ?? false;
+        const showItems = group.items.length > 1 || (creating && group.items.length > 0);
+        const canCreate = !readOnly && !!group.create;
         return (
-          <TabsContent key={group.value} value={group.value} forceMount className="min-h-0 overflow-y-auto data-[state=inactive]:hidden">
-            <div className="flex items-center justify-between gap-2 px-5 py-4">
-              <h3 className="type-label">{group.label}</h3>
-              {!readOnly && group.create && (
-                <Button type="button" variant="ghost" size="icon-sm" aria-label={`${group.label} 추가`} disabled={guard.busy} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>
-              )}
-            </div>
-            {group.items.length > 1 && (
-              <div className="flex flex-wrap gap-2 px-5 pb-3">
-                {group.items.map(item => <Button key={getSelectedNodeKey(item.node)} variant={node && getSelectedNodeKey(node) === getSelectedNodeKey(item.node) ? "secondary" : "outline"} size="sm" disabled={guard.busy} onClick={() => select(item.node)}>{item.label}</Button>)}
+          <TabsContent key={group.value} value={group.value} forceMount className="min-h-0 overflow-y-auto pt-5 data-[state=inactive]:hidden">
+            {(showItems || canCreate) && (
+              <div className="mb-4 flex items-start gap-2 px-5">
+                <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+                  {showItems && group.items.map(item => <Button key={getSelectedNodeKey(item.node)} variant={node && getSelectedNodeKey(node) === getSelectedNodeKey(item.node) ? "secondary" : "outline"} size="sm" disabled={guard.busy} onClick={() => select(item.node)}>{item.label}</Button>)}
+                </div>
+                {canCreate && <Button type="button" variant="ghost" size="icon-sm" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>}
               </div>
             )}
             {node ? (
