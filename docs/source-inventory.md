@@ -306,4 +306,4 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 - Mono 공개 카탈로그/가사/서적 구매 정보의 기존 캐시와 internal/revalidate를 재사용합니다. 관리자 알림은 Mono만 전송합니다.
 - Loud 공개 useCatalogRefresh와 internal/revalidate는 제거했습니다. 홈 connection()/비캐시 DB 조회·로컬 재생/설정 저장은 유지합니다. 기존 관리자 storage marker의 공개 구독은 없습니다.
 - `.env.example`에서 불필요한 Loud 무효화 비밀값 항목만 정리했습니다. 실제 `.env.local`·DB/R2·Vercel 값은 변경하지 않았습니다.
-- 개발/프리뷰/운영 분리 계획과 실제 로컬 읽기 결과는 cache-and-environments.md를 따릅니다. 운영 분리/배포를 완료했다고 보고하지 않습니다.
+- 사용자 후속 결정으로 환경 분리는 범위에서 제외하고 기존 연결 설정을 유지합니다. 개발 환경의 운영 DB 사용은 허용하며 현재 실제 환경값은 변경하지 않았습니다. 정책과 로컬 읽기 결과는 cache-and-environments.md를 따릅니다.
