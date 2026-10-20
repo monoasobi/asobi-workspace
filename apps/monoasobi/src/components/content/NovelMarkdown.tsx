@@ -1,11 +1,14 @@
 "use client";
 
 import { fontAtom } from "@atoms/font.atom";
-import { Heading, Text } from "@radix-ui/themes";
 import { useAtomValue } from "jotai";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import styles from "./NovelMarkdown.module.css";
+
+// Preserve the original reading scale rather than the general UI title roles.
+const heading = "[font-family:'Pretendard_JP_Variable'] font-bold not-italic";
+const emphasis = "text-[var(--red-a11)] font-bold leading-[1.5]";
 
 interface NovelMarkdownProps {
   children: string;
@@ -21,29 +24,37 @@ export const NovelMarkdown = ({ children, className }: NovelMarkdownProps) => {
         remarkPlugins={[remarkBreaks]}
         components={{
           h1: ({ children }) => (
-            <Heading as="h1" size="7" my="6">
+            <h1
+              className={`${heading} my-[32px] text-[28px] leading-[36px] tracking-[-0.0075em]`}
+            >
               {children}
-            </Heading>
+            </h1>
           ),
           h2: ({ children }) => (
-            <Heading as="h2" my="6" size="6" align="center">
+            <h2
+              className={`${heading} my-[32px] text-center text-[24px] leading-[30px] tracking-[-0.00625em]`}
+            >
               {children}
-            </Heading>
+            </h2>
           ),
           h3: ({ children }) => (
-            <Heading as="h3" my="2" size="6" align="center">
+            <h3
+              className={`${heading} my-[8px] text-center text-[24px] leading-[30px] tracking-[-0.00625em]`}
+            >
               {children}
-            </Heading>
+            </h3>
           ),
           h4: ({ children }) => (
-            <Heading as="h3" my="6" size="4" align="center">
+            <h3
+              className={`${heading} my-[32px] text-center text-[18px] leading-[24px] tracking-[-0.0025em]`}
+            >
               {children}
-            </Heading>
+            </h3>
           ),
           p: ({ children }) => (
-            <Text as="p" className={styles.paragraph} data-font={font}>
+            <p className={`${styles.paragraph} leading-[1.5]`} data-font={font}>
               {children}
-            </Text>
+            </p>
           ),
           blockquote: ({ children }) => (
             <blockquote className={styles.quote}>{children}</blockquote>
@@ -66,17 +77,13 @@ export const NovelMarkdown = ({ children, className }: NovelMarkdownProps) => {
             const [, speaker, dialogue] = match;
             return (
               <li className={styles.li} data-font={font}>
-                <Text color="red" weight="bold" mr="2">
-                  {speaker}
-                </Text>
-                <Text>{dialogue}</Text>
+                <span className={`${emphasis} mr-[8px]`}>{speaker}</span>
+                <span className="leading-[1.5]">{dialogue}</span>
               </li>
             );
           },
           strong: ({ children }) => (
-            <Text color="red" weight="bold">
-              {children}
-            </Text>
+            <span className={emphasis}>{children}</span>
           ),
         }}
       >

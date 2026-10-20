@@ -3,7 +3,7 @@
   height: calc(100dvh - 72px);
 }
 
-.container :global(.rt-ScrollAreaViewport) {
+.container [data-slot="scroll-area-viewport"] {
   line-height: 160%;
   padding: 64px 24px 24px;
 }
@@ -25,7 +25,7 @@
 }
 
 @media (max-width: 480px) {
-  .container :global(.rt-ScrollAreaViewport) {
+  .container [data-slot="scroll-area-viewport"] {
     padding: 64px 16px 24px;
   }
 }

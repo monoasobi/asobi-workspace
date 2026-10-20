@@ -6,5 +6,12 @@
     "components/content/NovelReader.tsx": "231c60f4d2095804cbe9c0884b91edf4400b038d7789455d82e8cdff37586892",
     "components/content/NovelMarkdown.tsx": "b67e11f52f9985f2c6d8ca08ff11639af3d5171634d9971cadb087a256b89567"
   },
-  "note": "User-tuned source contract. Only the nonvisual viewer marker and explicit original inherited text color may differ."
+  "note": "Original user-authored module rules remain frozen; Reader viewport selector may target the shared ScrollArea. User-approved Themes-to-Tailwind renderers are pinned separately after four theme/font comparisons. Source hashes do not prove pixel equality.",
+  "radixReplacement": {
+    "beforeCommit": "ce3d914",
+    "hashes": {
+      "components/content/NovelReader.tsx": "b64fd0ac8d5a00c20e3804f9e6ab13ba1dcfde3d06dca7c31cba1e1f292e0278",
+      "components/content/NovelMarkdown.tsx": "92fe3df0a71c9e71eeaed860612518cffb0e81a23cecef0867707398c113ac43"
+    }
+  }
 }

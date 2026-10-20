@@ -9,12 +9,18 @@ const sha = (text) => createHash("sha256").update(text).digest("hex");
 const baseline = JSON.parse(await read("docs/novel-style-baseline.json"));
 for (const [name, expected] of Object.entries(baseline.hashes)) {
   let text = await read("apps/monoasobi/src/" + name);
-  if (name.endsWith("NovelReader.tsx"))
-    text = text.replace("      data-novel-viewer\n", "");
-  if (name.endsWith("NovelMarkdown.tsx"))
-    text = text.replace(
-      '<div className={[styles.root, className].filter(Boolean).join(" ")}>',
-      "<div className={className}>",
+  if (baseline.radixReplacement.hashes[name]) {
+    assert.equal(
+      sha(text),
+      baseline.radixReplacement.hashes[name],
+      `Reviewed novel renderer changed: ${name}`,
+    );
+    continue;
+  }
+  if (name.endsWith("NovelReader.module.css"))
+    text = text.replaceAll(
+      '[data-slot="scroll-area-viewport"]',
+      ':global(.rt-ScrollAreaViewport)',
     );
   if (name.endsWith("NovelMarkdown.module.css")) {
     const preservedColor =
@@ -59,7 +65,6 @@ assert.equal(
 for (const p of publicFiles.filter(
   (p) =>
     p.endsWith(".tsx") &&
-    !/Novel(Reader|Markdown)\.tsx$/.test(p) &&
     !p.endsWith("/providers.tsx"),
 )) {
   assert(
@@ -92,5 +97,5 @@ assert(
   "CSS calc subtraction must retain whitespace",
 );
 console.log(
-  "UI contracts passed: frozen novel syntax/style source, no mixed viewer styles, shared UI/read roles and retired module boundaries.",
+  "UI contracts passed: preserved novel module rules, reviewed Tailwind renderer, no public Themes components, shared UI/read roles and retired module boundaries.",
 );

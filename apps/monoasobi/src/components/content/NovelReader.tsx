@@ -2,7 +2,7 @@
 
 import { Error as ErrorView } from "@components/feedback/Error";
 import { Loading } from "@components/feedback/Loading";
-import { Flex, ScrollArea } from "@radix-ui/themes";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { useEffect, useRef, useState, type UIEvent } from "react";
 import { NovelMarkdown } from "./NovelMarkdown";
 import styles from "./NovelReader.module.css";
@@ -10,6 +10,18 @@ import styles from "./NovelReader.module.css";
 interface NovelReaderProps {
   id: number | string;
 }
+
+// Keep the old reading scrollbar geometry while reusing the shared primitive.
+const scrollAreaClasses = [
+  "flex flex-col overflow-hidden",
+  "[&_[data-slot=scroll-area-scrollbar]]:m-[4px] [&_[data-slot=scroll-area-scrollbar]]:h-auto [&_[data-slot=scroll-area-scrollbar]]:w-[4px]",
+  "[&_[data-slot=scroll-area-scrollbar]]:rounded-full [&_[data-slot=scroll-area-scrollbar]]:border-0 [&_[data-slot=scroll-area-scrollbar]]:bg-[var(--gray-a3)] [&_[data-slot=scroll-area-scrollbar]]:p-0",
+  "[&_[data-slot=scroll-area-scrollbar][data-state=visible]]:animate-[rt-fade-in_120ms_ease-out] [&_[data-slot=scroll-area-scrollbar][data-state=hidden]]:animate-[rt-fade-out_120ms_ease-out]",
+  "[&_[data-slot=scroll-area-thumb]]:bg-[var(--gray-a8)] [&_[data-slot=scroll-area-thumb]]:transition-colors [&_[data-slot=scroll-area-thumb]]:duration-100 [&_[data-slot=scroll-area-thumb]]:hover:bg-[var(--gray-a9)]",
+  "[&_[data-slot=scroll-area-thumb]]:before:absolute [&_[data-slot=scroll-area-thumb]]:before:top-1/2 [&_[data-slot=scroll-area-thumb]]:before:left-1/2",
+  "[&_[data-slot=scroll-area-thumb]]:before:size-full [&_[data-slot=scroll-area-thumb]]:before:min-h-[16px] [&_[data-slot=scroll-area-thumb]]:before:min-w-[16px]",
+  "[&_[data-slot=scroll-area-thumb]]:before:[transform:translate(-50%,-50%)] [&_[data-slot=scroll-area-thumb]]:before:content-['']",
+].join(" ");
 
 export const NovelReader = ({ id }: NovelReaderProps) => {
   const [markdown, setMarkdown] = useState<string | undefined>("");
@@ -44,7 +56,9 @@ export const NovelReader = ({ id }: NovelReaderProps) => {
     };
 
     void fetchNovel(id);
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
   useEffect(() => {
@@ -74,18 +88,22 @@ export const NovelReader = ({ id }: NovelReaderProps) => {
   return (
     <ScrollArea
       data-novel-viewer
-      ref={novelRef}
-      className={styles.container}
-      onScroll={handleScroll}
-      scrollbars="vertical"
+      viewportRef={novelRef}
+      className={`${styles.container} ${scrollAreaClasses}`}
+      scrollHideDelay={0}
+      viewportProps={{
+        onScroll: handleScroll,
+        className:
+          "flex flex-col overscroll-auto rounded-none transition-none focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-[var(--focus-8)] focus-visible:-outline-offset-2 [&>div]:w-fit [&>div]:grow",
+      }}
     >
-      <Flex className={styles.readerFrame} justify="center">
+      <div className={`${styles.readerFrame} flex justify-center`}>
         <div className={styles.novelContainer}>
           <NovelMarkdown className={styles.markdown}>
             {markdown ?? ""}
           </NovelMarkdown>
         </div>
-      </Flex>
+      </div>
     </ScrollArea>
   );
 };
