@@ -47,7 +47,7 @@ export function MusicDetail({
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <section className="min-w-0 rounded-xl border bg-card">
           <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-            <h2 className="font-semibold">곡 정보</h2>
+            <h2 className="type-section-title">곡 정보</h2>
             <Button
               variant="outline"
               size="sm"
@@ -112,7 +112,7 @@ export function MusicDetail({
         </section>
         <section className="min-w-0 rounded-xl border bg-card">
           <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-            <h2 className="font-semibold">콜 정보</h2>
+            <h2 className="type-section-title">콜 정보</h2>
             <Button
               variant="outline"
               size="sm"

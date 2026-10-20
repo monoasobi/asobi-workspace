@@ -6,7 +6,7 @@ import { Undo2, Redo2, Copy, Repeat, RotateCcw } from "lucide-react";
 
 import type { LyricPlayer } from "@/components/editors/playback/useLyricPlayer";
 
-import styles from "../LyricTimelineEditor.module.css";
+import styles from "../LyricTimelineEditor.styles";
 import { TimelineYouTubePreview } from "../TimelineYouTubePreview";
 import { AdminSrtExport, type AdminSrtExportProps } from "../../AdminSrtExport";
 

@@ -7,7 +7,7 @@ import {
   PopoverContent,
 } from "@asobi/ui/components/popover";
 import type { MouseEvent as ReactMouseEvent } from "react";
-import styles from "../LyricTimelineEditor.module.css";
+import styles from "../LyricTimelineEditor.styles";
 import { TimelineLinePopover } from "./TimelineLinePopover";
 import type { TimelineEdge } from "./useTimelineResize";
 

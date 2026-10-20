@@ -101,11 +101,7 @@ export function MusicInfoForm({
       </fieldset>
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t p-5">
         <p
-          className={
-            failed
-              ? "text-xs text-destructive"
-              : "text-xs text-muted-foreground"
-          }
+          className={failed ? "text-xs text-destructive" : "type-caption"}
           role={failed ? "alert" : "status"}
         >
           {message ||

@@ -35,7 +35,7 @@ import { RefreshStatus } from "@/components/RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import type { LyricsDocument } from "@/server/queries/lyrics";
 import { useTimelineZoom } from "../shared/useTimelineZoom";
-import styles from "./LyricTimelineEditor.module.css";
+import styles from "./LyricTimelineEditor.styles";
 import {
   DEFAULT_PIXELS_PER_SECOND,
   MIN_PIXELS_PER_SECOND,

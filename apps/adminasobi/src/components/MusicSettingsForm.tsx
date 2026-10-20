@@ -124,7 +124,7 @@ export function MusicSettingsForm({
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="mb-2 flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">콜 설정</span>
+                <span className="type-caption">콜 설정</span>
                 <Badge variant={music.publish ? "secondary" : "outline"}>
                   {music.publish ? "공개 중" : "비공개"}
                 </Badge>
@@ -132,7 +132,7 @@ export function MusicSettingsForm({
               <h2 lang="ja" className="text-2xl font-semibold tracking-tight">
                 {music.title}
               </h2>
-              <p className="mt-1.5 text-sm text-muted-foreground">
+              <p className="mt-1.5 type-description">
                 {music.korTitle} · {music.enTitle}
               </p>
             </div>
@@ -151,7 +151,7 @@ export function MusicSettingsForm({
                   <h3 id="media-heading" className="text-sm font-semibold">
                     음원 및 표시
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 type-caption">
                     재생할 음원과 곡의 킹블레이드 색상을 설정합니다.
                   </p>
                 </div>
@@ -172,10 +172,7 @@ export function MusicSettingsForm({
                       edited();
                     }}
                   />
-                  <span
-                    id="youtube-help"
-                    className="text-xs text-muted-foreground"
-                  >
+                  <span id="youtube-help" className="type-caption">
                     URL이 아닌 ID만 입력합니다. MONOASOBI의 MV ID와 별개입니다.
                   </span>
                 </div>
@@ -221,10 +218,7 @@ export function MusicSettingsForm({
                     </SelectContent>
                   </Select>
                   {invalidColor && (
-                    <p
-                      id="fanlight-help"
-                      className="text-xs text-muted-foreground"
-                    >
+                    <p id="fanlight-help" className="type-caption">
                       기존 색상을 새 목록에서 다시 선택하거나 미지정으로 바꾼 후
                       저장해 주세요.
                     </p>
@@ -245,7 +239,7 @@ export function MusicSettingsForm({
                   <h3 id="timing-heading" className="text-sm font-semibold">
                     타이밍
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 type-caption">
                     콜 패턴의 기본 속도와 음원에 맞는 가사 싱크를 조정합니다.
                   </p>
                 </div>
@@ -267,7 +261,7 @@ export function MusicSettingsForm({
                       edited();
                     }}
                   />
-                  <p id="bpm-help" className="text-xs text-muted-foreground">
+                  <p id="bpm-help" className="type-caption">
                     새 펄스 패턴의 기본 BPM입니다. 미지정 시 120을 사용하며 기존
                     블록은 바뀌지 않습니다.
                   </p>
@@ -288,7 +282,7 @@ export function MusicSettingsForm({
                       edited();
                     }}
                   />
-                  <p id="sync-help" className="text-xs text-muted-foreground">
+                  <p id="sync-help" className="type-caption">
                     MONOASOBI 기본값 {music.sourceSync}초 + 추가 보정값. 양수는
                     가사를 늦게, 음수는 일찍 표시합니다. 기본값 0은 추가 보정
                     없음입니다.
@@ -309,7 +303,7 @@ export function MusicSettingsForm({
                   <h3 id="publish-heading" className="text-sm font-semibold">
                     공개 설정
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 type-caption">
                     저장하면 공개 곡 목록에 반영됩니다.
                   </p>
                 </div>
@@ -350,10 +344,7 @@ export function MusicSettingsForm({
       </div>
       <footer className="shrink-0 border-t bg-card px-5 py-4 sm:px-8">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
-          <div
-            className="min-w-0 flex-1 text-xs text-muted-foreground"
-            aria-live="polite"
-          >
+          <div className="min-w-0 flex-1 type-caption" aria-live="polite">
             {message ? (
               <p
                 role={failed ? "alert" : "status"}

@@ -15,7 +15,7 @@ import type { LyricPlayer } from "@/components/editors/playback/useLyricPlayer";
 import { LyricOverlay } from "@/components/editors/playback/LyricOverlay";
 
 import ReactPlayer from "react-player";
-import styles from "./LyricTimelineEditor.module.css";
+import styles from "./LyricTimelineEditor.styles";
 import { formatTime } from "./time";
 
 export const TimelineYouTubePreview = ({ player }: { player: LyricPlayer }) => {

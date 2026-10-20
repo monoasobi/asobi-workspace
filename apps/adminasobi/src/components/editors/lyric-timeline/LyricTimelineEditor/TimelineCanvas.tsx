@@ -6,7 +6,7 @@ import {
   type RefObject,
   type CSSProperties,
 } from "react";
-import styles from "../LyricTimelineEditor.module.css";
+import styles from "../LyricTimelineEditor.styles";
 import { formatTime, getDisplayEnd, getDisplayStart } from "../time";
 import { getTimelineGridInterval, getTimelineTicks } from "./timelineUtils";
 import { TimelineLineBlock } from "./TimelineLineBlock";
