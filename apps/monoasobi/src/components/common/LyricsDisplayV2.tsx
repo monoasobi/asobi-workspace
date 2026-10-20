@@ -1,41 +1,35 @@
 "use client";
-
+import { cn } from "@asobi/ui/lib/utils";
+import { Button } from "@asobi/ui/components/button";
+import { Badge } from "@asobi/ui/components/badge";
 import type { CallType, LyricLine } from "@asobi/content-core/lyrics";
 import { HandRaisedIcon, MicrophoneIcon } from "@heroicons/react/24/solid";
-import { Badge, Button, Flex, Text } from "@radix-ui/themes";
 import { useMemo, useRef } from "react";
-import styles from "./LyricsDisplayV2.module.css";
+import styles from "./LyricsDisplayV2.styles";
 import { getDisplayStart } from "@asobi/content-core/lyricTime";
-
 type GroupPos = "solo" | "first" | "middle" | "last";
-
 const TYPE_LABELS: Record<CallType, string> = {
   LOUD: "떼창",
   CLAP: "박수",
   CUSTOM: "콜",
 };
-
 const getGroupPos = (lines: LyricLine[], index: number): GroupPos | null => {
   const callType = lines[index].callType;
   if (!callType) return null;
-
   const prevSame = index > 0 && lines[index - 1].callType === callType;
   const nextSame =
     index < lines.length - 1 && lines[index + 1].callType === callType;
-
   if (!prevSame && !nextSame) return "solo";
   if (!prevSame && nextSame) return "first";
   if (prevSame && nextSame) return "middle";
   return "last";
 };
-
 export interface LyricsDisplayV2Props {
   lyrics: LyricLine[];
   activeIndex: number;
   offset: number;
   onSeek: (time: number) => void;
 }
-
 export const LyricsDisplayV2 = ({
   lyrics,
   activeIndex,
@@ -43,15 +37,12 @@ export const LyricsDisplayV2 = ({
   onSeek,
 }: LyricsDisplayV2Props) => {
   const lineRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-
   const callGroupStarts = useMemo(
     () =>
       lyrics.flatMap((line, index) => {
         if (!line.callType) return [];
-
         const groupPos = getGroupPos(lyrics, index);
         if (groupPos !== "first" && groupPos !== "solo") return [];
-
         return [
           {
             index,
@@ -63,25 +54,27 @@ export const LyricsDisplayV2 = ({
       }),
     [lyrics, offset],
   );
-
   const handleJump = (time: number, index: number) => {
     onSeek(time);
     lineRefs.current
       .get(index)
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
-
   return (
-    <Flex className={styles.container} direction="column" gap="2" flexGrow="1">
-      <Flex className={styles.header} align="center" gap="2">
-        <Flex className={styles.jumpButtons} align="center" gap="1">
+    <div className={cn("flex flex-col gap-2 grow", styles.container)}>
+      <div className={cn("flex items-center gap-2", styles.header)}>
+        <div className={cn("flex items-center gap-1", styles.jumpButtons)}>
           {callGroupStarts.map((group, index) => (
             <Button
               key={`${group.type}-${group.startTime}-${index}`}
               type="button"
-              size="1"
-              variant="soft"
-              color={group.type === "CLAP" ? "amber" : "red"}
+              size="sm"
+              variant="secondary"
+              className={
+                group.type === "CLAP"
+                  ? "border-yellow-600 bg-yellow-100 text-yellow-700"
+                  : "border-primary bg-secondary text-primary"
+              }
               onClick={() => handleJump(group.startTime, group.index)}
             >
               <span className={styles.icon}>
@@ -94,8 +87,8 @@ export const LyricsDisplayV2 = ({
               {group.label} {index + 1}
             </Button>
           ))}
-        </Flex>
-      </Flex>
+        </div>
+      </div>
 
       <div className={styles.scrollWrapper}>
         <div className={styles.scroll}>
@@ -103,7 +96,6 @@ export const LyricsDisplayV2 = ({
             const isActive = index === activeIndex;
             const groupPos = getGroupPos(lyrics, index);
             const isGroupStart = groupPos === "solo" || groupPos === "first";
-
             return (
               <div
                 key={`${line.start}-${index}`}
@@ -121,7 +113,13 @@ export const LyricsDisplayV2 = ({
                 onClick={() => onSeek(getDisplayStart(line, offset))}
               >
                 {line.callType && (isActive || isGroupStart) && (
-                  <Badge color={line.callType === "CLAP" ? "amber" : "red"}>
+                  <Badge
+                    className={
+                      line.callType === "CLAP"
+                        ? "border-yellow-600 bg-yellow-100 text-yellow-700"
+                        : "border-primary bg-secondary text-primary"
+                    }
+                  >
                     {line.callGuide || TYPE_LABELS[line.callType]}
                   </Badge>
                 )}
@@ -129,20 +127,20 @@ export const LyricsDisplayV2 = ({
                 <p className={styles.reading}>{line.jpReading}</p>
                 <p className={styles.korean}>{line.kr}</p>
                 {line.callGuide && line.callType === "CUSTOM" && (
-                  <Text
-                    as="p"
-                    className={styles.callGuide}
-                    size="1"
-                    color="gray"
+                  <p
+                    className={cn(
+                      "type-caption text-muted-foreground",
+                      styles.callGuide,
+                    )}
                   >
                     {line.callGuide}
-                  </Text>
+                  </p>
                 )}
               </div>
             );
           })}
         </div>
       </div>
-    </Flex>
+    </div>
   );
 };

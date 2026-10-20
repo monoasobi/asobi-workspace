@@ -4,7 +4,7 @@ import { Loading } from "@/components/feedback/Loading";
 import { useHydrated } from "@/hooks/useHydrated";
 import { sidebarAtom } from "@atoms/sidebar.atom";
 import { useAtom } from "jotai";
-import styles from "../Sidebar.module.css";
+import styles from "../Sidebar.styles";
 
 // Suspense fallback must not read dynamic route parameters or pathname.
 export const SidebarLoading = () => {

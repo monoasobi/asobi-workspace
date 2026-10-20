@@ -18,6 +18,11 @@ export const Providers = ({ children }: ProvidersProps) => {
   const setHasPrivateReaderAccess = useSetAtom(privateReaderAtom);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("dark", appearance === "dark");
+    document.documentElement.classList.toggle("light", appearance === "light");
+  }, [appearance]);
+
+  useEffect(() => {
     const width = window.innerWidth;
     if (width < 1024) setIsSidebar(false);
   }, [setIsSidebar]);

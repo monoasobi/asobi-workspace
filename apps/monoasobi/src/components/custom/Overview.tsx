@@ -1,3 +1,6 @@
+import { cn } from "@asobi/ui/lib/utils";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { Button } from "@asobi/ui/components/button";
 import {
   BookOpenIcon,
   HeartIcon,
@@ -7,20 +10,10 @@ import {
   RectangleStackIcon,
   ShoppingBagIcon,
 } from "@heroicons/react/24/outline";
-import {
-  Button,
-  Card,
-  Flex,
-  Heading,
-  ScrollArea,
-  Text,
-} from "@radix-ui/themes";
 import Image from "next/image";
 import Link from "next/link";
-import styles from "./Overview.module.css";
-
+import styles from "./Overview.styles";
 const LOGO_IMAGE = "/images/assets/logowith.svg";
-
 interface FeatureItem {
   icon: typeof BookOpenIcon;
   title: string;
@@ -28,7 +21,6 @@ interface FeatureItem {
   to?: string;
   action?: string;
 }
-
 const features: FeatureItem[] = [
   {
     icon: BookOpenIcon,
@@ -55,197 +47,193 @@ const features: FeatureItem[] = [
       "국내 정식 출판으로 전문을 제공하기 어려운 작품은 수록 도서와 구매처를 안내합니다.",
   },
 ];
-
 export const Overview = () => {
   return (
-    <ScrollArea className={styles.container} scrollbars="vertical">
+    <ScrollArea className={styles.container}>
       <main className={styles.page}>
         <section className={styles.hero}>
-          <Flex className={styles.heroInner} direction="column" gap="4">
-            <Flex direction="column" gap="3">
-              <Heading as="h1" size="7">
+          <div className={cn("flex flex-col gap-4", styles.heroInner)}>
+            <div className="flex flex-col gap-3">
+              <h1 className="type-page-title">
                 YOASOBI의 음악 너머, <br />
                 이야기를 발견하다
-              </Heading>
-              <Text className={styles.heroCopy} size="3">
+              </h1>
+              <span className={cn("type-body", styles.heroCopy)}>
                 모노아소비는 요아소비(YOASOBI)의 음악이 원작으로 삼고 있는
                 소설과 번역본, 가사를 한곳에 모아 제공하는 사이트입니다.
-              </Text>
-            </Flex>
-          </Flex>
+              </span>
+            </div>
+          </div>
         </section>
 
         <section className={styles.noticeBand}>
           <section className={styles.section}>
-            <Flex className={styles.sectionInner} direction="column" gap="4">
-              <Flex direction="column" gap="2">
-                <Text className={styles.eyebrow} size="2">
-                  ABOUT
-                </Text>
-                <Heading as="h2" size="6">
-                  MONOASOBI?
-                </Heading>
-              </Flex>
-              <Flex direction="column" gap="3">
+            <div className={cn("flex flex-col gap-4", styles.sectionInner)}>
+              <div className="flex flex-col gap-2">
+                <span className={cn("type-body", styles.eyebrow)}>ABOUT</span>
+                <h2 className="type-section-title">MONOASOBI?</h2>
+              </div>
+              <div className="flex flex-col gap-3">
                 <figure className={styles.logo}>
                   <Image src={LOGO_IMAGE} alt="logo" fill />
                 </figure>
-                <Text size="3">
+                <span className="type-body">
                   모노아소비는 요아소비(YOASOBI)의 음악이 원작으로 삼고 있는
                   소설과 그 번역본을 한곳에 모아 제공하는 사이트입니다.
-                </Text>
-                <Text size="3">
+                </span>
+                <span className="type-body">
                   모노아소비는 더 많은 사람들이 원작 소설을 즐길 수 있도록 돕고,
                   요아소비의 음악을 더욱 깊이 사랑하게 되기를 바라는 마음으로
                   운영됩니다.
-                </Text>
-                <Text size="3">
+                </span>
+                <span className="type-body">
                   사이트에 게시된 모든 원작 소설과 번역본의 저작권은 각각의
                   작가와 번역자에게 있으며, 모노아소비는 이 자료들을
                   공유함으로써 어떠한 상업적 이익도 추구하지 않습니다.
-                </Text>
-              </Flex>
-            </Flex>
+                </span>
+              </div>
+            </div>
           </section>
         </section>
 
         <section className={styles.section}>
-          <Flex className={styles.sectionInner} direction="column" gap="5">
-            <Flex direction="column" gap="2">
-              <Text className={styles.eyebrow} size="2">
-                FEATURES
-              </Text>
-              <Heading as="h2" size="7">
-                콘텐츠와 기능
-              </Heading>
-            </Flex>
+          <div className={cn("flex flex-col gap-6", styles.sectionInner)}>
+            <div className="flex flex-col gap-2">
+              <span className={cn("type-body", styles.eyebrow)}>FEATURES</span>
+              <h2 className="type-section-title">콘텐츠와 기능</h2>
+            </div>
             <div className={styles.featureGrid}>
               {features.map((feature) => {
                 const Icon = feature.icon;
                 return (
-                  <Card className={styles.featureCard} key={feature.title}>
-                    <Flex direction="column" gap="4">
-                      <Flex
-                        className={styles.iconShell}
-                        align="center"
-                        justify="center"
+                  <section
+                    key={feature.title}
+                    className={cn(
+                      "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
+                      styles.featureCard,
+                    )}
+                  >
+                    <div className="flex flex-col gap-4">
+                      <div
+                        className={cn(
+                          "flex items-center justify-center",
+                          styles.iconShell,
+                        )}
                       >
                         <Icon width={22} height={22} />
-                      </Flex>
-                      <Flex direction="column" gap="2">
-                        <Heading as="h3" size="4">
-                          {feature.title}
-                        </Heading>
-                        <Text size="2" color="gray">
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <h3 className="type-card-title">{feature.title}</h3>
+                        <span className="type-body text-muted-foreground">
                           {feature.description}
-                        </Text>
-                      </Flex>
+                        </span>
+                      </div>
                       {feature.to && feature.action && (
-                        <Button size="2" variant="soft" asChild>
+                        <Button size="default" variant="secondary" asChild>
                           <Link href={feature.to}>{feature.action}</Link>
                         </Button>
                       )}
-                    </Flex>
-                  </Card>
+                    </div>
+                  </section>
                 );
               })}
             </div>
-          </Flex>
+          </div>
         </section>
 
         <section className={styles.section}>
-          <Flex className={styles.sectionInner} direction="column" gap="5">
-            <Flex direction="column" gap="2">
-              <Text className={styles.eyebrow} size="2">
+          <div className={cn("flex flex-col gap-6", styles.sectionInner)}>
+            <div className="flex flex-col gap-2">
+              <span className={cn("type-body", styles.eyebrow)}>
                 MELTIN&apos; FLOW
-              </Text>
-              <Heading as="h2" size="7">
-                주인장 추천 루트
-              </Heading>
-            </Flex>
+              </span>
+              <h2 className="type-section-title">주인장 추천 루트</h2>
+            </div>
 
-            <Card className={styles.routeCard}>
-              <Flex
-                className={styles.routeStep}
-                align="center"
-                justify="between"
-                gap="4"
+            <section
+              className={cn(
+                "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
+                styles.routeCard,
+              )}
+            >
+              <div
+                className={cn(
+                  "flex items-center justify-between gap-4",
+                  styles.routeStep,
+                )}
               >
-                <Text size="3" weight="bold">
-                  소설을 읽는다
-                </Text>
+                <span className="type-body font-bold">소설을 읽는다</span>
                 <div className={styles.routeIconContain}>
                   <BookOpenIcon width={24} height={24} />
                 </div>
-              </Flex>
-              <Flex
-                className={styles.routeStep}
-                align="center"
-                justify="between"
-                gap="4"
+              </div>
+              <div
+                className={cn(
+                  "flex items-center justify-between gap-4",
+                  styles.routeStep,
+                )}
               >
-                <Text size="3" weight="bold">
+                <span className="type-body font-bold">
                   번역된 가사와 함께 노래를 들으며 아야세의 작사 실력에 감탄한다
-                </Text>
+                </span>
                 <div className={styles.routeIconContain}>
                   <MusicalNoteIcon width={24} height={24} />
                 </div>
-              </Flex>
-              <Flex
-                className={styles.routeStep}
-                align="center"
-                justify="between"
-                gap="4"
+              </div>
+              <div
+                className={cn(
+                  "flex items-center justify-between gap-4",
+                  styles.routeStep,
+                )}
               >
-                <Text size="3" weight="bold">
+                <span className="type-body font-bold">
                   뮤직비디오를 감상하며 소설에 등장한 디테일을 발견하고 감탄한다
-                </Text>
+                </span>
                 <div className={styles.routeIconContain}>
                   <PlayCircleIcon width={24} height={24} />
                 </div>
-              </Flex>
-              <Flex
-                className={styles.routeStep}
-                align="center"
-                justify="between"
-                gap="4"
+              </div>
+              <div
+                className={cn(
+                  "flex items-center justify-between gap-4",
+                  styles.routeStep,
+                )}
               >
-                <Text size="3" weight="bold" color="red">
+                <span className="type-body font-bold text-primary">
                   입덕완료!
-                </Text>
+                </span>
                 <div className={styles.routeIconContain}>
                   <HeartIcon width={24} height={24} />
                 </div>
-              </Flex>
-            </Card>
-          </Flex>
+              </div>
+            </section>
+          </div>
         </section>
 
         <section className={styles.section}>
-          <Flex className={styles.sectionInner} direction="column" gap="4">
-            <Flex align="center" gap="3">
-              <Flex
-                className={styles.iconShell}
-                align="center"
-                justify="center"
+          <div className={cn("flex flex-col gap-4", styles.sectionInner)}>
+            <div className="flex items-center gap-3">
+              <div
+                className={cn(
+                  "flex items-center justify-center",
+                  styles.iconShell,
+                )}
               >
                 <LanguageIcon width={22} height={22} />
-              </Flex>
-              <Flex direction="column" gap="1">
-                <Heading as="h2" size="5">
-                  번역 투고 및 기타 문의
-                </Heading>
-                <Text size="2" color="gray">
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="type-section-title">번역 투고 및 기타 문의</h2>
+                <span className="type-body text-muted-foreground">
                   번역본 제공, 출처 수정, 사이트 관련 문의를 받을 수 있습니다.
-                </Text>
-              </Flex>
-            </Flex>
-            <Button size="3" variant="outline" asChild>
+                </span>
+              </div>
+            </div>
+            <Button size="lg" variant="outline" asChild>
               <a href="mailto:envi.9.official@gmail.com?subject=모노아소비 문의">
                 envi.9.official@gmail.com
               </a>
             </Button>
-          </Flex>
+          </div>
         </section>
       </main>
     </ScrollArea>

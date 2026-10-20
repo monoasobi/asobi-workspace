@@ -14,7 +14,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import styles from "./VideoPlayer.module.css";
+import styles from "./VideoPlayer.styles";
 
 export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
   const {
@@ -145,7 +145,7 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
             value={currentTime}
             onChange={(event) => seek(Number(event.target.value))}
             style={{
-              backgroundImage: `linear-gradient(to right, var(--red-9) ${seekPct.toFixed(1)}%, rgba(255,255,255,0.15) ${seekPct.toFixed(1)}%)`,
+              backgroundImage: `linear-gradient(to right, var(--primary) ${seekPct.toFixed(1)}%, rgba(255,255,255,0.15) ${seekPct.toFixed(1)}%)`,
             }}
           />
           <span className={styles.timeText}>{formatTime(duration)}</span>
@@ -156,7 +156,11 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
               onClick={handleVolumeButtonClick}
               aria-label="볼륨 조절"
             >
-              {effectiveVolume === 0 ? <SpeakerXMarkIcon /> : <SpeakerWaveIcon />}
+              {effectiveVolume === 0 ? (
+                <SpeakerXMarkIcon />
+              ) : (
+                <SpeakerWaveIcon />
+              )}
             </button>
             <div className={styles.volumeTooltip} data-show={showVolumeTooltip}>
               <input
@@ -170,7 +174,7 @@ export const VideoPlayer = ({ player }: { player: LyricPlayer }) => {
                 value={effectiveVolume}
                 onChange={(event) => changeVolume(Number(event.target.value))}
                 style={{
-                  backgroundImage: `linear-gradient(to right, var(--red-9) ${volumePct.toFixed(1)}%, rgba(255,255,255,0.15) ${volumePct.toFixed(1)}%)`,
+                  backgroundImage: `linear-gradient(to right, var(--primary) ${volumePct.toFixed(1)}%, rgba(255,255,255,0.15) ${volumePct.toFixed(1)}%)`,
                 }}
               />
             </div>

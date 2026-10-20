@@ -73,6 +73,7 @@ export const NovelReader = ({ id }: NovelReaderProps) => {
 
   return (
     <ScrollArea
+      data-novel-viewer
       ref={novelRef}
       className={styles.container}
       onScroll={handleScroll}

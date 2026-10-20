@@ -1,0 +1,13 @@
+// Static Tailwind variants; layout/interaction ownership stays with this component.
+export default {
+  container:
+    "w-full h-[calc(100dvh_-_56px)] [&_[data-slot=scroll-area-viewport]]:[padding:32px_24px_48px] max-[480px]:[&_[data-slot=scroll-area-viewport]]:[padding:24px_12px_40px]",
+  pageFrame: "w-full min-h-full",
+  inner: "w-full max-w-[800px]",
+  sectionCard: "w-full overflow-visible p-3 border-0",
+  previewBox:
+    "[padding:1rem_1.5rem] border border-border rounded-sm bg-card [line-height:160%] [&_>_*:first-child]:mt-0! [&_>_*:last-child]:mb-0!",
+  codeBox:
+    "overflow-x-auto [padding:0.75rem_1rem] rounded-sm bg-muted text-[13px] [line-height:1.6] whitespace-pre-wrap [word-break:break-all]",
+  arrow: "shrink-0 select-none",
+} as const;

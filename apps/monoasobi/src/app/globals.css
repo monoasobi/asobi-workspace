@@ -1,4 +1,12 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp-dynamic-subset.min.css");
+@layer theme, base, legacy, components, utilities;
+@import "@radix-ui/themes/styles.css" layer(legacy);
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@asobi/ui/styles.css";
+@source "../../../../packages/ui/src";
 
 @font-face {
   font-family: "KoPub Batang";
@@ -9,19 +17,10 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
   font-family:
     "Pretendard JP Variable", system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-weight: 300;
   text-rendering: optimizeLegibility;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 html {
@@ -46,21 +45,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
 
-a {
-  color: var(--gray-12, inherit);
-  text-decoration: none;
-}
+  a {
+    color: var(--gray-12, inherit);
+    text-decoration: none;
+  }
 
-ul,
-ol,
-li {
-  list-style: none;
+  ul,
+  ol,
+  li {
+    list-style: none;
+  }
 }
 
 .radix-themes:where([data-is-root-theme="true"]) {

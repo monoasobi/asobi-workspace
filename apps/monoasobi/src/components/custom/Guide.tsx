@@ -1,16 +1,14 @@
 "use client";
-
+import { cn } from "@asobi/ui/lib/utils";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { NovelMarkdown } from "@components/content/NovelMarkdown";
-import { Card, Code, Flex, Heading, ScrollArea, Text } from "@radix-ui/themes";
-import styles from "./Guide.module.css";
-
+import styles from "./Guide.styles";
 interface GuideItemProps {
   title: string;
   description?: string;
   syntax: string;
   preview: string;
 }
-
 const GUIDE_ITEMS: GuideItemProps[] = [
   {
     title: "H1 - 작품 제목",
@@ -33,7 +31,8 @@ const GUIDE_ITEMS: GuideItemProps[] = [
   },
   {
     title: "H4 - 심볼 구분자",
-    description: "작은 크기, 가운데 정렬. 소규모 장면 전환이나 이모지 구분자에 사용합니다.",
+    description:
+      "작은 크기, 가운데 정렬. 소규모 장면 전환이나 이모지 구분자에 사용합니다.",
     syntax: "#### 🌙🌙🌙 🌙🌙🌙 🌙🌙🌙\n\n#### ×××",
     preview: "#### 🌙🌙🌙 🌙🌙🌙 🌙🌙🌙\n\n#### ×××",
   },
@@ -79,7 +78,8 @@ const GUIDE_ITEMS: GuideItemProps[] = [
   },
   {
     title: "일반 목록 (Unordered List)",
-    description: "패턴에 맞지 않는 일반 리스트 항목. KoPub Batang 폰트가 적용됩니다.",
+    description:
+      "패턴에 맞지 않는 일반 리스트 항목. KoPub Batang 폰트가 적용됩니다.",
     syntax: "- 첫 번째 항목\n- 두 번째 항목\n- 세 번째 항목",
     preview: "- 첫 번째 항목\n- 두 번째 항목\n- 세 번째 항목",
   },
@@ -91,59 +91,58 @@ const GUIDE_ITEMS: GuideItemProps[] = [
     preview: "**【겟토】**\n알고 있지? 왜 내가 죽으려고 한건지.",
   },
 ];
-
 export const Guide = () => {
   return (
-    <ScrollArea className={styles.container} scrollbars="vertical">
-      <Flex className={styles.pageFrame} justify="center">
-        <Flex className={styles.inner} direction="column" gap="5">
-          <Flex direction="column" gap="1">
-            <Heading as="h1" size="6">
-              NovelReader 작성 가이드
-            </Heading>
-            <Text size="2" color="gray">
+    <ScrollArea className={styles.container}>
+      <div className={cn("flex justify-center", styles.pageFrame)}>
+        <div className={cn("flex flex-col gap-6", styles.inner)}>
+          <div className="flex flex-col gap-1">
+            <h1 className="type-page-title">NovelReader 작성 가이드</h1>
+            <span className="type-body text-muted-foreground">
               소설 마크다운 파일에서 사용할 수 있는 문법과 실제 렌더링
               결과입니다.
-            </Text>
-          </Flex>
+            </span>
+          </div>
           {GUIDE_ITEMS.map((item) => (
             <GuideItem key={item.title} {...item} />
           ))}
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </ScrollArea>
   );
 };
-
 const GuideItem = ({ title, description, syntax, preview }: GuideItemProps) => (
-  <Card className={styles.sectionCard}>
-    <Flex direction="column" gap="3">
-      <Flex direction="column" gap="1">
-        <Heading as="h2" size="3">
-          {title}
-        </Heading>
+  <section
+    className={cn(
+      "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
+      styles.sectionCard,
+    )}
+  >
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <h2 className="type-section-title">{title}</h2>
         {description && (
-          <Text size="2" color="gray">
-            {description}
-          </Text>
+          <span className="type-body text-muted-foreground">{description}</span>
         )}
-      </Flex>
-      <Flex direction="column" gap="2">
-        <Text size="1" color="gray" weight="bold">
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="type-caption text-muted-foreground font-bold">
           SYNTAX
-        </Text>
+        </span>
         <pre className={styles.codeBox}>
-          <Code size="2">{syntax}</Code>
+          <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
+            {syntax}
+          </code>
         </pre>
-      </Flex>
-      <Flex align="center" gap="2">
-        <Text className={styles.arrow} size="2" color="gray">
+      </div>
+      <div className="flex items-center gap-2">
+        <span className={cn("type-body text-muted-foreground", styles.arrow)}>
           ↓ 렌더링 결과
-        </Text>
-      </Flex>
+        </span>
+      </div>
       <div className={styles.previewBox}>
         <NovelMarkdown>{preview}</NovelMarkdown>
       </div>
-    </Flex>
-  </Card>
+    </div>
+  </section>
 );

@@ -58,3 +58,8 @@
   margin-bottom: 0.25rem;
   transform: rotate(-0.03deg);
 }
+
+/* Preserve the original reading color independently of surrounding UI cards. */
+.root {
+  color: var(--gray-12);
+}

@@ -1,17 +1,10 @@
 "use client";
-
-import {
-  Button,
-  Card,
-  Flex,
-  Heading,
-  ScrollArea,
-  Separator,
-  Text,
-} from "@radix-ui/themes";
+import { cn } from "@asobi/ui/lib/utils";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { Separator } from "@asobi/ui/components/separator";
+import { Button } from "@asobi/ui/components/button";
 import Link from "next/link";
-import styles from "./PurchaseLink.module.css";
-
+import styles from "./PurchaseLink.styles";
 export interface PurchaseLinkBook {
   id: number;
   name: string;
@@ -29,63 +22,50 @@ export interface PurchaseLinkBook {
     naverURL: string;
   };
 }
-
 interface PurchaseLinkProps {
   book: PurchaseLinkBook;
 }
-
 export const PurchaseLink = ({ book }: PurchaseLinkProps) => {
   return (
-    <ScrollArea className={styles.container} scrollbars="vertical">
-      <Flex className={styles.pageFrame} direction="column">
-        <Card className={styles.card}>
-          <Heading>소설집 구매 안내</Heading>
-          <Text size="2">
+    <ScrollArea className={styles.container}>
+      <div className={cn("flex flex-col", styles.pageFrame)}>
+        <section
+          className={cn(
+            "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
+            styles.card,
+          )}
+        >
+          <h1 className="type-page-title">소설집 구매 안내</h1>
+          <span className="type-body">
             해당 작품은 국내에 정식으로 발간되어 제공이 불가합니다.
-          </Text>
-          <Flex
-            direction="column"
-            justify="center"
-            align="center"
-            my="4"
-            gap="3"
-          >
-            <Flex
-              gap="6"
-              width="100%"
-              justify="center"
-              align={{ md: "end", initial: "center" }}
-              direction={{ initial: "column", md: "row" }}
-            >
+          </span>
+          <div className="flex flex-col justify-center items-center my-4 gap-3">
+            <div className="flex gap-8 w-full justify-center min-[1024px]:items-end items-center flex-col min-[1024px]:flex-row">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={styles.bookImg}
-                  src={`/images/books/${book.id}.jpg`}
-                  alt={book.name}
-                />
-              <Flex direction="column" gap="4">
-                <Heading align={{ md: "left", initial: "center" }}>
+              <img
+                className={styles.bookImg}
+                src={`/images/books/${book.id}.jpg`}
+                alt={book.name}
+              />
+              <div className="flex flex-col gap-4">
+                <h3 className="type-card-title min-[1024px]:text-left text-center">
                   {book.name}
-                </Heading>
-                <Separator size="4" />
-                <Flex direction="column" gap="2">
+                </h3>
+                <Separator />
+                <div className="flex flex-col gap-2">
                   {book.novels.map((novel) => (
-                    <Flex direction="column" gap="1" key={novel.id}>
-                      <Text align="center" size="1" color="gray">
+                    <div key={novel.id} className="flex flex-col gap-1">
+                      <span className="type-caption text-center text-muted-foreground">
                         {`♪ ${novel.musicKorTitle}`}
-                      </Text>
-                      <Text
-                        align="center"
-                        size="2"
-                        color="gray"
-                      >{`${novel.writer} <${novel.title}>`}</Text>
-                    </Flex>
+                      </span>
+                      <span className="type-body text-center text-muted-foreground">{`${novel.writer} <${novel.title}>`}</span>
+                    </div>
                   ))}
-                  <Text align="center" size="2" color="red" weight="medium">
+                  <span className="type-body text-center text-primary font-medium">
                     총 {book.novels.length}편 수록
-                  </Text>
-                </Flex>
-                <Flex wrap="wrap" gap="2" justify="center">
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center">
                   {book.purchaseLinks.kyoboURL && (
                     <Button asChild>
                       <Link href={book.purchaseLinks.kyoboURL} target="_blank">
@@ -121,12 +101,12 @@ export const PurchaseLink = ({ book }: PurchaseLinkProps) => {
                       </Link>
                     </Button>
                   )}
-                </Flex>
-              </Flex>
-            </Flex>
-          </Flex>
-        </Card>
-      </Flex>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </ScrollArea>
   );
 };

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import styles from "./_components/route-shell.module.css";
+import styles from "./_components/route-shell.styles";
 
 export default function NotFound() {
   return (

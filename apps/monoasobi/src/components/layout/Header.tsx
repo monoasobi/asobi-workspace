@@ -1,106 +1,95 @@
 "use client";
-
-import { adminNavigationAtom, confirmAdminNavigation } from "@/atoms/adminNavigation.atom";
+/* eslint-disable @next/next/no-img-element */
+import {
+  adminNavigationAtom,
+  confirmAdminNavigation,
+} from "@/atoms/adminNavigation.atom";
 import { appearanceAtom } from "@atoms/appearance.atom";
 import { fontAtom } from "@atoms/font.atom";
 import { sidebarAtom } from "@atoms/sidebar.atom";
-import { Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { Bars3Icon } from "@heroicons/react/24/solid";
+import { Button } from "@asobi/ui/components/button";
 import {
-  Button,
-  Flex,
-  IconButton,
   Popover,
-  SegmentedControl,
-  Text,
-} from "@radix-ui/themes";
+  PopoverTrigger,
+  PopoverContent,
+} from "@asobi/ui/components/popover";
+import { PanelLeft, Settings } from "lucide-react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
-import type { MouseEventHandler } from "react";
-import styles from "./Header.module.css";
-
-export const Header = () => {
-  const navigationGuard = useAtomValue(adminNavigationAtom);
-  const [appearance, setAppearance] = useAtom(appearanceAtom);
-  const [font, setFont] = useAtom(fontAtom);
-  const setIsSidebar = useSetAtom(sidebarAtom);
-
-  const sidebarHandler: MouseEventHandler<HTMLButtonElement> = (event) => {
-    event.stopPropagation();
-    setIsSidebar((prev) => !prev);
-  };
-
+export function Header() {
+  const guard = useAtomValue(adminNavigationAtom);
+  const [appearance, setAppearance] = useAtom(appearanceAtom),
+    [font, setFont] = useAtom(fontAtom);
+  const setSidebar = useSetAtom(sidebarAtom);
   return (
-    <header className={styles.header}>
-      <IconButton
-        type="button"
-        onClick={sidebarHandler}
+    <header className="flex h-14 w-full shrink-0 items-center justify-between border-b border-border bg-card px-4 py-2.5">
+      <Button
         variant="ghost"
+        size="icon"
         aria-label="사이드바 열기"
+        onClick={(event) => {
+          event.stopPropagation();
+          setSidebar((v) => !v);
+        }}
       >
-        <Bars3Icon width={24} />
-      </IconButton>
-
-      <Button asChild variant="ghost" className={styles.logoButton}>
-        <Link href="/" aria-label="monoasobi 홈" onNavigate={(event) => {
-          if (!confirmAdminNavigation(navigationGuard)) event.preventDefault();
-        }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo.svg" alt="monoasobi" className={styles.logo} />
+        <PanelLeft className="size-5" />
+      </Button>
+      <Button asChild variant="ghost" className="min-w-0">
+        <Link
+          href="/"
+          aria-label="monoasobi 홈"
+          onNavigate={(event) => {
+            if (!confirmAdminNavigation(guard)) event.preventDefault();
+          }}
+        >
+          <img
+            src="/assets/logo.svg"
+            alt="monoasobi"
+            className="block h-auto w-[120px]"
+          />
         </Link>
       </Button>
-
-      <Popover.Root>
-        <Popover.Trigger>
-          <IconButton type="button" variant="ghost" aria-label="설정">
-            <Cog6ToothIcon width={24} />
-          </IconButton>
-        </Popover.Trigger>
-        <Popover.Content align="end">
-          <Flex direction="column" gap="3">
-            <Flex direction="column" gap="2">
-              <Text size="1" weight="bold" color="gray">
-                테마
-              </Text>
-              <SegmentedControl.Root
-                variant="classic"
-                value={appearance}
-                onValueChange={(value) =>
-                  setAppearance(value as "light" | "dark")
-                }
-                size="1"
-              >
-                <SegmentedControl.Item value="light">
-                  <Text weight="bold">라이트</Text>
-                </SegmentedControl.Item>
-                <SegmentedControl.Item value="dark">
-                  <Text weight="bold">다크</Text>
-                </SegmentedControl.Item>
-              </SegmentedControl.Root>
-            </Flex>
-
-            <Flex direction="column" gap="2">
-              <Text size="1" weight="bold" color="gray">
-                폰트
-              </Text>
-              <SegmentedControl.Root
-                value={font}
-                onValueChange={(value) => setFont(value as "gothic" | "batang")}
-                size="1"
-              >
-                <SegmentedControl.Item value="gothic">
-                  <Text weight="bold">Pretendard</Text>
-                </SegmentedControl.Item>
-                <SegmentedControl.Item value="batang">
-                  <Text weight="bold" className={styles.batangText}>
-                    Kopub 바탕
-                  </Text>
-                </SegmentedControl.Item>
-              </SegmentedControl.Root>
-            </Flex>
-          </Flex>
-        </Popover.Content>
-      </Popover.Root>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" aria-label="설정">
+            <Settings className="size-5" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-64 space-y-4">
+          <fieldset className="space-y-2">
+            <legend className="type-eyebrow">테마</legend>
+            <div className="flex gap-2">
+              {(["light", "dark"] as const).map((value) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant={appearance === value ? "secondary" : "outline"}
+                  aria-pressed={appearance === value}
+                  onClick={() => setAppearance(value)}
+                >
+                  {value === "light" ? "라이트" : "다크"}
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset className="space-y-2">
+            <legend className="type-eyebrow">폰트</legend>
+            <div className="flex gap-2">
+              {(["gothic", "batang"] as const).map((value) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant={font === value ? "secondary" : "outline"}
+                  aria-pressed={font === value}
+                  onClick={() => setFont(value)}
+                >
+                  {value === "gothic" ? "Pretendard" : "KoPub 바탕"}
+                </Button>
+              ))}
+            </div>
+          </fieldset>
+        </PopoverContent>
+      </Popover>
     </header>
   );
-};
+}

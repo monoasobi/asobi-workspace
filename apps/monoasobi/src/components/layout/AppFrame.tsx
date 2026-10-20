@@ -1,6 +1,6 @@
 import { Header } from "@components/layout/Header";
 import { Sidebar } from "@components/layout/Sidebar";
-import styles from "./AppFrame.module.css";
+import styles from "./AppFrame.styles";
 
 interface AppFrameProps {
   children: React.ReactNode;

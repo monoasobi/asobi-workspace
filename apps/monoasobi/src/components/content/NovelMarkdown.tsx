@@ -16,7 +16,7 @@ export const NovelMarkdown = ({ children, className }: NovelMarkdownProps) => {
   const font = useAtomValue(fontAtom);
 
   return (
-    <div className={className}>
+    <div className={[styles.root, className].filter(Boolean).join(" ")}>
       <ReactMarkdown
         remarkPlugins={[remarkBreaks]}
         components={{

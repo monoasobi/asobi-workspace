@@ -1,6 +1,5 @@
 import { AppFrame } from "@components/layout/AppFrame";
 import { THEME_COLOR, createPageMetadata, metadataBase } from "@lib/metadata";
-import "@radix-ui/themes/styles.css";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";

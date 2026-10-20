@@ -1,42 +1,50 @@
 "use client";
-
 /* eslint-disable @next/next/no-img-element */
-
-import { Button, Card, Flex, Heading, ScrollArea, Text } from "@radix-ui/themes";
+import { cn } from "@asobi/ui/lib/utils";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { Button } from "@asobi/ui/components/button";
 import Link from "next/link";
-import styles from "./SpecialPage.module.css";
-
+import styles from "./SpecialPage.styles";
 export const HeartBeat = () => {
   return (
-    <ScrollArea className={styles.container} scrollbars="vertical">
-      <Flex className={styles.pageFrame} direction="column">
-        <Card className={styles.card}>
-          <Flex direction="column" align="center" gap="4">
-            <img className={styles.smallImage} src="/images/assets/18fes.jpg" alt="fes" />
+    <ScrollArea className={styles.container}>
+      <div className={cn("flex flex-col", styles.pageFrame)}>
+        <section
+          className={cn(
+            "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
+            styles.card,
+          )}
+        >
+          <div className="flex flex-col items-center gap-4">
+            <img
+              className={styles.smallImage}
+              src="/images/assets/18fes.jpg"
+              alt="fes"
+            />
             <img
               className={styles.smallImage}
               src="/images/assets/1000heartbeat.png"
               alt="heartbeat"
             />
-            <Heading size="6">2023 NHK 18祭</Heading>
+            <h1 className="type-page-title">2023 NHK 18祭</h1>
 
-            <Flex direction="column" gap="4" className={styles.desc}>
-              <Text size="2">
-                18세의 마음을 담아 만든 신곡을 1,000명의 18세들과 함께 단
-                한 번의 무대에서 선보이는 NHK 18祭(18FES).
-              </Text>
-              <Text size="2">
+            <div className={cn("flex flex-col gap-4", styles.desc)}>
+              <span className="type-body">
+                18세의 마음을 담아 만든 신곡을 1,000명의 18세들과 함께 단 한
+                번의 무대에서 선보이는 NHK 18祭(18FES).
+              </span>
+              <span className="type-body">
                 이 축제에서는 아티스트가 18세를 살아가는 이들의 다양한 생각과
                 감정을 듣고, 이를 바탕으로 신곡을 제작합니다. 그리고 그 곡을
                 1,000명의 18세 세대와 함께 단 한 번뿐인 특별한 공연으로
                 완성합니다.
-              </Text>
-              <Text size="2">
+              </span>
+              <span className="type-body">
                 2023 NHK 18祭(18FES) 에서는 YOASOBI가 함께했습니다. 메세지와
                 문장은 물론 노래, 연주, 춤, 스포츠 등 다양한 방식으로 전해진
                 18세를 살아가는 이들의 마음이 원작이 되어 「HEART BEAT」가
                 탄생하였습니다.
-              </Text>
+              </span>
 
               <Button asChild variant="outline">
                 <Link
@@ -46,10 +54,10 @@ export const HeartBeat = () => {
                   원문 보러가기
                 </Link>
               </Button>
-            </Flex>
-          </Flex>
-        </Card>
-      </Flex>
+            </div>
+          </div>
+        </section>
+      </div>
     </ScrollArea>
   );
 };

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import styles from "./route-shell.module.css";
+import styles from "./route-shell.styles";
 
 interface RouteShellProps {
   title: string;

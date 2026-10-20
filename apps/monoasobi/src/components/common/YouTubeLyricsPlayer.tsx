@@ -1,28 +1,23 @@
 "use client";
-
+import { cn } from "@asobi/ui/lib/utils";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@asobi/ui/components/popover";
+import { Button } from "@asobi/ui/components/button";
 import type { LyricTrack } from "@asobi/content-core/lyrics";
 import type { Music } from "@appTypes/music";
 import { LyricsDisplayV2 } from "@components/common/LyricsDisplayV2";
-import {
-  Button,
-  Card,
-  Flex,
-  Heading,
-  Popover,
-  ScrollArea,
-  Text,
-} from "@radix-ui/themes";
 import { VideoPlayer } from "./VideoPlayer";
-import styles from "./YouTubeLyricsPlayer.module.css";
+import styles from "./YouTubeLyricsPlayer.styles";
 import { useLyricPlayer } from "./YouTubeLyricsPlayer/useLyricPlayer";
-
 const OFFSET_STEPS = [0.01, 0.05, 0.1, 0.5];
-
 export interface YouTubeLyricsPlayerProps {
   music: Music;
   lyricTrack: LyricTrack | null;
 }
-
 export const YouTubeLyricsPlayer = ({
   music,
   lyricTrack,
@@ -39,101 +34,107 @@ export const YouTubeLyricsPlayer = ({
     adjustOffset: handleOffsetChange,
     resetOffset,
   } = player;
-
   const syncLabel =
     lyricsOffset !== 0
       ? `sync ${lyricsOffset >= 0 ? "+" : ""}${lyricsOffset.toFixed(2)}`
       : "sync";
-
   return (
-    <ScrollArea className={styles.container} scrollbars="vertical">
-      <Flex direction="column" gap="3">
-        <Flex className={styles.innerContainer} direction="column" gap="3">
-          <Flex direction="column" gap="3">
-            <Flex justify="between" gap="3" wrap="wrap">
-              <Flex direction="row" align="end" gap="1" wrap="wrap">
-                <Heading size="4">{music.title}</Heading>
-                <Text size="2" color="gray">
+    <ScrollArea className={styles.container}>
+      <div className="flex flex-col gap-3">
+        <div className={cn("flex flex-col gap-3", styles.innerContainer)}>
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between gap-3 flex-wrap">
+              <div className="flex flex-row items-end gap-1 flex-wrap">
+                <h3 className="type-card-title">{music.title}</h3>
+                <span className="type-body text-muted-foreground">
                   {music.korTitle}
-                </Text>
-              </Flex>
+                </span>
+              </div>
 
               {process.env.NODE_ENV === "development" && (
-                <Popover.Root>
-                  <Popover.Trigger>
-                    <Button size="1" variant="soft" color="gray">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="text-muted-foreground"
+                    >
                       {syncLabel}
                     </Button>
-                  </Popover.Trigger>
-                  <Popover.Content width="260px">
-                    <Flex direction="column" gap="3">
-                      <Flex align="center" justify="between">
-                        <Text size="2" weight="bold">
-                          SYNC
-                        </Text>
-                        <Text
-                          className={styles.syncValue}
-                          size="2"
-                          color="gray"
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[260px]">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className="type-body font-bold">SYNC</span>
+                        <span
+                          className={cn(
+                            "type-body text-muted-foreground",
+                            styles.syncValue,
+                          )}
                         >
                           {lyricsOffset >= 0 ? "+" : ""}
                           {lyricsOffset.toFixed(2)}s
-                        </Text>
-                      </Flex>
-                      <Flex gap="1" wrap="wrap">
+                        </span>
+                      </div>
+                      <div className="flex gap-1 flex-wrap">
                         {OFFSET_STEPS.map((step) => (
                           <Button
                             key={`minus-${step}`}
                             type="button"
-                            size="1"
+                            size="sm"
                             variant="outline"
-                            color="gray"
                             onClick={() => handleOffsetChange(-step)}
+                            className="text-muted-foreground"
                           >
                             -{step}
                           </Button>
                         ))}
-                      </Flex>
-                      <Flex gap="1" wrap="wrap">
+                      </div>
+                      <div className="flex gap-1 flex-wrap">
                         {OFFSET_STEPS.map((step) => (
                           <Button
                             key={`plus-${step}`}
                             type="button"
-                            size="1"
+                            size="sm"
                             variant="outline"
-                            color="gray"
                             onClick={() => handleOffsetChange(step)}
+                            className="text-muted-foreground"
                           >
                             +{step}
                           </Button>
                         ))}
-                      </Flex>
+                      </div>
                       <Button
                         type="button"
-                        size="1"
-                        variant="soft"
-                        color="red"
+                        size="sm"
+                        variant="secondary"
                         onClick={resetOffset}
+                        className="text-primary"
                       >
                         reset
                       </Button>
-                    </Flex>
-                  </Popover.Content>
-                </Popover.Root>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
-            </Flex>
+            </div>
 
             {music.youtubeId ? (
               <VideoPlayer player={player} />
             ) : (
-              <Card className={styles.statusCard}>
-                <Text size="2" color="gray">
+              <section
+                className={cn(
+                  "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
+                  styles.statusCard,
+                )}
+              >
+                <span className="type-body text-muted-foreground">
                   등록된 YouTube 영상이 없습니다.
-                </Text>
-              </Card>
+                </span>
+              </section>
             )}
-          </Flex>
-        </Flex>
+          </div>
+        </div>
 
         {track && (
           <LyricsDisplayV2
@@ -145,13 +146,18 @@ export const YouTubeLyricsPlayer = ({
         )}
 
         {!track && (
-          <Card className={styles.statusCard}>
-            <Text size="2" color="gray">
+          <section
+            className={cn(
+              "rounded-xl border border-border bg-card p-4 text-card-foreground shadow-xs",
+              styles.statusCard,
+            )}
+          >
+            <span className="type-body text-muted-foreground">
               이 곡의 가사 파일은 아직 준비되지 않았습니다.
-            </Text>
-          </Card>
+            </span>
+          </section>
         )}
-      </Flex>
+      </div>
     </ScrollArea>
   );
 };
