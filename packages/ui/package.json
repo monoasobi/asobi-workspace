@@ -1,0 +1,26 @@
+{
+  "name": "@asobi/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    "./components/*": "./src/components/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./styles.css": "./src/styles.css",
+    "./brand.css": "./src/brand.css"
+  },
+  "dependencies": {
+    "cn": "0.3.0",
+    "class-variance-authority": "0.7.1",
+    "lucide-react": "1.46.0",
+    "radix-ui": "1.6.7"
+  },
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}
