@@ -845,3 +845,12 @@ Tabs는 공식 https://ui.shadcn.com/r/styles/radix-nova/tabs.json 소스를 공
 실제 NovelMarkdown과 문법 CSS도 공용 UI로 이동했습니다. Mono는 기존 fontAtom을 연결하는 adapter만 유지하며 JSX/상수/CSS는 변경하지 않았습니다. check:ui는 이동 위치를 검사하고 상태 주입 부분만 원래 형태로 되돌려 기존 승인 해시와 비교합니다. 보존 해시는 재설정하지 않았습니다. 관리자 가이드의 KoPub 폰트는 원본 파일을 공용 패키지에서 번들하며 Mono 기존 정적 폰트 URL도 보존합니다. 읽기 색상은 가이드 범위에 기존 sRGB/P3 값을 사용하고 Radix Themes 의존성을 추가하지 않았습니다. react-markdown/remark-breaks 의존 소유자를 Mono에서 UI로 이동했고 lockfile의 패키지 버전/무결성이 동일함을 확인했습니다(공유로 인해 설치 위치만 hoist).
 
 검증: 전체 workspace lint/typecheck, 소설 UI 보존 검사, diff 공백 검사 통과. HTTP로 관리자 익명 접근의 로그인 이동, 로그인 후 가이드 200·메뉴·문법/실제 미리보기·바탕체 표시·공유 폰트 CSS/파일 응답, Mono /guide 404 및 기존 /novel/0 200을 확인했습니다. 실제 브라우저 클릭/스크롤/테마별 시각 QA는 하지 않았습니다. 운영 DB/R2 변경·빌드·푸시·배포·환경변수 변경은 없습니다.
+
+
+## 관리자 QA — 문서 조작 구분과 카드 높이 (2026-10-21)
+
+소설/만화의 수정·삭제와 absolute 추가 버튼 사이에 공용 shadcn 세로 Separator를 넣고 예약 여백을 조정했습니다. 가사 문서 내부의 중복 ‘타임라인 편집’은 제거하고 상단 ‘가사 편집’ 진입을 유지합니다. 왼쪽 카드의 grid stretch/Tabs flex-grow를 해제하고 self-start/max-h-full/min-h-0로 내용 높이에 맞추며, 화면의 가용 높이에 도달하면 기존 탭 내부 overflow-y-auto가 동작하도록 제한했습니다. 100dvh와 오른쪽 독립 영역은 유지합니다.
+
+뱃지 확인: packages/ui Badge 기본 text-xs는 Tailwind --text-xs=0.75rem, 줄 높이 1rem, font-medium=500입니다. Mono 사이드바 ‘정식 발매’는 별도 크기 override 없이 이 기본값을 사용합니다(기본 루트 16px 기준 12px/16px). 뱃지 스타일 변경은 하지 않았습니다.
+
+검증: 관리자 lint/typecheck, 콘텐츠 계약 5개, diff 공백 검사 통과. 인증된 곡 29 소설/가사 HTTP 200, 세로 구분선·중복 버튼 제거·상단 가사 편집 유지·카드 높이 클래스 응답을 확인했습니다. 실제 브라우저의 카드 축소/긴 내용 스크롤/버튼 간격 시각 QA는 남아 있습니다. 운영 데이터 쓰기·빌드·푸시·배포는 하지 않았습니다.

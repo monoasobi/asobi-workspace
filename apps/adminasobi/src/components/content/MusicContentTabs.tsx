@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@asobi/ui/components/tabs";
 import { Button } from "@asobi/ui/components/button";
+import { Separator } from "@asobi/ui/components/separator";
 import { useNavigationGuard } from "@/components/NavigationGuard";
 import { AdminDocumentPanel } from "./AdminDocumentPanel";
 import { getMusicDocuments } from "./selection";
@@ -65,7 +66,7 @@ export function MusicContentTabs({
   return (
     <Tabs value={tab} onValueChange={value => {
       if (!guard.busy) setView({ source, tab: value });
-    }} className="min-h-0 flex-1 gap-0 overflow-hidden">
+    }} className="min-h-0 gap-0 overflow-hidden">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5 shrink-0">
         <TabsList aria-label="곡 콘텐츠 구분">
           <TabsTrigger value="media" disabled={guard.busy}>음원·페이지</TabsTrigger>
@@ -81,11 +82,12 @@ export function MusicContentTabs({
         const canCreate = !readOnly && !!group.create;
         return (
           <TabsContent key={group.value} value={group.value} forceMount className="relative min-h-0 overflow-y-auto pt-5 data-[state=inactive]:hidden">
-            {canCreate && <div className="absolute right-5 top-5 z-10">
+            {canCreate && <div className="absolute right-5 top-5 z-10 flex h-8 items-center gap-2">
+              {node && <Separator orientation="vertical" className="my-1" />}
               <Button type="button" variant="outline" size="icon-sm" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>
             </div>}
             {showItems && (
-              <div className={`mb-4 flex flex-wrap gap-2 px-5 ${canCreate ? "pr-16" : ""}`}>
+              <div className={`mb-4 flex flex-wrap gap-2 px-5 ${canCreate ? "pr-20" : ""}`}>
                 {group.items.map(item => <Button key={getSelectedNodeKey(item.node)} variant={node && getSelectedNodeKey(node) === getSelectedNodeKey(item.node) ? "secondary" : "outline"} size="sm" disabled={guard.busy} onClick={() => select(item.node)}>{item.label}</Button>)}
               </div>
             )}

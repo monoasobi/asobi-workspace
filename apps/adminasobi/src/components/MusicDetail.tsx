@@ -67,7 +67,7 @@ export function MusicDetail({
         />
       </section>
       <div className="grid min-h-0 flex-1 grid-rows-2 gap-5 xl:grid-cols-2 xl:grid-rows-1">
-        <section className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border bg-card">
+        <section className="flex max-h-full min-h-0 min-w-0 self-start flex-col overflow-hidden rounded-xl border bg-card">
           <MusicContentTabs
             data={contentData} musicId={music.id} readOnly={readOnly}
             initialNode={contentNode} revision={contentRevision} contentActive={contentActive}
