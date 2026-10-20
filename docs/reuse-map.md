@@ -1,6 +1,6 @@
 # 기존 코드 재사용·소유권 지도
 
-기준일: 2026-10-20. 상태: **2단계 공통 추출 로컬 검증 완료. 통합 관리자 이관은 미착수**.
+기준일: 2026-10-20. 상태: **3단계 관리자 기본 저장 로컬 검증 완료, 4단계 이미지 공용화/수집 로컬 준비 완료. 외부 연결·운영 교체·화면 QA 대기**.
 
 기존 소스 전체는 각각 `apps/monoasobi`, `apps/loudasobi`에 Git 이력과 함께 가져왔습니다. 2단계에서는 아래 실제 이동 목록의 공통 구현을 packages로 옮기고 소비자 import를 변경했습니다. public 자산과 편집기/재생 알고리즘은 보존했습니다. 아래 본문 표에는 이후 관리자/미리보기 이관 목표도 포함되며, 모든 목표가 구현됐다는 뜻은 아닙니다.
 
@@ -100,3 +100,16 @@
 | Mono updateMusic/음악 필드 + Loud saveMusicSettings/설정 폼 | adminasobi의 music/musicSettings mutation·개별 저장 폼 | 기존 관리자의 임시 사본은 기능별 전환 확인 후 9단계에 제거. 가사/콜 본문 소유권 유지 |
 | Mono 앨범아트 body 제한·saveAlbumArt | adminasobi album-art API/mutation·미리보기 폼 | 기존 조건부 교체/실패 정리 재사용. 실제 R2 QA와 독립 주소는 4단계 |
 | Mono 카탈로그 tag / Loud 공개 경로 갱신 | 각 공개 앱 internal/revalidate + 관리자 refresh | 인증된 고정 범위의 서버 간 알림. 열린 화면 갱신은 8단계 |
+
+
+## 4단계 실제 이미지 소유권 인계
+
+| 기존 구현 | 새 소유 위치 | 수정과 보존 |
+| --- | --- | --- |
+| M/L AlbumArtwork 및 3단계 관리자 adapter | `packages/ui/src/components/album-artwork.tsx` + 각 앱 얇은 adapter | 실패 표시/크기/비율/blob 유지, 명시적 CDN srcset을 위한 native img. 새 Next peer/이미지 서버 없음 |
+| M `lib/albumArt` → 3단계 content-core | `packages/content-core/src/albumArt.ts` | 기존 소스 경로 유지, 독립 origin과 파일 키 검증·5개 크기 URL 추가 |
+| M Sharp 정규화 → storage | `packages/storage/src/albumArt.ts` | 3MiB/40MP/포맷 보존, 1000px 축소 제거·픽셀 보존·출력 용량 제한 |
+| 기존 R2 SDK get/put/delete 및 두 앨범아트 mutation | storage 단일 클라이언트 + 기존 mutation | 선택적 명시 버킷 인자. 사설 콘텐츠의 기본 버킷 유지. CAS/실패 정리 보존, 전환 중 이전 파일 삭제 보류 |
+| 기존 static 앨범아트/공개 목록 | 원래 파일 보존 + `assets/album-art` 수집본 | 36곡 공식 배급본/출처/해시. 기존 키 유지 복사와 고해상도 새 키 교체를 분리해 검증한 뒤 운영 적용 |
+
+현재 공개 asset 환경변수가 없으면 기존 Mono 이미지 주소를 호환 사용합니다. 도메인 검증 후 세 앱을 전환하고 남은 레거시 adapter 제거 여부를 검토합니다. 기존 관리자 자체 제거는 9단계 범위입니다. 실제 진행/검증·승인은 [migration-status.md](migration-status.md), 외부 연결/복구 절차는 [album-art-delivery.md](album-art-delivery.md)를 따릅니다.
