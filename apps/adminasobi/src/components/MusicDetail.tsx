@@ -1,4 +1,5 @@
 "use client";
+import { MusicLifecycle } from "./content/MusicLifecycle";
 import { RefreshStatus } from "./RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { AlbumArtForm } from "./AlbumArtForm";
@@ -45,8 +46,19 @@ export function MusicDetail({
       <RefreshStatus results={refresh} onRefresh={reportRefresh} />
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <section className="min-w-0 rounded-xl border bg-card">
-          <header className="flex items-center justify-between gap-3 border-b p-5">
+          <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
             <h2 className="font-semibold">곡 정보</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={guard.busy}
+              onClick={() => {
+                if (guard.confirmLeave())
+                  router.push(`/musics/${music.id}/content`);
+              }}
+            >
+              원작·가사 문서
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -92,9 +104,14 @@ export function MusicDetail({
               router.refresh();
             }}
           />
+          {!readOnly && (
+            <div className="border-t p-5">
+              <MusicLifecycle id={music.id} />
+            </div>
+          )}
         </section>
         <section className="min-w-0 rounded-xl border bg-card">
-          <header className="flex items-center justify-between gap-3 border-b p-5">
+          <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
             <h2 className="font-semibold">콜 정보</h2>
             <Button
               variant="outline"
