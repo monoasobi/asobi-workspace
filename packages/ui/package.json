@@ -17,7 +17,8 @@
     "cn": "0.3.0",
     "class-variance-authority": "0.7.1",
     "lucide-react": "1.46.0",
-    "radix-ui": "1.6.7"
+    "radix-ui": "1.6.7",
+    "@asobi/content-core": "0.1.0"
   },
   "peerDependencies": {
     "react": "^19.2.8",

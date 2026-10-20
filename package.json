@@ -19,7 +19,8 @@
     "db:generate": "npm run db:generate --workspace=@asobi/database",
     "db:migrate": "npm run db:migrate --workspace=@asobi/database",
     "db:studio": "npm run db:studio --workspace=@asobi/database",
-    "check:core": "npm run check --workspace=@asobi/content-core"
+    "check:core": "npm run check --workspace=@asobi/content-core",
+    "dev:admin": "npm run dev --workspace=@asobi/adminasobi --"
   },
   "devDependencies": {
     "eslint": "9.39.5",
