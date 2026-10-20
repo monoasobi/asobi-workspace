@@ -4,10 +4,10 @@
 
 ## 현재 상태
 
-- **4단계 공용 코드·고해상도 수집·승인된 CDN 연결/업로드 검증 완료 — 운영 앱 전환·DB 키 교체·화면 QA 대기.** 확인일: 2026-10-20 KST. 사용자는 3단계 포함 화면 QA를 추후 한 번에 진행하기로 했습니다. 독립 도메인의 실제 이미지 제공/변환은 검증했고 production build와 실제 앱/모바일 QA는 미검증입니다.
-- 사용자 요청: 단계마다 작업 내용을 먼저 쉽게 설명하고 진행. 이번 실행 범위는 4단계 + 고해상도 싱글 앨범아트 수집입니다. 세부 작업별 검증 후 로컬 커밋을 남기며, 이번에 제공된 최신 사용자 지침에 따라 신규 제목은 간결한 영어 한 줄을 사용합니다.
+- **5단계 두 편집기 별도 페이지·공통 조작·저장 API 로컬 검증 완료 — 사용자 화면/재생 QA 대기.** 4단계 CDN 검증은 보존하며 운영 앱 전환·DB 키 교체는 아직입니다. 확인일: 2026-10-20 KST. 사용자는 3단계 포함 화면 QA를 추후 한 번에 진행하기로 했습니다. 독립 도메인의 실제 이미지 제공/변환은 검증했고 production build와 실제 앱/모바일 QA는 미검증입니다.
+- 사용자 요청: 단계마다 작업 내용을 먼저 쉽게 설명하고 진행. 이번 실행 범위는 5단계와 편집기 공통 로직/Mono 편의 기능 검토·적용입니다. 세부 작업별 검증 후 로컬 커밋을 남기며, 이번에 제공된 최신 사용자 지침에 따라 신규 제목은 간결한 영어 한 줄을 사용합니다.
 - 브랜드는 사용자 결정(2026-10-20)에 따라 LOUDASOBI 팔레트로 통일합니다. 공용 색상 정의는 `packages/ui/src/brand.css`, Tailwind 연결은 `styles.css`이며 Loud와 새 관리자에서 사용합니다. Mono 화면 적용은 7단계입니다.
-- 세 앱이 공용 `ui`, `content-core`, `database`, `storage`를 역할에 맞게 사용합니다. lint·타입·기존/집중 검사·로컬 저장/공개 반영 확인을 마쳤습니다. 상세 결과는 아래 3단계 기록과 [README](../README.md)를 봅니다.
+- 세 앱이 공용 `ui`, `content-core`, `database`, `storage`, `loudasobi-view`를 역할에 맞게 사용합니다. lint·타입·기존/집중 검사·로컬 저장/공개 반영 확인을 마쳤습니다. 상세 결과는 아래 3~5단계 기록과 [README](../README.md)를 봅니다.
 - 원본 두 프로젝트의 코드·설정·Git 이력은 변경하지 않았습니다. 운영 DB 변경·기존 R2 파일 삭제·빌드·배포·원격 연결·푸시는 하지 않았습니다. 사용자 승인으로 새 R2 버킷에 앨범아트만 복사/업로드하고 assets DNS와 Images Free를 연결했습니다. 공개 서비스의 곡 목록/이미지 API는 읽기 조회했습니다. 이관용 3개 커밋은 보존하며, 추가 승인에 따라 아래 세부 작업 커밋 기록으로 이어갑니다.
 - 전체 페이지/API·환경변수 이름·정적 자산·스크립트·마이그레이션 목록: [source-inventory.md](source-inventory.md).
 - 기존 구현의 이동·소유 관계: [reuse-map.md](reuse-map.md).
@@ -19,7 +19,7 @@
 | 2 | 공통 UI·순수 도메인 코드·DB 정의 추출 | 로컬 검증 완료 — 배포 빌드 미검증 |
 | 3 | 통합 관리자 기본 틀과 첫 저장 흐름 | 로컬 검증 완료 — 화면 QA 대기 |
 | 4 | 독립 앨범아트 주소와 크기별 제공 | 공용 코드·36곡 수집·독립 CDN 검증 완료 — 운영 앱 전환·DB 교체·QA 대기 |
-| 5 | 가사·콜 편집기 별도 페이지 이관 | 미착수 |
+| 5 | 가사·콜 편집기 별도 페이지 이관 | 로컬 검증 완료 — 화면·입력·재생 QA 대기 |
 | 6 | 원작·서적·추천 등 관리자 나머지 기능 | 미착수 |
 | 7 | MONOASOBI 공개 UI를 shadcn으로 전환 | 미착수 |
 | 8 | 앱 간 저장 반영·캐시·환경 검증 | 미착수 |
@@ -417,3 +417,48 @@ HTTP 확인은 1단계의 합성 곡 1개를 가진 같은 로컬 DB와 기존 �
 **다음 재개:** 외부 연결 승인은 이미 충족됐으므로 반복 질문하지 않습니다. 운영 전환 전 최신 곡/키의 변경분을 다시 확인하고, 별도 승인된 범위에서 운영 앱의 환경변수/배포와 고해상도 DB 키 교체를 진행합니다. 실제 관리자 업로드·CAS/정리·공개 중단/purge·화면 QA는 미검증입니다. 5단계는 사용자의 진행 요청에 따라 시작합니다.
 
 자동 승인 검토는 기본 `envifloor.uk` 변환 원본 항목 삭제를 다른 사용처 중단 우려로 거절했습니다. 해당 항목은 보존하고 전용 assets 원본만 추가하는 안전한 대안으로 목표 연결을 완료했습니다. 불필요한 삭제를 우회/재시도하지 않습니다. 루트 허용 항목 정리는 별도 결정 사항이며 이번 단계의 차단 요인이 아닙니다.
+
+
+## 5단계 실행 결과
+
+사용자 승인: 다음 단계 진행과 겹치는 단축키/편집 동작 최대 공용화, 더 최근인 Loud 편의 기능의 Mono 적용 검토. 앞서 결정한 화면 QA 추후 일괄 진행을 유지합니다. 상세 계약·공통화 범위·수동 QA는 [editor-migration.md](editor-migration.md)에 기록했습니다.
+
+### 재사용과 변경
+
+- Mono 가사 타임라인/선택·resize·스냅·영어·영상·SRT를 이관하고 shadcn 경계만 교체했습니다. Loud CallGuideEditor/패턴·펄스·스냅샷·텍스트·아이콘도 기존 구현에서 이관했습니다.
+- `/musics/[id]/lyrics`, `/calls`를 같은 관리자 sidebar/layout에 연결했습니다. sidebar 곡 전환 시 편집 종류를 유지합니다. 가사가 없는 곡은 상세로 이동하며 트랙 생성은 6단계입니다.
+- 실제 겹치는 단축키·bounded history·기준점 확대·viewport 판정·dirty/busy·초안 복사는 관리자 `editors/shared`가 소유합니다. 볼륨도 공용 atom입니다. Mono에 undo/redo·선택 줄 반복·JSON 복사·공통 확대 조작을 적용했습니다.
+- 공개 콜 렌더러/플레이어/clock/메시지를 `loudasobi-view`로 인계했습니다. Loud 기존 진입점은 re-export이며 새 관리자 미리보기도 같은 소스를 사용합니다. 관리자에서는 공개 Space 리스너를 끕니다.
+- Mono 가사 입력 schema를 content-core로 추출하고 기존 Mono도 re-export합니다. 겹침 허용·ID·EN 계약을 보존했습니다. 관리자 가사 API에 revision 보호를 추가했습니다.
+- 콜 저장은 기존 transaction/revision에 sourceRevision 구분을 더해 원문 수정 이후 오래된 초안 저장을 거부합니다. 가사 저장 뒤 콜 참조 경고를 재계산하되 콜 문서는 자동 변경하지 않습니다.
+- 공통 guard에 history 처리도 연결했습니다. 구형 브라우저의 guard 이전 항목 fallback은 forward history를 잘라낼 수 있고 실제 브라우저 동작은 미검증입니다.
+
+### 실행 검증
+
+| 검사 | 결과 |
+| --- | --- |
+| 전체 workspace lint·typecheck | 모든 앱/패키지 통과, 경고 없음 |
+| core / admin editor / admin security | 각 3 / 4 / 3개 통과 |
+| Mono 기존 activeLyric·timelineSnap | 2개 통과 |
+| npm ci dry-run offline | 통과. clean install/빌드 결과가 아님 |
+| 기존 local-flow-check | 로그인·역할·Origin·곡/설정 분리 저장·필드 보존·공개 HTTP 반영 통과 |
+| editor-flow-check | API 401/403/400/404/409, 줄 ID·EN·소유 필드 보존, 가사-콜 동시 수정 충돌·낡은 anchor 경고, 두 편집 URL 200 통과 |
+| 데이터 복원 | 편집 검사 합성 lyric/call/settings fixture와 시각을 원래 값으로 복원. 기존 local-flow-check의 저장 시각 갱신 계약은 유지 |
+| 원본 보존 | 원본 Mono/Loud status clean, HEAD `2241c2e` / `a9ade43` 동일 |
+
+정적 검사와 HTTP 검사는 실제 재생·키 입력·드래그·history 브라우저 QA를 대신하지 않습니다. 합성 DB에는 확인용 곡 하나뿐이며 전체 실제 콘텐츠 검증이 아닙니다. 운영 DB/R2/DNS 변경·production build·배포·push는 이번 단계에서 하지 않았습니다.
+
+### 세부 커밋
+
+| 커밋 | 제목 |
+| --- | --- |
+| `ac981e8` | Share call rendering and playback views |
+| `b41dcfd` | Migrate editor saves with source conflict checks |
+| `88badba` | Share editor shortcuts history and zoom |
+| `393321d` | Migrate lyric and call editors with shared controls |
+| `30d2fe3` | Connect standalone editor routes and navigation guards |
+| `40c36db` | Verify editor saves against isolated local fixtures |
+
+지침·진행·재사용·QA 문서는 별도 마지막 커밋으로 기록합니다. 자기 해시를 쓰기 위해 amend하지 않습니다. 새 의존성은 원본 아이콘/패널에 쓰던 기존 라이브러리와 이미 쓰던 tsx 검사 도구이며 새 편집 프레임워크는 추가하지 않았습니다.
+
+**다음 재개:** 사용자 요청 시 6단계 원작·서적·가사 문서 생성·추천/정렬 등 나머지 관리자 기능을 원본 목록과 대조해 이관합니다. 3~5단계 UI·재생 QA는 나중에 일괄 진행하며 이미 완료한 로컬 이관을 재작성하지 않습니다. 기존 두 관리자/API는 전환 QA와 9단계 종료 승인 전까지 임시 유지합니다. 원본·운영 데이터는 계속 보존합니다.

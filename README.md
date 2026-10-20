@@ -1,6 +1,6 @@
 # ASOBI
 
-MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. 현재는 **3단계: 통합 관리자 기본 틀과 첫 저장 흐름까지 로컬 검증을 완료**했습니다. 실제 화면 QA와 검증용 R2 업로드는 남아 있습니다.
+MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. 현재는 **5단계: 가사·콜 독립 편집 페이지까지 이관하고 로컬 검증을 완료**했습니다. 4단계 CDN 연결도 검증했으며, 실제 화면·재생 QA와 운영 전환은 남아 있습니다.
 
 ## 현재 구조
 
@@ -8,12 +8,13 @@ MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. 현재는 
 apps/
   monoasobi/       # 기존 공개 서비스와 기존 관리자
   loudasobi/       # 기존 공개 서비스와 기존 관리자
-  adminasobi/      # 통합 관리자: 곡 정보·콜 설정·앨범아트 관리
+  adminasobi/      # 통합 관리자: 곡 정보·앨범아트·가사/콜 편집
 packages/
   ui/             # 기존 shadcn·공통 브랜드·곡 사이드바
   content-core/   # 가사 타입·검증·콜 계산·시간·추천 정렬
   database/       # 서버 연결·정식 스키마·단일 마이그레이션 이력
   storage/        # 기존 R2 연결·Sharp 앨범아트 처리
+  loudasobi-view/ # 공개/관리자 공용 콜 렌더러·재생기
 docs/
   migration-status.md
   reuse-map.md
@@ -22,7 +23,7 @@ package.json
 package-lock.json # 전체 workspace의 단일 lockfile
 ```
 
-`adminasobi`에서 로그인·곡 선택·공통 곡 정보/콜 설정 저장·앨범아트 관리와 공개 갱신 알림을 제공합니다. 기존 관리자 두 개는 기능별 전환을 확인할 때까지 유지합니다. 가사·콜 편집기는 5단계, 나머지 콘텐츠 관리는 6단계입니다. 새 앱 템플릿으로 제품을 다시 생성하지 않았으며, 기존 UI·편집·재생 구현을 공용 위치로 옮기고 import와 연결부만 수정했습니다. 정적 자산 URL은 유지합니다.
+`adminasobi`에서 로그인·곡 선택·공통 곡 정보/콜 설정 저장·앨범아트 관리와 공개 갱신 알림을 제공합니다. 기존 관리자 두 개는 기능별 전환을 확인할 때까지 유지합니다. 가사·콜은 `/musics/[id]/lyrics`, `/musics/[id]/calls`의 별도 페이지이며 같은 사이드바를 사용합니다. 나머지 콘텐츠 관리는 6단계입니다. 새 앱 템플릿으로 제품을 다시 생성하지 않았으며, 기존 UI·편집·재생 구현을 공용 위치로 옮기고 import와 연결부만 수정했습니다. 정적 자산 URL은 유지합니다.
 
 ## 실행
 
@@ -98,6 +99,7 @@ node --env-file=../../apps/monoasobi/.env.local --run db:migrate
 | `@asobi/ui` | 기존 shadcn 기본 부품·cn·LOUDASOBI 공용 브랜드 팔레트/라이트·다크 테마·Tailwind 매핑 | Loud·새 관리자에서 사용. 곡 목록 구현도 공유. 화면 높이/스크롤 CSS·아이콘 선택기는 앱에 유지. Mono는 7단계 UI 전환에서 같은 색상 사용 |
 | `@asobi/content-core` | 공통 가사 타입·콜/가사 표시 계산·카탈로그 검증·시간·영어 필드 제거·순수 추천 정렬 | 세 앱에서 실제 사용. DB·인증·Next 캐시를 import하지 않음. Mono 편집 입력과 Loud 공개 타임라인의 검증 차이 보존 |
 | `@asobi/database` | 정식 schema/relations·서버 전용 지연 연결·Drizzle config·0000~0008 SQL/journal/snapshots | 세 앱 서버에서 사용. query/mutation과 공개 필터·캐시는 각 앱에 유지. 운영 DB 적용은 별도 승인 |
+| `@asobi/loudasobi-view` | 기존 콜 렌더러·재생기·공용 볼륨·미리보기 메시지 | Loud 공개/기존 관리자와 새 관리자에서 사용. 가사 재생 컨트롤러는 강제 통합하지 않음 |
 | `@asobi/storage` | 기존 R2 연결·파일 읽기/쓰기·Sharp 앨범아트 정규화 | Mono 보호 파일 읽기와 관리자 업로드의 공용 server-only 구현. 버킷 공개·DNS 설정은 별도 |
 
 공용 패키지는 별도 빌드/발행 없이 TypeScript 소스를 제공하고 각 Next 앱이 컴파일합니다. 앱은 package name으로 import하며 패키지는 앱 내부 코드를 import하지 않습니다. 실제 production 번들·배포 검증은 아직 수행하지 않았습니다.
@@ -125,15 +127,16 @@ npm run typecheck --workspace=@asobi/loudasobi
 
 ## 관리자 저장과 공개 갱신
 
-공통 곡 정보는 `/api/admin/musics/[id]`, 콜 설정은 `/settings`, 앨범아트는 `/album-art`로 각각 저장합니다. 각 섹션의 필드만 갱신합니다. 가사·콜 편집 버튼은 5단계 연결 전까지 비활성화 상태입니다.
+공통 곡 정보는 `/api/admin/musics/[id]`, 콜 설정은 `/settings`, 앨범아트는 `/album-art`로 각각 저장합니다. 각 섹션의 필드만 갱신합니다. 가사 본문은 `/lyrics`, 콜과 전용 offset은 `/guide` API에서 저장합니다. 가사 트랙이 없는 곡의 트랙 생성은 6단계입니다.
 
 공개 앱별 `REVALIDATION_SECRET`과 관리자 서버의 해당 `MONOASOBI_REVALIDATION_SECRET`/`LOUDASOBI_REVALIDATION_SECRET`을 맞추고 `MONOASOBI_URL`/`LOUDASOBI_URL`에 각 서버 주소를 설정합니다. 비밀값에는 `NEXT_PUBLIC_`를 붙이지 않습니다. 저장 후 각 앱이 자기 카탈로그를 갱신하며, 알림 실패는 저장 성공과 따로 표시하고 재시도할 수 있습니다. 이미 열린 화면의 자동 갱신은 8단계 작업입니다.
 
-앱 내 곡 선택·로그아웃은 미저장 확인과 저장 중 이동 차단을 적용합니다. 새로고침/문서 이탈에는 beforeunload가 적용됩니다. App Router의 같은 문서 내 뒤로 가기 차단은 5단계에서 보강할 미완료 항목입니다.
+앱 내 곡 선택·로그아웃은 미저장 확인과 저장 중 이동 차단을 적용합니다. 새로고침/문서 이탈에는 beforeunload가 적용됩니다. 같은 문서 내 뒤로/앞으로 가기에도 이동 보호를 연결했습니다. 브라우저별 실제 동작은 QA 대기이며 구형 브라우저 fallback 한계는 [편집기 이관 기록](docs/editor-migration.md)에 명시했습니다.
 
 작은 기존/집중 검사는 다음 명령으로 실행합니다.
 
 ```sh
+npm run check:editors --workspace=@asobi/adminasobi
 npm run check:security --workspace=@asobi/adminasobi
 npm run check --workspace=@asobi/storage
 node --test apps/monoasobi/scripts/activeLyric.test.mjs
@@ -143,7 +146,10 @@ node --test apps/monoasobi/scripts/activeLyric.test.mjs
 
 ```sh
 node apps/adminasobi/scripts/local-flow-check.mjs
+node apps/adminasobi/scripts/editor-flow-check.mjs
 ```
+
+편집 HTTP 검사는 확인용 곡 하나만 있는 합성 DB인지 추가 확인하며, 가사·콜·설정 fixture를 원래 값과 시각으로 복원합니다. 단축키·공통 코드 위치·Mono 편의 기능·수동 QA 목록은 [편집기 이관 기록](docs/editor-migration.md)을 참고하세요.
 
 실제 R2 업로드/교체·시각/모바일/브라우저 입력 QA·production build·운영 전환은 별도 검증입니다.
 
@@ -152,6 +158,7 @@ node apps/adminasobi/scripts/local-flow-check.mjs
 - 두 원본 HEAD를 squash하지 않는 subtree로 연결했습니다. 기존 커밋 ID는 보존됩니다. 과거 커밋 내부 경로는 원래 저장소 경로이며 apps 경로로 과거 이력 전체를 재작성하지 않았습니다.
 - 원본 폴더/원격은 그대로입니다. 새 저장소의 원격은 아직 없고 푸시하지 않았습니다.
 - 요청받은 단계의 작업은 검증 후 세부 기능·작업 단위로 로컬 커밋합니다. 최신 사용자 지침에 따라 메시지는 간결한 영어 한 줄이며, 푸시는 별도 요청이 필요합니다. 커밋별 이력은 docs/migration-status.md와 Git 로그를 봅니다.
-- 현재 4단계 공용 코드와 36곡 3000px 수집, 승인된 독립 도메인/전용 버킷/Free 변환 연결·72개 객체 검증까지 마쳤습니다. 운영 앱 환경변수/배포와 DB의 고해상도 키 교체는 미실행입니다. 화면 QA는 사용자 요청에 따라 나중에 함께 진행합니다. [이미지 연결·검증 절차](docs/album-art-delivery.md), [수집 파일·출처](assets/album-art/README.md)를 확인하세요.
+- 5단계 두 편집기의 공통 조작·독립 페이지·충돌 보호를 연결하고 정적/로컬 저장 검사를 마쳤습니다. 화면·입력·재생 QA는 대기이며 다음 이관 대상은 6단계 나머지 관리자 기능입니다.
+- 4단계 공용 코드와 36곡 3000px 수집, 승인된 독립 도메인/전용 버킷/Free 변환 연결·72개 객체 검증까지 마쳤습니다. 운영 앱 환경변수/배포와 DB의 고해상도 키 교체는 미실행입니다. 화면 QA는 사용자 요청에 따라 나중에 함께 진행합니다. [이미지 연결·검증 절차](docs/album-art-delivery.md), [수집 파일·출처](assets/album-art/README.md)를 확인하세요.
 
 작업 전 [AGENT.md](AGENT.md)를 읽고, [현재 진행·검증 결과](docs/migration-status.md), [재사용 지도](docs/reuse-map.md), [원본 목록](docs/source-inventory.md)을 확인하세요.

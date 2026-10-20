@@ -253,3 +253,17 @@ LOUDASOBI에는 정식 migration 디렉터리/config가 없습니다. schema는 
 2. 새 route·API·필드·자산이 생겼다면 이 목록과 reuse-map에 반영합니다.
 3. 기존 관리자 종료 때 페이지/API/서버 모듈 목록과 새 관리자 기능을 대조합니다.
 4. 이 목록은 구현 존재와 이관 범위의 근거입니다. 브라우저·저장·권한·배포 동작 확인을 대신하지 않습니다.
+
+
+## 5단계 새 관리자 추가 진입점
+
+위 목록은 원본 감사 기준이며 아래는 이후 실제 연결한 신규 관리자 경로입니다. 원본 route 수를 소급 수정하지 않습니다.
+
+| 종류 | 경로 | 소유 기능 |
+| --- | --- | --- |
+| 페이지 | `/musics/[id]/lyrics` | 기존 Mono 가사 타임라인·영어 편집·SRT |
+| 페이지 | `/musics/[id]/calls` | 기존 Loud 콜 편집·공용 감상 미리보기 |
+| API GET/PUT | `/api/admin/musics/[id]/lyrics` | 인증 조회·revision 가사 저장·콜 참조 재검사 |
+| API GET/PUT | `/api/admin/musics/[id]/guide` | 인증 조회·콜/offset 트랜잭션·source 충돌 보호 |
+
+공통 구현 소유권은 [reuse-map.md](reuse-map.md), 구현·검증 한계는 [editor-migration.md](editor-migration.md)를 따릅니다. 기존 관리자/API는 운영 전환 전까지 남아 있습니다.

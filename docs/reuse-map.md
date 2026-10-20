@@ -1,6 +1,6 @@
 # 기존 코드 재사용·소유권 지도
 
-기준일: 2026-10-20. 상태: **3단계 관리자 기본 저장 로컬 검증 완료, 4단계 이미지 공용화/수집 로컬 준비 완료. 승인된 외부 CDN/72개 객체 검증 완료. 운영 앱 전환·DB 교체·화면 QA 대기**.
+기준일: 2026-10-20. 상태: **5단계 두 편집기 독립 페이지·공통 조작·저장 API 로컬 검증 완료. 화면/재생 QA와 운영 전환 대기**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
 
 기존 소스 전체는 각각 `apps/monoasobi`, `apps/loudasobi`에 Git 이력과 함께 가져왔습니다. 2단계에서는 아래 실제 이동 목록의 공통 구현을 packages로 옮기고 소비자 import를 변경했습니다. public 자산과 편집기/재생 알고리즘은 보존했습니다. 아래 본문 표에는 이후 관리자/미리보기 이관 목표도 포함되며, 모든 목표가 구현됐다는 뜻은 아닙니다.
 
@@ -84,7 +84,7 @@
 | 양 앱 DB client 생성 | `packages/database/src/index.ts` | 지연 연결 1개 원본. 앱 index는 기존 eager API/필수 token 검사만 보존하는 얇은 adapter |
 | Loud 부분 DB mapping | 제거 후 canonical schema를 별칭 import | musicSettings/callGuides/sidebarSettings 이름만 소비자에서 alias. 테이블 재생성/DB 실행 없음 |
 
-그대로 남긴 항목: 앱별 query/mutation/인증·cache 정책·전용 폼 schema·편집 훅·두 재생기·아이콘 선택기/검색 데이터·레이아웃 CSS. 후속 단계의 기능별 소유권 인계 전에는 제거하지 않습니다. `loudasobi-view`는 아직 만들지 않았습니다.
+그대로 남긴 항목: 앱별 query/mutation/인증·cache 정책·전용 폼 schema·편집 훅·두 재생기·아이콘 선택기/검색 데이터·레이아웃 CSS. 후속 단계의 기능별 소유권 인계 전에는 제거하지 않습니다. `loudasobi-view`는 당시 미생성 상태였고, 아래 5단계에서 실제 공유 소비자와 함께 생성했습니다.
 
 새로 작성한 연결은 DB singleton 진입점과 앱 adapter, package exports/peerDependencies, 공통 타입 검사/린트 설정입니다. `server-only`를 명시해 DB 연결의 클라이언트 import를 차단합니다. 원본 계약 확인용 작은 Node 검사 하나를 추가했고 새 테스트 프레임워크는 추가하지 않았습니다.
 
@@ -113,3 +113,19 @@
 | 기존 static 앨범아트/공개 목록 | 원래 파일 보존 + `assets/album-art` 수집본 | 36곡 공식 배급본/출처/해시. 기존 키 유지 복사와 고해상도 새 키 교체를 분리해 검증한 뒤 운영 적용 |
 
 공개 asset 환경변수가 없으면 기존 Mono 이미지 주소를 호환 사용합니다. 독립 도메인은 활성화·실측을 마쳤고 로컬 세 앱은 공개 CDN 읽기를 설정했습니다. 운영 배포 전환은 아직이며 이후 레거시 adapter 제거 여부를 검토합니다. 기존 관리자 자체 제거는 9단계 범위입니다. 실제 진행/검증·승인은 [migration-status.md](migration-status.md), 외부 연결/복구 절차는 [album-art-delivery.md](album-art-delivery.md)를 따릅니다.
+
+
+## 5단계 실제 편집기 소유권 인계
+
+| 재사용 원본 | 현재 소유 위치 | 수정·보존·제거 조건 |
+| --- | --- | --- |
+| L player 전체·CallIcon/HandSwing/FanLightBadge·volume atom·i18n messages | `packages/loudasobi-view/src` | Loud 원래 진입점은 re-export만 유지. 공개와 관리자 콜 미리보기가 같은 renderer/clock/player를 사용. 관리자에서는 공개 Space 리스너를 끄고 편집 리스너만 활성화 |
+| L `CallGuideEditor/`와 최근 문구·아이콘 선택기 | `adminasobi/src/components/editors/CallGuideEditor*`, `components/ui`, `lib/recentGuideTexts.ts` | 아이콘 검색 데이터와 MIT 고지 보존. 예전 관리자 사본은 9단계 전환 QA 후 종료 |
+| M 가사 타임라인·CSS·스냅·선택·resize | `adminasobi/src/components/editors/lyric-timeline` | UI만 공용 shadcn 연결. 줄 ID/EN 필드·0.01초·Cmd/Ctrl 스냅 해제 유지. 원본 관리자 사본은 9단계 종료 |
+| M useLyricPlayer/useYouTubePlayback/overlay·Resizable·SRT | `adminasobi/src/components/editors/playback`, `Resizable*`, `AdminSrtExport*` | 첫 재생 전 seek·영상 크기 조절·SRT 직렬화 보존. 볼륨만 공유 atom 연결. Mono 공개 재생기는 기존 위치 유지 |
+| L history·shortcut·viewport·zoom 동작 | `adminasobi/src/components/editors/shared` | 두 편집기가 실제 공유. 가사에 undo/redo·선택 줄 반복·초안 복사·확대 제스처를 연결. 서로 다른 타임라인 엔진을 합치지 않음 |
+| M lyricLineSchema/lyricTrackSchema | `content-core/src/lyricTrackInput.ts` | Mono 기존 schema가 re-export하고 새 관리자도 사용. 겹침 허용과 EN 필드·ID 검증 보존 |
+| M 가사 transaction / L guide query·mutation·guideSaveInput | `adminasobi/src/server/{queries,mutations}/{lyrics,guide}.ts` 및 해당 editor helper | 가사 revision 추가. 콜 sourceRevision 추가로 원문 동시 수정 시 최신 revision 자동 승격 금지. 실제 이전 API 종료는 9단계 |
+| 기존 관리자 navigation guard | `adminasobi/src/components/NavigationGuard*` | 앱 이동·beforeunload 유지, popstate 처리 보강. 구형 브라우저 fallback과 화면 QA 한계는 editor-migration에 기록 |
+
+두 편집기의 공통화는 새 관리자 내부를 대상으로 합니다. 예전 Mono 공개/관리자 전체에 새 조작을 역이식한 것은 아닙니다. 기존 관리자와 새 관리자의 임시 중복은 기능별 QA·운영 전환 후 제거합니다. 앱끼리 내부 파일을 직접 import하지 않습니다.
