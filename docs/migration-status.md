@@ -1,5 +1,11 @@
 # ASOBI 이관 진행 기록
 
+## LOUD 데스크톱 사이드바 접기·펼치기 저장 (2026-10-22)
+
+사용자 요청으로 AppFrame의 desktopOpen을 기존 Jotai atomWithStorage 방식으로 연결했습니다. `loudasobi_sidebar_open` localStorage 키에 boolean을 저장하고 마운트 시 복원합니다. 저장값이 없거나 잘못됐으면 기존 기본값인 펼침을 사용하며, 저장소 접근이 차단되거나 쓰기가 실패해도 현재 화면에서 토글할 수 있습니다. 모바일 Sheet의 일시적인 열림 상태와 곡 선택 시 닫기 동작은 유지합니다.
+
+LOUD lint/typecheck와 diff 공백 검사 통과. 메모리 저장소와 실제 atom을 사용한 실행 검사로 기본 펼침, 접기/펼치기 저장, 새 store 마운트 시 복원, 잘못된 JSON/비boolean 값의 기본값 복귀, 저장소 차단 시 토글 유지를 확인했습니다. 실제 브라우저 새로고침·화면 크기 전환 QA는 미검증입니다. 빌드·푸시·배포·운영 데이터 변경은 하지 않았으며 소스와 기록을 한 기능 단위로 로컬 커밋합니다.
+
 ## 관리자 YouTube 입력 글자 수 제한 제거 (2026-10-22)
 
 사용자 요청으로 `MusicSettingsForm`의 LOUDASOBI 전용 YouTube 입력에서 `maxLength={11}`만 제거했습니다. 입력 변경은 전체 문자열을 그대로 상태에 반영하므로 URL을 자르지 않고 필드에서 편집할 수 있습니다. 기존 HTML pattern, 저장 전 trim, 공용 musicSettingsSchema·musicSettingsUpdateSchema와 API/mutation 검증은 유지합니다. 전체 URL을 전용 ID로 저장하도록 허용하는 변경은 아닙니다.

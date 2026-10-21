@@ -2,6 +2,8 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { useAtom } from "jotai";
+import { sidebarOpenAtom } from "@/atoms/sidebar";
 import { useTranslations } from "next-intl";
 import { Header } from "./Header";
 import { SongList } from "./SongList";
@@ -34,7 +36,7 @@ export function AppFrame({
   const pathname = usePathname();
   const t = useTranslations();
   const compact = useIsCompact();
-  const [desktopOpen, setDesktopOpen] = useState(true);
+  const [desktopOpen, setDesktopOpen] = useAtom(sidebarOpenAtom);
   const [mobileOpen, setMobileOpen] = useState(false);
   const selectedId = musicIdFromPath(pathname);
   const [sort, setSort] = useState<SongSort>("recommended");
