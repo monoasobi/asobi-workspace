@@ -1,5 +1,11 @@
 # ASOBI 이관 진행 기록
 
+## LOUDASOBI 오버뷰 다국어 적용 (2026-10-21)
+
+사용자 최신 한국어 본문을 유지하면서 일본어·영어 번역을 추가했습니다. 앱 전용 i18n/overviewMessages.ts의 문구 20개를 기존 LocaleProvider 메시지에 overview namespace로 병합하고 Overview에서 useTranslations로 읽습니다. 본문·제목·팬사이트/저작권 안내·사진 alt·연락처 접근성 이름을 전환하며 브랜드 문구와 Author/Contributor 고유 표기는 유지합니다. 기존 공용 플레이어 메시지와 언어 저장/변경 흐름은 재사용합니다.
+
+Loud lint/typecheck, 세 언어 전체 문구의 createTranslator 포맷 검사, 기존 플레이어 메시지 보존 검사 및 diff 공백 검사 통과. 사용자 요청에 따라 브라우저 검증·빌드·커밋은 하지 않았습니다. 언어별 실제 화면/줄바꿈 QA는 사용자 확인 대기입니다.
+
 ## LOUDASOBI 메인 오버뷰 초안 (2026-10-21)
 
 사용자가 확정한 소개 글과 Author/Contributor 크레딧으로 `/` 오버뷰 초안을 구성했습니다. Mono Overview의 히어로 높이·콘텐츠 폭·섹션 여백과 공용 ScrollArea/타이포그래피를 참고했습니다. 사용자 제공 live.jpg와 loudasobi.svg는 public/assets/overview에 원본 그대로 두고 첫 화면/첫 소개 영역에 사용합니다. 기존 AppFrame에 메인 콘텐츠를 연결하고 헤더 로고에 홈 링크를 추가했습니다. 곡별 URL의 기존 플레이어는 유지하며 메인에서 첫 곡을 자동 선택하지 않습니다. 소개 본문은 검토용 한국어 초안입니다.
