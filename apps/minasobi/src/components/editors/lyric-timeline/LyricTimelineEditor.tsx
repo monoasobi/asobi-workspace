@@ -30,7 +30,22 @@ import { useEditorShortcuts } from "../shared/useEditorShortcuts";
 import { useEditorHistory } from "../shared/useEditorHistory";
 import { useEditorViewport } from "../shared/useEditorViewport";
 import { useEditorGuard } from "../shared/useEditorGuard";
-import { copyEditorDraft } from "../shared/copyEditorDraft";
+import { useRouter } from "next/navigation";
+import { useNavigationGuard } from "@/components/NavigationGuard";
+import { EditorHeader } from "../shared/EditorHeader";
+import { EditorHelp } from "../shared/EditorHelp";
+import { TimelineLineEditor } from "./LyricTimelineEditor/TimelineLineEditor";
+import { TimelinePlayerBar } from "./TimelinePlayerBar";
+import { Button } from "@asobi/ui/components/button";
+import { Input } from "@asobi/ui/components/input";
+import { Label } from "@asobi/ui/components/label";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@asobi/ui/components/popover";
+import { Repeat, RotateCcw, SlidersHorizontal } from "lucide-react";
+import type { LyricTextField } from "@asobi/content-core/lyricText";
 import { RefreshStatus } from "@/components/RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import type { LyricsDocument } from "@/server/queries/lyrics";
@@ -53,6 +68,12 @@ export const LyricTimelineEditor = ({
   initial: LyricsDocument;
   readOnly: boolean;
 }) => {
+  const router = useRouter();
+  const navigation = useNavigationGuard();
+  const [textFields, setTextFields] = useState<LyricTextField[]>([
+    "jpReading",
+    "kr",
+  ]);
   const [saved, setSaved] = useState(initial);
   const { music, lyricTrack } = saved;
   const canManage = !readOnly;
@@ -93,7 +114,7 @@ export const LyricTimelineEditor = ({
     resetOffset: () => setSync(saved.lyricTrack.sync),
   };
   const { currentTime, duration, activeLineIndex, offset: draftSync } = player;
-  const { scale: pixelsPerSecond } = useTimelineZoom(
+  const { scale: pixelsPerSecond, zoom } = useTimelineZoom(
     timelineRef,
     trackRef,
     DEFAULT_PIXELS_PER_SECOND,
@@ -108,7 +129,6 @@ export const LyricTimelineEditor = ({
     setLoop(false);
     setSelection(change);
   }, []);
-  const [editingLineIndex, setEditingLineIndex] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{
     tone: "success" | "error";
@@ -162,7 +182,6 @@ export const LyricTimelineEditor = ({
     ];
     setDraftLyrics(nextLyrics);
     setSelectedLineIndexes([index + 1]);
-    setEditingLineIndex(index + 1);
   };
 
   const deleteLine = (index: number) => {
@@ -176,7 +195,6 @@ export const LyricTimelineEditor = ({
 
     setDraftLyrics(nextLyrics);
     setSelectedLineIndexes(nextIndex == null ? [] : [nextIndex]);
-    setEditingLineIndex(null);
   };
 
   const { handleLineTimeChange, handleResizeMouseDown } = useTimelineResize({
@@ -305,8 +323,74 @@ export const LyricTimelineEditor = ({
     }
   }
 
+  const centerPlayhead = () => {
+    const viewport = timelineRef.current;
+    if (!viewport) return;
+    viewport.scrollTo({
+      top: Math.max(
+        0,
+        (currentTime - timelineStart) * pixelsPerSecond -
+          viewport.clientHeight / 2,
+      ),
+      behavior: "instant",
+    });
+  };
+
   return (
     <div data-editor-workspace ref={containerRef} className={styles.editor}>
+      <EditorHeader
+        title={music.korTitle || music.title}
+        readOnly={readOnly}
+        busy={isSaving}
+        dirty={dirty}
+        history={history}
+        onBack={() => {
+          if (navigation.confirmLeave()) router.push(`/musics/${music.id}`);
+        }}
+        onSave={save}
+      >
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="outline">
+              <SlidersHorizontal className="size-4" />
+              싱크 설정
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            data-editor-portal
+            align="end"
+            aria-label="가사 싱크 설정"
+            className="w-80 gap-3 p-4"
+          >
+            <Label htmlFor="lyric-sync">가사 싱크 (초)</Label>
+            <Input
+              id="lyric-sync"
+              type="number"
+              step="0.01"
+              value={draftSync}
+              disabled={!canManage || isSaving}
+              onChange={(event) => {
+                const value = Number(event.target.value);
+                if (Number.isFinite(value)) player.setOffset(value);
+              }}
+            />
+            <div className="flex gap-1">
+              {[-0.1, -0.01, 0.01, 0.1].map((step) => (
+                <Button
+                  key={step}
+                  size="xs"
+                  variant="outline"
+                  disabled={!canManage || isSaving}
+                  onClick={() => player.adjustOffset(step)}
+                >
+                  {step > 0 ? "+" : ""}
+                  {step.toFixed(2)}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </EditorHeader>
       <RefreshStatus results={refresh} onRefresh={setRefresh} />
       {!desktop && (
         <p className="p-6 text-sm">
@@ -315,69 +399,77 @@ export const LyricTimelineEditor = ({
         </p>
       )}
       <div
+        className="flex shrink-0 items-center gap-2 border-b px-3 py-2"
+        style={{ display: desktop ? undefined : "none" }}
+      >
+        <Button
+          size="xs"
+          variant={loop ? "secondary" : "outline"}
+          aria-pressed={loop}
+          disabled={!selectedLine}
+          onClick={() => setLoop((value) => !value)}
+        >
+          <Repeat className="size-3" />
+          선택 줄 반복
+        </Button>
+        <Button
+          size="icon-xs"
+          variant="ghost"
+          aria-label="저장 상태로 초기화"
+          title="저장 상태로 초기화"
+          disabled={!canManage || isSaving || !dirty}
+          onClick={() => {
+            if (!window.confirm("저장하지 않은 변경을 초기화할까요?")) return;
+            history.reset({
+              lyrics: getNormalizedLyrics(lyricTrack.lyricJson),
+              sync: lyricTrack.sync,
+            });
+            setLoop(false);
+            setMessage(null);
+          }}
+        >
+          <RotateCcw className="size-3" />
+        </Button>
+        <p
+          role="status"
+          title={message?.text}
+          className="ml-auto min-w-0 truncate text-right text-xs text-muted-foreground/70"
+        >
+          {message?.text}
+        </p>
+        <EditorHelp kind="lyrics" />
+      </div>
+      <div
         className={styles.workspace}
         style={{ display: desktop ? undefined : "none" }}
       >
         <ResizablePanelGroup orientation="horizontal">
-          <ResizablePanel defaultSize="50%" minSize="320px">
+          <ResizablePanel defaultSize="45%" minSize="320px">
             <TimelineSidePanel
               player={player}
-              dirty={dirty}
-              canManage={canManage && !isSaving}
-              isSaving={isSaving}
-              message={message}
-              historyControls={{
-                canUndo: history.canUndo,
-                canRedo: history.canRedo,
-                undo: history.undo,
-                redo: history.redo,
-                loop,
-                toggleLoop: () => setLoop((value) => !value),
-                hasSelection: !!selectedLine,
-                copy: async () => {
-                  try {
-                    await copyEditorDraft({
-                      musicId: music.id,
-                      sync: draftSync,
-                      lyricJson: draftLyrics,
-                    });
-                    setMessage({
-                      tone: "success",
-                      text: "가사 초안을 복사했습니다.",
-                    });
-                  } catch {
-                    setMessage({
-                      tone: "error",
-                      text: "클립보드 권한을 확인해 주세요.",
-                    });
-                  }
-                },
-              }}
-              onSave={save}
-              onReset={() => {
-                if (!window.confirm("저장하지 않은 변경을 초기화할까요?"))
-                  return;
-                history.reset({
-                  lyrics: getNormalizedLyrics(lyricTrack.lyricJson),
-                  sync: lyricTrack.sync,
-                });
-                setLoop(false);
-                setMessage(null);
-              }}
-              srtExport={{
-                music,
-                lyrics: canManage ? draftLyrics : lyricTrack.lyricJson,
-              }}
-            />
+              disabled={!canManage || isSaving}
+            >
+              {selectedLine && (
+                <TimelineLineEditor
+                  currentTime={currentTime}
+                  draftSync={draftSync}
+                  index={selectedLineIndexes[0]}
+                  line={selectedLine}
+                  onDelete={deleteLine}
+                  onLineTimeChange={handleLineTimeChange}
+                  onSplit={splitLine}
+                  onUpdateLine={updateLine}
+                />
+              )}
+            </TimelineSidePanel>
           </ResizablePanel>
           <ResizableHandle aria-label="영상과 타임라인 너비 조절" />
-          <ResizablePanel defaultSize="50%" minSize="320px">
+          <ResizablePanel defaultSize="55%" minSize="320px">
             <TimelineCanvas
               activeLineIndex={activeLineIndex}
               currentTime={currentTime}
               draftLyrics={draftLyrics}
               draftSync={draftSync}
-              editingLineIndex={editingLineIndex}
               pixelsPerSecond={pixelsPerSecond}
               selectedLineIndexes={selectedLineIndexes}
               selectionRect={selectionRect}
@@ -386,22 +478,22 @@ export const LyricTimelineEditor = ({
               timelineStart={timelineStart}
               trackRef={trackRef}
               timelineHeight={timelineHeight}
+              textFields={textFields}
+              onTextFieldsChange={setTextFields}
+              zoom={zoom}
+              onCenter={centerPlayhead}
               onConsumeLineClick={consumeLineClick}
-              onDeleteLine={deleteLine}
-              onEditLine={setEditingLineIndex}
-              onLineTimeChange={handleLineTimeChange}
               onLineMouseDown={handleLineMouseDown}
               onResizeMouseDown={handleResizeMouseDown}
               onRulerClick={handleRulerClick}
               onSelectLine={selectLine}
-              onSplitLine={splitLine}
               onTrackMouseDown={handleTrackMouseDown}
-              onUpdateLine={updateLine}
               canManage={canManage && !isSaving}
             />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      {desktop && <TimelinePlayerBar player={player} title={music.title} />}
     </div>
   );
 };

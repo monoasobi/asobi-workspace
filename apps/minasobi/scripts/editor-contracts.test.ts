@@ -122,22 +122,49 @@ test("call saves advance metadata only; source edits retain the conflicting revi
   );
 });
 
-
 test("overview settings omit timing while retaining validation and explicit legacy updates", () => {
-  const media = { youtubeId: "by4SYYWlhEs", fanLightColor: null, publish: true };
+  const media = {
+    youtubeId: "by4SYYWlhEs",
+    fanLightColor: null,
+    publish: true,
+  };
   const parsed = musicSettingsUpdateSchema.parse(media);
   assert.equal(Object.hasOwn(parsed, "bpm"), false);
   assert.equal(Object.hasOwn(parsed, "syncOffset"), false);
-  assert.equal(musicSettingsUpdateSchema.parse({ ...media, bpm: null }).bpm, null);
-  assert.equal(musicSettingsUpdateSchema.parse({ ...media, bpm: 137.5, syncOffset: -0.25 }).bpm, 137.5);
-  for (const patch of [{ bpm: 401 }, { bpm: 19 }, { syncOffset: 3601 }, { youtubeId: "" }, { extra: true }]) {
-    assert.equal(musicSettingsUpdateSchema.safeParse({ ...media, ...patch }).success, false);
+  assert.equal(
+    musicSettingsUpdateSchema.parse({ ...media, bpm: null }).bpm,
+    null,
+  );
+  assert.equal(
+    musicSettingsUpdateSchema.parse({ ...media, bpm: 137.5, syncOffset: -0.25 })
+      .bpm,
+    137.5,
+  );
+  for (const patch of [
+    { bpm: 401 },
+    { bpm: 19 },
+    { syncOffset: 3601 },
+    { youtubeId: "" },
+    { extra: true },
+  ]) {
+    assert.equal(
+      musicSettingsUpdateSchema.safeParse({ ...media, ...patch }).success,
+      false,
+    );
   }
 });
 
 test("call history preserves BPM and timing together through undo and redo", () => {
-  const initial = { guide: { version: 2, cues: [] }, syncOffset: 0.2, bpm: 130 as number | null };
-  let state: EditorHistory<typeof initial> = { past: [], present: initial, future: [] };
+  const initial = {
+    guide: { version: 2, cues: [] },
+    syncOffset: 0.2,
+    bpm: 130 as number | null,
+  };
+  let state: EditorHistory<typeof initial> = {
+    past: [],
+    present: initial,
+    future: [],
+  };
   state = updateHistory(state, { ...initial, bpm: 145.5 });
   state = undoHistory(state);
   assert.deepEqual(state.present, initial);
@@ -146,4 +173,35 @@ test("call history preserves BPM and timing together through undo and redo", () 
   assert.equal(state.present.syncOffset, 0.2);
   state = updateHistory(state, { ...state.present, bpm: null });
   assert.equal(state.present.bpm, null);
+});
+
+test("public clap indicators retain the full 16-beat cycle", async () => {
+  const { clapSteps, clapStepAt } = await import(
+    "@asobi/loudasobi-view/player/ClapIndicator/clapSteps"
+  );
+  const pattern = {
+    bpm: 60,
+    beats: 16 as const,
+    subdivision: 1 as const,
+    firstOffset: 0,
+    steps: [0, 8, 15],
+  };
+  const display = clapSteps(pattern);
+  assert.equal(display.length, 16);
+  assert.deepEqual(
+    display.flatMap((hit, index) => (hit ? [index] : [])),
+    [0, 8, 15],
+  );
+  const section = {
+    id: "clap",
+    type: "clap" as const,
+    start: 0,
+    end: 33,
+    firstLine: 0,
+    lastLine: 0,
+    pulseTimes: [],
+    clapPattern: pattern,
+  };
+  assert.equal(clapStepAt(section, display.length, 15), 15);
+  assert.equal(clapStepAt(section, display.length, 16), 0);
 });

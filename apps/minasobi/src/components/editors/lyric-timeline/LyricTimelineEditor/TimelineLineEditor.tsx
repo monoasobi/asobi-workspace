@@ -1,15 +1,16 @@
 "use client";
 import type { LyricLine } from "@asobi/content-core/lyrics";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@asobi/ui/components/accordion";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@asobi/ui/components/native-select";
 import { MIN_LINE_DURATION, roundTime } from "../time";
 import type { TimelineEdge } from "./useTimelineResize";
-import { NONE_CALL_TYPE } from "./timelineUtils";
-interface TimelineLinePopoverProps {
+interface TimelineLineEditorProps {
   currentTime: number;
   draftSync: number;
   index: number;
@@ -20,7 +21,7 @@ interface TimelineLinePopoverProps {
   onUpdateLine: (index: number, patch: Partial<LyricLine>) => void;
 }
 
-export const TimelineLinePopover = ({
+export const TimelineLineEditor = ({
   currentTime,
   draftSync,
   index,
@@ -29,7 +30,7 @@ export const TimelineLinePopover = ({
   onLineTimeChange,
   onSplit,
   onUpdateLine,
-}: TimelineLinePopoverProps) => {
+}: TimelineLineEditorProps) => {
   const splitTime = roundTime(currentTime - draftSync);
   const canSplit =
     splitTime > line.start + MIN_LINE_DURATION &&
@@ -66,25 +67,10 @@ export const TimelineLinePopover = ({
           삭제
         </Button>
       </div>
-      <div className="flex gap-2">
-        {(["start", "end"] as const).map((edge) => (
-          <label className="grid min-w-0 flex-1 gap-1 text-xs" key={edge}>
-            {edge}
-            <Input
-              type="number"
-              step="0.01"
-              value={line[edge]}
-              onChange={(event) =>
-                onLineTimeChange(index, edge, event.target.value)
-              }
-            />
-          </label>
-        ))}
-      </div>
       {(
         [
           ["jp", "일본어"],
-          ["jpReading", "일본어 독음"],
+          ["jpReading", "한국어 독음"],
           ["kr", "한국어"],
           ["en", "영어 해석"],
           ["enReading", "영어 독음"],
@@ -101,36 +87,28 @@ export const TimelineLinePopover = ({
           />
         </label>
       ))}
-      <label className="grid gap-1 text-xs">
-        callType
-        <NativeSelect
-          value={line.callType ?? NONE_CALL_TYPE}
-          onChange={(event) =>
-            onUpdateLine(index, {
-              callType:
-                event.target.value === NONE_CALL_TYPE
-                  ? undefined
-                  : (event.target.value as LyricLine["callType"]),
-            })
-          }
-        >
-          <NativeSelectOption value={NONE_CALL_TYPE}>없음</NativeSelectOption>
-          {["LOUD", "CLAP", "CUSTOM"].map((value) => (
-            <NativeSelectOption key={value} value={value}>
-              {value}
-            </NativeSelectOption>
-          ))}
-        </NativeSelect>
-      </label>
-      <label className="grid gap-1 text-xs">
-        callGuide
-        <Input
-          value={line.callGuide ?? ""}
-          onChange={(event) =>
-            onUpdateLine(index, { callGuide: event.target.value || undefined })
-          }
-        />
-      </label>
+      <Accordion key={line.id ?? index} type="single" collapsible>
+        <AccordionItem value="timing">
+          <AccordionTrigger>시작·끝 시간</AccordionTrigger>
+          <AccordionContent>
+            <div className="flex gap-2">
+              {(["start", "end"] as const).map((edge) => (
+                <label className="grid min-w-0 flex-1 gap-1 text-xs" key={edge}>
+                  {edge === "start" ? "시작 (초)" : "끝 (초)"}
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={line[edge]}
+                    onChange={(event) =>
+                      onLineTimeChange(index, edge, event.target.value)
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 };

@@ -4,35 +4,23 @@ import { RecentTextProvider } from "./CallGuideEditor/TextSuggestions";
 import { useEditorGuard } from "./shared/useEditorGuard";
 import { RefreshStatus } from "@/components/RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
-import { copyEditorDraft } from "./shared/copyEditorDraft";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useNavigationGuard } from "@/components/NavigationGuard";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@asobi/ui/lib/utils";
 import type { AdminMusic } from "@/types/music";
-import {
-  ArrowLeft,
-  Copy,
-  Redo2,
-  Save,
-  SlidersHorizontal,
-  Undo2,
-} from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
+import { EditorHeader } from "./shared/EditorHeader";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@asobi/ui/components/popover";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@asobi/ui/components/native-select";
-import { callLabels } from "@asobi/loudasobi-view/player/GuidePreview/guideStyles";
 import { SongGuideEditor } from "./CallGuideEditor/SongGuideEditor";
-import { EditorThemeMenu } from "./CallGuideEditor/EditorThemeMenu";
+import { Separator } from "@asobi/ui/components/separator";
 import { useRouter } from "next/navigation";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
 import { Label } from "@asobi/ui/components/label";
-import { Badge } from "@asobi/ui/components/badge";
 import { MusicExperience } from "@asobi/loudasobi-view/player/MusicExperience";
 import { resolveLyricPresentation } from "@asobi/content-core/lyricPresentation";
 import { resolveGuide, roundTime } from "@asobi/content-core/callGuide";
@@ -61,6 +49,7 @@ export function CallGuideEditor({
   onSaved?: (document: GuideDocument) => void;
 }) {
   const router = useRouter();
+  const navigation = useNavigationGuard();
   const containerRef = useRef<HTMLElement>(null);
   const desktop = useEditorViewport(embedded ? containerRef : undefined);
   const Container = embedded ? "section" : "main";
@@ -76,9 +65,10 @@ export function CallGuideEditor({
       ? (musicSettings?.syncOffset ?? draftSyncOffset)
       : draftSyncOffset;
   const draftBpm = history.draft.bpm;
-  const displayedBpm = draftBpm === (saved.music.bpm ?? null)
-    ? (musicSettings?.bpm ?? saved.music.bpm)
-    : draftBpm ?? undefined;
+  const displayedBpm =
+    draftBpm === (saved.music.bpm ?? null)
+      ? (musicSettings?.bpm ?? saved.music.bpm)
+      : (draftBpm ?? undefined);
   const music = useMemo(
     () =>
       musicSettings
@@ -93,11 +83,8 @@ export function CallGuideEditor({
   );
   const [busy, setBusy] = useState(false);
   const [selectedCue, setSelectedCue] = useState<string | null>(null);
-  const [loop, setLoop] = useState(false);
-  useLayoutEffect(() => () => setLoop(false), []);
   function selectCue(id: string | null) {
     setSelectedCue(id);
-    setLoop(false);
   }
   const [message, setMessage] = useState("");
   const [refresh, setRefresh] = useState<RefreshResult[]>([]);
@@ -124,7 +111,9 @@ export function CallGuideEditor({
     () => resolveLyricPresentation(guide, track.lyric, track.sync),
     [guide, track.lyric, track.sync],
   );
-  const invalidBpm = draftBpm !== null && (!Number.isFinite(draftBpm) || draftBpm < 20 || draftBpm > 400);
+  const invalidBpm =
+    draftBpm !== null &&
+    (!Number.isFinite(draftBpm) || draftBpm < 20 || draftBpm > 400);
   const invalid =
     invalidBpm ||
     guide.guides?.some((item) => !item.labels.ko.trim()) ||
@@ -154,7 +143,10 @@ export function CallGuideEditor({
           draftSyncOffset,
           syncOffset,
         );
-        revision = draftBpm !== (saved.music.bpm ?? null) ? saved.revision : input.revision;
+        revision =
+          draftBpm !== (saved.music.bpm ?? null)
+            ? saved.revision
+            : input.revision;
         offsetToSave = input.syncOffset;
       }
       const response = await fetch(
@@ -162,8 +154,13 @@ export function CallGuideEditor({
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ revision, guide, syncOffset: offsetToSave,
-            ...(draftBpm !== (saved.music.bpm ?? null) ? { bpm: draftBpm } : {}),
+          body: JSON.stringify({
+            revision,
+            guide,
+            syncOffset: offsetToSave,
+            ...(draftBpm !== (saved.music.bpm ?? null)
+              ? { bpm: draftBpm }
+              : {}),
           }),
         },
       );
@@ -194,11 +191,7 @@ export function CallGuideEditor({
     }
   }
   function leave() {
-    if (
-      !busy &&
-      (!dirty || window.confirm("저장하지 않은 변경을 버리고 나갈까요?"))
-    )
-      router.push("/admin");
+    if (navigation.confirmLeave()) router.push(`/musics/${saved.music.id}`);
   }
   if (!desktop)
     return (
@@ -218,11 +211,11 @@ export function CallGuideEditor({
           {embedded && "사이드바를 접거나 "}창을 다시 넓히면 작성 중인 초안이
           유지됩니다.
         </p>
-        {!embedded && (
+        {
           <Button variant="outline" disabled={busy} onClick={leave}>
             곡 설정으로 돌아가기
           </Button>
-        )}
+        }
       </Container>
     );
   return (
@@ -235,169 +228,101 @@ export function CallGuideEditor({
       )}
     >
       <RecentTextProvider musicId={saved.music.id} saved={saved.guide}>
-        <header className="flex shrink-0 flex-wrap items-center gap-3 border-b bg-card px-4 py-3">
-          {!embedded && (
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label="곡 설정으로 돌아가기"
-              title="곡 설정으로 돌아가기"
-              disabled={busy}
-              onClick={leave}
-            >
-              <ArrowLeft className="size-4" />
-            </Button>
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="truncate text-base font-semibold">
-                {saved.music.title}
-              </h1>
-              <Badge variant="outline">
-                {(musicSettings?.publish ?? saved.publish)
-                  ? "공개 곡"
-                  : "비공개 곡"}
-              </Badge>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              콜 편집 <span aria-hidden>·</span>{" "}
-              {readOnly
-                ? "열람 전용"
-                : dirty
-                  ? "저장하지 않은 변경"
-                  : "모든 변경 저장됨"}
-            </p>
-          </div>
-          <NativeSelect
-            aria-label={`블록 선택 (${guide.cues.length})`}
-            className="w-full sm:w-64"
-            value={
-              guide.cues.some((cue) => cue.id === selectedCue)
-                ? selectedCue!
-                : ""
-            }
-            onChange={(event) => selectCue(event.target.value || null)}
-          >
-            <NativeSelectOption value="">
-              블록 선택 ({guide.cues.length})
-            </NativeSelectOption>
-            {guide.cues.map((item) => (
-              <NativeSelectOption key={item.id} value={item.id}>
-                {(item.start + track.sync).toFixed(2)}초 ·{" "}
-                {callLabels[item.type]} {resolved.issues[item.id] ? "⚠" : ""}{" "}
-                {item.type === "chant" || item.type === "custom"
-                  ? (item.labels?.ko ?? item.label)
-                  : item.label}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-          <div className="flex items-center gap-1 border-r pr-3">
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label="실행 취소"
-              title="실행 취소 · ⌘/Ctrl+Z"
-              disabled={readOnly || busy || !history.canUndo}
-              onClick={history.undo}
-            >
-              <Undo2 className="size-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label="다시 실행"
-              title="다시 실행 · ⌘/Ctrl+Shift+Z"
-              disabled={readOnly || busy || !history.canRedo}
-              onClick={history.redo}
-            >
-              <Redo2 className="size-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label="초안 복사"
-              title="초안 복사"
-              onClick={async () => {
-                try {
-                  await copyEditorDraft({ guide, syncOffset, bpm: draftBpm });
-                  setMessage("콜·가이드·가사 표시 초안을 복사했습니다.");
-                } catch {
-                  setMessage("클립보드 권한을 확인해 주세요.");
-                }
-              }}
-            >
-              <Copy className="size-4" />
-            </Button>
-          </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button size="sm" variant="outline">곡 BPM {displayedBpm ?? "미지정"}</Button>
-            </PopoverTrigger>
-            <PopoverContent data-editor-portal align="end" className="grid w-72 gap-3 p-4">
-              <Label htmlFor="call-music-bpm">곡 BPM</Label>
-              <Input id="call-music-bpm" type="number" min={20} max={400} step="any"
-                placeholder="미지정" value={displayedBpm ?? ""} disabled={readOnly || busy}
-                onChange={event => history.update(draft => ({ ...draft,
-                  bpm: event.target.value === "" ? null : Number(event.target.value),
-                }))} />
-              <p className="type-caption">새 펄스 패턴의 기본 BPM입니다. 미지정 시 120을 사용하며 기존 블록은 바뀌지 않습니다. 전체 저장으로 반영합니다.</p>
-            </PopoverContent>
-          </Popover>
+        <EditorHeader
+          title={saved.music.korTitle || saved.music.title}
+          publication={
+            (musicSettings?.publish ?? saved.publish) ? "공개" : "비공개"
+          }
+          readOnly={readOnly}
+          busy={busy}
+          dirty={dirty}
+          invalid={!!invalid}
+          history={history}
+          onBack={leave}
+          onSave={save}
+        >
           <Popover>
             <PopoverTrigger asChild>
               <Button size="sm" variant="outline">
-                <SlidersHorizontal className="size-4" />
-                싱크 보정 {syncOffset >= 0 ? "+" : ""}
-                {syncOffset.toFixed(2)}초
+                <SlidersHorizontal className="size-4" />곡 설정
               </Button>
             </PopoverTrigger>
             <PopoverContent
               data-editor-portal
               align="end"
-              className="w-80 space-y-2 p-4"
-              aria-label="전체 싱크 보정"
+              aria-label="곡 설정"
+              className="max-h-[70dvh] w-80 gap-4 overflow-y-auto p-4"
             >
-              <h2 className="font-semibold">전체 싱크 보정</h2>
-              <fieldset
-                disabled={readOnly || busy}
-                className="flex flex-wrap items-end gap-2"
-              >
-                <div className="w-44">
-                  <NumberField
-                    label="가사 싱크 추가 보정 (초)"
-                    value={syncOffset}
-                    min={-3600}
-                    max={3600}
-                    onChange={(value) =>
-                      history.update((draft) => ({
-                        ...draft,
-                        syncOffset: value,
-                      }))
-                    }
-                  />
-                </div>
-                {[-0.1, -0.01, 0.01, 0.1].map((delta) => (
-                  <Button
-                    key={delta}
-                    size="xs"
-                    variant="outline"
-                    disabled={Math.abs(syncOffset + delta) > 3600}
-                    onClick={() =>
-                      history.update((draft) => ({
-                        ...draft,
-                        syncOffset: roundTime(syncOffset + delta),
-                      }))
-                    }
-                  >
-                    {delta > 0 ? "+" : ""}
-                    {delta.toFixed(2)}
-                  </Button>
-                ))}
-                <span className="pb-1 text-xs text-muted-foreground">
-                  원본 {saved.sourceSync}초 + 보정 = {roundTime(track.sync)}초 ·
-                  가사와 콜 전체에 적용 / 개별 블록 위치 조절과 별개
-                </span>
-              </fieldset>
+              <div className="grid gap-2">
+                <Label htmlFor="call-music-bpm">곡 BPM</Label>
+                <Input
+                  id="call-music-bpm"
+                  type="number"
+                  min={20}
+                  max={400}
+                  step="any"
+                  placeholder="미지정"
+                  value={displayedBpm ?? ""}
+                  disabled={readOnly || busy}
+                  onChange={(event) =>
+                    history.update((draft) => ({
+                      ...draft,
+                      bpm:
+                        event.target.value === ""
+                          ? null
+                          : Number(event.target.value),
+                    }))
+                  }
+                />
+                <p className="type-caption">
+                  새 펄스 패턴의 기본 BPM입니다. 미지정 시 120을 사용하며 기존
+                  블록은 바뀌지 않습니다. 전체 저장으로 반영합니다.
+                </p>
+              </div>
+              <Separator />
+              <div className="space-y-2">
+                <h2 className="font-semibold">전체 싱크 보정</h2>
+                <fieldset
+                  disabled={readOnly || busy}
+                  className="flex flex-wrap items-end gap-2"
+                >
+                  <div className="w-44">
+                    <NumberField
+                      label="가사 싱크 추가 보정 (초)"
+                      value={syncOffset}
+                      min={-3600}
+                      max={3600}
+                      onChange={(value) =>
+                        history.update((draft) => ({
+                          ...draft,
+                          syncOffset: value,
+                        }))
+                      }
+                    />
+                  </div>
+                  {[-0.1, -0.01, 0.01, 0.1].map((delta) => (
+                    <Button
+                      key={delta}
+                      size="xs"
+                      variant="outline"
+                      disabled={Math.abs(syncOffset + delta) > 3600}
+                      onClick={() =>
+                        history.update((draft) => ({
+                          ...draft,
+                          syncOffset: roundTime(syncOffset + delta),
+                        }))
+                      }
+                    >
+                      {delta > 0 ? "+" : ""}
+                      {delta.toFixed(2)}
+                    </Button>
+                  ))}
+                  <span className="pb-1 text-xs text-muted-foreground">
+                    원본 {saved.sourceSync}초 + 보정 = {roundTime(track.sync)}초
+                    · 가사와 콜 전체에 적용 / 개별 블록 위치 조절과 별개
+                  </span>
+                </fieldset>
+              </div>
             </PopoverContent>
           </Popover>
           <SongGuideEditor
@@ -410,24 +335,7 @@ export function CallGuideEditor({
               }))
             }
           />
-          <EditorThemeMenu />
-          <Button
-            size="sm"
-            disabled={readOnly || busy || !dirty || invalid}
-            onClick={save}
-          >
-            <Save className="size-4" />
-            {busy ? "저장 중…" : "전체 저장"}
-          </Button>
-        </header>
-        {(message || invalid || !music.youtubeId) && (
-          <p role="status" className="shrink-0 border-b px-4 py-2 text-xs">
-            {message ||
-              (invalidBpm ? "곡 BPM은 20~400 범위로 입력하거나 비워 주세요." : !music.youtubeId
-                ? "전용 YouTube ID가 없어 재생은 불가능합니다. 곡 설정에서 연결해 주세요."
-                : "저장 전 재확인이 필요한 블록이 있습니다. 블록 설정에서 확인해 주세요.")}
-          </p>
-        )}
+        </EditorHeader>
         <RefreshStatus results={refresh} onRefresh={setRefresh} />
         <MusicExperience
           music={music}
@@ -437,14 +345,22 @@ export function CallGuideEditor({
           shortcuts={false}
           editor={(playback) => (
             <EditorWorkspace
+              message={
+                message ||
+                (invalidBpm
+                  ? "곡 BPM은 20~400 범위로 입력하거나 비워 주세요."
+                  : !music.youtubeId
+                    ? "전용 YouTube ID가 없어 재생할 수 없습니다."
+                    : invalid
+                      ? "저장 전 재확인이 필요한 블록이 있습니다."
+                      : "")
+              }
               shortcutRoot={containerRef}
               onUndo={history.undo}
               onRedo={history.redo}
               onSave={() => void save()}
               selected={selectedCue}
               onSelect={selectCue}
-              loop={loop}
-              onLoopChange={setLoop}
               music={music}
               track={track}
               guide={guide}

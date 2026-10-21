@@ -55,6 +55,7 @@ export interface CallSection {
   pulseTimes: number[];
   clapPattern?: {
     bpm: number;
+    beats?: 8 | 16;
     firstOffset: number;
     subdivision: 1 | 2 | 4;
     steps: number[];

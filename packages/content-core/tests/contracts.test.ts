@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { linesSchema } from "../src/catalogLyrics";
 import {
   cuePulses,
+  guideForStorage,
   parseGuide,
   resizeCue,
   resolveGuide,
@@ -166,5 +167,76 @@ test("shared song/settings schemas retain their separate field ownership", async
   assert.equal(
     musicSettingsSchema.safeParse({ ...settings, bpm: 401 }).success,
     false,
+  );
+});
+
+test("clap and singalong discard badge text through read and storage while chant/custom retain content", () => {
+  const guide = parseGuide({
+    version: 2,
+    cues: ["clap", "singalong", "chant", "custom"].map((type, index) => ({
+      id: String(index),
+      type,
+      label: "기존 문구",
+      labels: { ko: "한국어", ja: "日本語", en: "English" },
+      start: 1,
+      end: 3,
+      lines: [],
+      pulseTimes: [1],
+    })),
+  });
+  const stored = JSON.parse(JSON.stringify(guideForStorage(guide)));
+  for (const index of [0, 1]) {
+    assert.equal(guide.cues[index].label, "");
+    assert.equal(guide.cues[index].labels, undefined);
+    assert.equal(Object.hasOwn(stored.cues[index], "label"), false);
+    assert.equal(Object.hasOwn(stored.cues[index], "labels"), false);
+  }
+  for (const index of [2, 3]) {
+    assert.equal(stored.cues[index].label, "기존 문구");
+    assert.equal(stored.cues[index].labels.ko, "한국어");
+  }
+  assert.deepEqual(parseGuide(stored), guide);
+});
+
+test("16-beat patterns retain subdivisions and repeat after sixteen beats; legacy patterns retain eight", () => {
+  const base = {
+    id: "pattern",
+    type: "clap",
+    label: "",
+    start: 0,
+    end: 33,
+    lines: [],
+    pulseTimes: [],
+  };
+  const read = (pattern: unknown) =>
+    parseGuide({ version: 2, cues: [{ ...base, pattern }] });
+  const legacy = read({ bpm: 60, subdivision: 1, firstOffset: 0, steps: [7] });
+  assert.deepEqual(cuePulses(legacy.cues[0]), [7, 15, 23, 31]);
+  const extended = read({
+    bpm: 60,
+    beats: 16,
+    subdivision: 4,
+    firstOffset: 0,
+    steps: [0, 63],
+  });
+  assert.deepEqual(cuePulses(extended.cues[0]), [0, 15.75, 16, 31.75, 32]);
+  assert.deepEqual(resolveGuide(extended, []).issues, {});
+  assert.equal(resolveGuide(extended, []).sections[0].clapPattern?.beats, 16);
+  assert.ok(
+    Object.keys(
+      resolveGuide(
+        read({
+          bpm: 60,
+          beats: 8,
+          subdivision: 4,
+          firstOffset: 0,
+          steps: [32],
+        }),
+        [],
+      ).issues,
+    ).length,
+  );
+  assert.throws(() =>
+    read({ bpm: 60, beats: 16, subdivision: 4, firstOffset: 0, steps: [64] }),
   );
 });

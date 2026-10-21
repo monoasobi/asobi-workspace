@@ -11,6 +11,7 @@ import { readGuide } from "@/server/queries/guide";
 import { resolveLyricPresentation } from "@asobi/content-core/lyricPresentation";
 import {
   guideSchema,
+  guideForStorage,
   resolveGuide,
   type CallGuide,
 } from "@asobi/content-core/callGuide";
@@ -56,7 +57,10 @@ export async function saveGuide(
         status: 400,
         error: "재생 시작 전으로 이동한 콜 블록을 확인해 주세요.",
       };
-    const values = { guideJson: guide, updatedAt: new Date().toISOString() };
+    const values = {
+      guideJson: guideForStorage(guide),
+      updatedAt: new Date().toISOString(),
+    };
     await tx
       .insert(callGuides)
       .values({ musicId: id, ...values })

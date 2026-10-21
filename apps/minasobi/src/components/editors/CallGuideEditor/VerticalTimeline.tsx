@@ -1,33 +1,27 @@
 "use client";
-import { CallIcon } from "@asobi/loudasobi-view/common/CallIcon";
-import { Info } from "lucide-react";
 import type { CallGuide } from "@asobi/content-core/callGuide";
+import {
+  cuePulses,
+  cueTextSelections,
+  type CallCue,
+} from "@asobi/content-core/callGuide";
+import type { LyricLine } from "@asobi/content-core/lyrics";
+import {
+  lyricTextFields,
+  lyricTextLang,
+  type LyricTextField,
+} from "@asobi/content-core/lyricText";
+import { formatTime } from "@asobi/content-core/lyricTime";
+import { CallIcon } from "@asobi/loudasobi-view/common/CallIcon";
 import {
   callLabels,
   callStyles,
 } from "@asobi/loudasobi-view/player/GuidePreview/guideStyles";
 import { HighlightedText } from "@asobi/loudasobi-view/player/HighlightedText";
 import type { Playback } from "@asobi/loudasobi-view/player/MusicExperience/usePlayback";
-import { Button } from "@asobi/ui/components/button";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@asobi/ui/components/native-select";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
-import {
-  cuePulses,
-  cueTextSelections,
-  type CallCue,
-} from "@asobi/content-core/callGuide";
-import {
-  lyricTextFields,
-  lyricTextLabels,
-  lyricTextLang,
-  type LyricTextField,
-} from "@asobi/content-core/lyricText";
 import { cn } from "@asobi/ui/lib/utils";
-import type { LyricLine } from "@asobi/content-core/lyrics";
-import { Minus, Plus } from "lucide-react";
+import { Info } from "lucide-react";
 import {
   Fragment,
   useCallback,
@@ -36,6 +30,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { TimelineTools } from "../shared/TimelineTools";
 import { useLyricResize } from "./useLyricResize";
 import { useTimelineDrag } from "./useTimelineDrag";
 import { useTimelinePlayback } from "./useTimelinePlayback";
@@ -78,13 +73,12 @@ export function VerticalTimeline({
   onChange: (cue: CallCue) => void;
   onLyricChange: (index: number, start: number, end: number) => void;
 }) {
-  const [textField, setTextField] = useState<LyricTextField>("jpReading");
-  const readingField =
-    textField === "jp"
-      ? "jp"
-      : textField === "kr" || textField === "jpReading"
-        ? "jpReading"
-        : "enReading";
+  const [textFields, setTextFields] = useState<LyricTextField[]>(["jpReading"]);
+  const selectedTextFields = textFields.filter((field) => field !== "en");
+  const displayFields: LyricTextField[] = ["jp", ...selectedTextFields];
+  const readingFields = displayFields.filter(
+    (field) => field === "jp" || field === "jpReading" || field === "enReading",
+  );
   const viewport = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const { scale, zoom } = useTimelineZoom(viewport, canvas);
@@ -226,50 +220,7 @@ export function VerticalTimeline({
     return { indexes, count: Math.max(1, ends.length) };
   }, [cues]);
   return (
-    <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b p-2">
-        <Button
-          size="xs"
-          variant="outline"
-          aria-label="축소"
-          title="축소"
-          disabled={scale <= MIN_TIMELINE_SCALE}
-          onClick={() => zoom(scale / 1.25)}
-        >
-          <Minus className="size-4" />
-        </Button>
-        <span className="text-xs">{scale}px/초</span>
-        <Button
-          size="xs"
-          variant="outline"
-          aria-label="확대"
-          title="확대"
-          disabled={scale >= MAX_TIMELINE_SCALE}
-          onClick={() => zoom(scale * 1.25)}
-        >
-          <Plus className="size-4" />
-        </Button>
-        <Button size="xs" variant="outline" onClick={centerPlayhead}>
-          재생 위치로
-        </Button>
-        <NativeSelect
-          aria-label="타임라인 가사 표시"
-          value={textField}
-          onChange={(event) =>
-            setTextField(event.target.value as LyricTextField)
-          }
-        >
-          {lyricTextFields.map((field) => (
-            <NativeSelectOption key={field} value={field}>
-              {field === "jp" ? "원문만" : `원문 + ${lyricTextLabels[field]}`}
-            </NativeSelectOption>
-          ))}
-        </NativeSelect>
-        <span className="text-xs text-muted-foreground">
-          콜 이동·가사/콜 길이 조절: 스냅 (실선: 시작 / 점선: 끝) / ⌘·Ctrl: 스냅
-          해제 / 빈 곳 ⌘·Ctrl + 드래그·스크롤: 확대·축소 / 가사 Shift 선택
-        </span>
-      </div>
+    <section className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <ScrollArea className="min-h-0 flex-1" viewportRef={viewport}>
         <div className="sticky top-0 z-20 grid grid-cols-[60px_1fr_1fr] border-b bg-background p-2 text-xs">
           <span>시간</span>
@@ -307,14 +258,16 @@ export function VerticalTimeline({
               >
                 <button
                   type="button"
-                  className="pointer-events-auto absolute -left-15 z-10 flex w-15 cursor-pointer select-none items-start justify-center text-xs tabular-nums text-muted-foreground hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-primary disabled:cursor-default"
+                  tabIndex={-1}
+                  className="pointer-events-auto absolute -left-15 flex w-15 cursor-pointer select-none items-start justify-center border-0 p-0 text-xs tabular-nums text-muted-foreground disabled:cursor-default"
                   style={{ height: Math.min(2, bottom - time) * scale }}
-                  aria-label={`${time.toFixed(2)}초로 이동`}
+                  aria-label={`${formatTime(time)}로 이동`}
                   disabled={!playback.ready}
+                  onMouseDown={(event) => event.preventDefault()}
                   onClick={(event) => {
                     const top = canvas.current?.getBoundingClientRect().top;
                     const target =
-                      event.detail === 0 || top === undefined
+                      top === undefined
                         ? time
                         : origin + (event.clientY - top) / scale;
                     playback.seek(
@@ -325,7 +278,7 @@ export function VerticalTimeline({
                     );
                   }}
                 >
-                  {time.toFixed(0)}s
+                  {formatTime(time)}
                 </button>
               </div>
             );
@@ -353,7 +306,7 @@ export function VerticalTimeline({
               <button
                 type="button"
                 key={line.id ?? index}
-                title={`${line.jp}\n${textField === "jp" ? "" : line[textField] || "자료 없음"}\n${(line.start + sync).toFixed(2)}초`}
+                title={`${displayFields.map((field) => line[field] || "자료 없음").join("\n")}\n${(line.start + sync).toFixed(2)}초`}
                 aria-pressed={selectedLines.includes(index)}
                 className={cn(
                   "absolute left-0 w-[calc(50%-6px)] overflow-hidden rounded border bg-card px-2 text-left text-xs",
@@ -391,14 +344,15 @@ export function VerticalTimeline({
                 <span lang="ja" className="block truncate">
                   {line.jp}
                 </span>
-                {textField !== "jp" && (
+                {selectedTextFields.map((field) => (
                   <span
-                    lang={lyricTextLang[textField]}
+                    key={field}
+                    lang={lyricTextLang[field]}
                     className="mt-1 block truncate text-muted-foreground"
                   >
-                    {line[textField] || "자료 없음"}
+                    {line[field] || "자료 없음"}
                   </span>
-                )}
+                ))}
               </button>
               {selectedLines.includes(index) &&
                 line.id &&
@@ -410,7 +364,7 @@ export function VerticalTimeline({
                     data-lyric-resize
                     aria-label={`가사 ${index + 1} ${edge === "start" ? "시작" : "종료"} 시간 드래그`}
                     title="드래그: 콜에 스냅 · ⌘/Ctrl: 미세 조절"
-                    className="absolute left-0 z-20 h-2 w-[calc(50%-6px)] -translate-y-1/2 cursor-ns-resize touch-none rounded bg-magenta-500"
+                    className="absolute left-0 z-20 h-0.75 w-[calc(50%-6px)] -translate-y-1/2 cursor-ns-resize touch-none rounded bg-magenta-500 after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']"
                     style={{ top: y(shownLines[index][edge]) }}
                     onPointerDown={(event) =>
                       lyricResize.start(event, index, edge)
@@ -476,63 +430,64 @@ export function VerticalTimeline({
                 <span className="relative z-10">
                   <CallIcon type={cue.type} icon={cue.icon} emoji={cue.emoji} />{" "}
                   {callLabels[cue.type]}
-                  {cue.singalongText?.[readingField].trim() && (
-                    <span className="mt-1 block truncate">
-                      <HighlightedText
-                        text={
-                          cue.singalongText.placement === "inline"
-                            ? `(${cue.singalongText[readingField]})`
-                            : cue.singalongText[readingField]
-                        }
-                        ranges={[
-                          {
-                            start: 0,
-                            end:
-                              cue.singalongText[readingField].length +
-                              (cue.singalongText.placement === "inline"
-                                ? 2
-                                : 0),
-                          },
-                        ]}
-                      />
-                    </span>
-                  )}
+                  {readingFields.map((field) => {
+                    const text = cue.singalongText?.[field]?.trim();
+                    if (!text) return null;
+                    const shownText =
+                      cue.singalongText?.placement === "inline"
+                        ? `(${text})`
+                        : text;
+                    return (
+                      <span
+                        key={field}
+                        lang={lyricTextLang[field]}
+                        className="mt-1 block truncate"
+                      >
+                        <HighlightedText
+                          text={shownText}
+                          ranges={[{ start: 0, end: shownText.length }]}
+                        />
+                      </span>
+                    );
+                  })}
                   {(cue.type === "chant" || cue.type === "custom"
                     ? (cue.labels?.ko ?? cue.label)
                     : cue.label) &&
                     ` · ${cue.type === "chant" || cue.type === "custom" ? (cue.labels?.ko ?? cue.label) : cue.label}`}
                   {cue.type === "singalong" &&
-                    cue.lines.map((snapshot) => {
-                      const text =
-                        lines.find((line) => line.id === snapshot.id)?.[
-                          textField
-                        ] ?? "";
-                      const ranges = cueTextSelections(cue).filter(
-                        (range) =>
-                          range.lineId === snapshot.id &&
-                          range.field === textField &&
-                          range.text === text,
-                      );
-                      return (
-                        <span
-                          key={snapshot.id}
-                          lang={lyricTextLang[textField]}
-                          className="mt-1 block truncate"
-                          title={text || "자료 없음"}
-                        >
-                          <HighlightedText
-                            text={text || "자료 없음"}
-                            ranges={ranges}
-                          />
-                        </span>
-                      );
-                    })}
+                    cue.lines.flatMap((snapshot) =>
+                      displayFields.map((field) => {
+                        const text =
+                          lines.find((line) => line.id === snapshot.id)?.[
+                            field
+                          ] ?? "";
+                        const ranges = cueTextSelections(cue).filter(
+                          (range) =>
+                            range.lineId === snapshot.id &&
+                            range.field === field &&
+                            range.text === text,
+                        );
+                        return (
+                          <span
+                            key={`${snapshot.id}:${field}`}
+                            lang={lyricTextLang[field]}
+                            className="mt-1 block truncate"
+                            title={text || "자료 없음"}
+                          >
+                            <HighlightedText
+                              text={text || "자료 없음"}
+                              ranges={ranges}
+                            />
+                          </span>
+                        );
+                      }),
+                    )}
                 </span>
                 {cuePulses(cue).map((time, i) => (
                   <span
                     key={i}
                     aria-hidden
-                    className="pointer-events-none absolute left-0 h-0.5 w-full bg-primary/70"
+                    className="pointer-events-none absolute left-0 h-px w-full bg-primary/35"
                     style={{ top: (time - cue.start) * scale }}
                   />
                 ))}
@@ -548,7 +503,7 @@ export function VerticalTimeline({
                           ? "시작 시간 드래그"
                           : "종료 시간 드래그"
                       }
-                      className={`absolute inset-x-0 z-10 h-2 cursor-ns-resize touch-none rounded bg-primary ${edge === "start" ? "-top-1" : "-bottom-1"}`}
+                      className={`absolute inset-x-0 z-10 h-0.75 cursor-ns-resize touch-none rounded bg-primary after:absolute after:inset-x-0 after:-inset-y-1 after:content-[''] ${edge === "start" ? "top-[-1.5px]" : "bottom-[-1.5px]"}`}
                       onPointerDown={(event) => start(event, edge, cue)}
                     />
                   ))}
@@ -622,6 +577,18 @@ export function VerticalTimeline({
           />
         </div>
       </ScrollArea>
+      <TimelineTools
+        scale={scale}
+        minScale={MIN_TIMELINE_SCALE}
+        maxScale={MAX_TIMELINE_SCALE}
+        zoom={zoom}
+        onCenter={centerPlayhead}
+        fields={lyricTextFields.filter(
+          (field) => field !== "jp" && field !== "en",
+        )}
+        selectedFields={selectedTextFields}
+        onFieldsChange={setTextFields}
+      />
     </section>
   );
 }

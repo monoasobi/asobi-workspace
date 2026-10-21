@@ -14,13 +14,13 @@
   "scripts": {
     "dev:mono": "npm run dev --workspace=@asobi/monoasobi --",
     "dev:loud": "npm run dev --workspace=@asobi/loudasobi --",
+    "dev:admin": "npm run dev --workspace=@asobi/adminasobi --",
     "lint": "npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "db:generate": "npm run db:generate --workspace=@asobi/database",
     "db:migrate": "npm run db:migrate --workspace=@asobi/database",
     "db:studio": "npm run db:studio --workspace=@asobi/database",
     "check:core": "npm run check --workspace=@asobi/content-core",
-    "dev:admin": "npm run dev --workspace=@asobi/adminasobi --",
     "check:ui": "node scripts/check-ui-contract.mjs"
   },
   "devDependencies": {

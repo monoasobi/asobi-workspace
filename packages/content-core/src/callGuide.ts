@@ -13,7 +13,7 @@ const sourceLine = z.object({
 const common = {
   id: z.string().min(1).max(100),
   type: z.enum(["clap", "chant", "singalong", "custom"]),
-  label: z.string().max(200),
+  label: z.string().max(200).default(""),
   icon: z
     .string()
     .max(100)
@@ -81,19 +81,26 @@ const common = {
     })
     .optional(),
 };
-const cueSchema = z.object({
-  ...common,
-  start: time,
-  end: time,
-  pattern: z
-    .object({
-      bpm: z.number().finite().min(20).max(400),
-      subdivision: z.union([z.literal(1), z.literal(2), z.literal(4)]),
-      firstOffset: z.number().finite().nonnegative().max(86400),
-      steps: z.array(z.number().int().min(0).max(31)).max(32),
-    })
-    .optional(),
-});
+const cueSchema = z
+  .object({
+    ...common,
+    start: time,
+    end: time,
+    pattern: z
+      .object({
+        bpm: z.number().finite().min(20).max(400),
+        subdivision: z.union([z.literal(1), z.literal(2), z.literal(4)]),
+        beats: z.union([z.literal(8), z.literal(16)]).optional(),
+        firstOffset: z.number().finite().nonnegative().max(86400),
+        steps: z.array(z.number().int().min(0).max(63)).max(64),
+      })
+      .optional(),
+  })
+  .transform((cue) =>
+    cue.type === "clap" || cue.type === "singalong"
+      ? { ...cue, label: "", labels: undefined }
+      : cue,
+  );
 export const guideSchema = z
   .object({
     version: z.literal(2),
@@ -154,6 +161,18 @@ export const guideSchema = z
   });
 export type CallGuide = z.infer<typeof guideSchema>;
 export type CallCue = CallGuide["cues"][number];
+
+export function guideForStorage(guide: CallGuide) {
+  return {
+    ...guide,
+    cues: guide.cues.map((cue) =>
+      cue.type === "clap" || cue.type === "singalong"
+        ? { ...cue, label: undefined, labels: undefined }
+        : cue,
+    ),
+  };
+}
+
 // Existing custom cues with timing used both effects; keep them readable unchanged.
 export function customCueEffects(cue: {
   customEffects?: { text: boolean; flash: boolean };
@@ -272,7 +291,7 @@ export function cuePulses(cue: CallCue): number[] {
   )
     return [];
   if (!cue.pattern) return cue.pulseTimes;
-  const { bpm, subdivision, firstOffset, steps } = cue.pattern;
+  const { bpm, subdivision, firstOffset, steps, beats = 8 } = cue.pattern;
   const interval = 60 / bpm / subdivision;
   const count = Math.min(
     100000,
@@ -282,7 +301,7 @@ export function cuePulses(cue: CallCue): number[] {
   for (let i = 0; i < count && result.length <= 2000; i++) {
     const hit = roundTime(cue.start + firstOffset + i * interval);
     if (
-      steps.includes(i % (8 * subdivision)) &&
+      steps.includes(i % (beats * subdivision)) &&
       hit >= cue.start &&
       hit < cue.end
     )
@@ -338,7 +357,10 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
       (cue.pulseTimes.length ||
         cue.pattern.firstOffset >= cue.end - cue.start ||
         new Set(cue.pattern.steps).size !== cue.pattern.steps.length ||
-        cue.pattern.steps.some((step) => step >= 8 * cue.pattern!.subdivision))
+        cue.pattern.steps.some(
+          (step) =>
+            step >= (cue.pattern!.beats ?? 8) * cue.pattern!.subdivision,
+        ))
     )
       issue = "박자 패턴 설정을 확인해 주세요.";
     else if (
@@ -434,7 +456,10 @@ export function resolveGuide(guide: CallGuide, lines: readonly LyricLine[]) {
         cue.type === "custom"
           ? (cue.icon ?? legacyCallIcon(cue.emoji))
           : undefined,
-      label: cue.label || undefined,
+      label:
+        cue.type === "chant" || cue.type === "custom"
+          ? cue.label || undefined
+          : undefined,
       labels:
         cue.type === "chant" || cue.type === "custom" ? cue.labels : undefined,
       notes: cue.notes,

@@ -7,18 +7,24 @@ import {
   type CSSProperties,
 } from "react";
 import styles from "../LyricTimelineEditor.styles";
-import { formatTime, getDisplayEnd, getDisplayStart } from "../time";
+import { getDisplayEnd, getDisplayStart } from "../time";
 import { getTimelineGridInterval, getTimelineTicks } from "./timelineUtils";
 import { TimelineLineBlock } from "./TimelineLineBlock";
-import type { TimelineEdge } from "./useTimelineResize";
+import { formatTime } from "@asobi/content-core/lyricTime";
+import type { LyricTextField } from "@asobi/content-core/lyricText";
+import { TimelineTools } from "../../shared/TimelineTools";
+import { MIN_PIXELS_PER_SECOND, MAX_PIXELS_PER_SECOND } from "../time";
 
 interface TimelineCanvasProps {
+  textFields: LyricTextField[];
+  onTextFieldsChange: (fields: LyricTextField[]) => void;
+  zoom: (value: number) => void;
+  onCenter: () => void;
   activeLineIndex: number;
   canManage: boolean;
   currentTime: number;
   draftLyrics: LyricLine[];
   draftSync: number;
-  editingLineIndex: number | null;
   pixelsPerSecond: number;
   selectedLineIndexes: number[];
   selectionRect: {
@@ -33,9 +39,6 @@ interface TimelineCanvasProps {
   trackRef: RefObject<HTMLDivElement | null>;
   timelineHeight: number;
   onConsumeLineClick: (index: number) => boolean;
-  onDeleteLine: (index: number) => void;
-  onEditLine: (index: number | null) => void;
-  onLineTimeChange: (index: number, edge: TimelineEdge, value: string) => void;
   onLineMouseDown: (
     event: ReactMouseEvent<HTMLDivElement>,
     index: number,
@@ -43,22 +46,23 @@ interface TimelineCanvasProps {
   onResizeMouseDown: (
     event: ReactMouseEvent<HTMLButtonElement>,
     index: number,
-    edge: TimelineEdge,
+    edge: "start" | "end",
   ) => void;
   onRulerClick: (event: ReactMouseEvent<HTMLDivElement>) => void;
   onSelectLine: (index: number) => void;
-  onSplitLine: (index: number) => void;
   onTrackMouseDown: (event: ReactMouseEvent<HTMLDivElement>) => void;
-  onUpdateLine: (index: number, patch: Partial<LyricLine>) => void;
 }
 
 export const TimelineCanvas = ({
+  textFields,
+  onTextFieldsChange,
+  zoom,
+  onCenter,
   activeLineIndex,
   canManage,
   currentTime,
   draftLyrics,
   draftSync,
-  editingLineIndex,
   pixelsPerSecond,
   selectedLineIndexes,
   selectionRect,
@@ -68,16 +72,11 @@ export const TimelineCanvas = ({
   trackRef,
   timelineHeight,
   onConsumeLineClick,
-  onDeleteLine,
-  onEditLine,
-  onLineTimeChange,
   onLineMouseDown,
   onResizeMouseDown,
   onRulerClick,
   onSelectLine,
-  onSplitLine,
   onTrackMouseDown,
-  onUpdateLine,
 }: TimelineCanvasProps) => {
   const timelineToPixel = (time: number) =>
     (time - timelineStart) * pixelsPerSecond;
@@ -94,7 +93,11 @@ export const TimelineCanvas = ({
           className={styles.timelineCanvas}
           style={{ height: timelineHeight }}
         >
-          <div className={styles.ruler} onClick={onRulerClick}>
+          <div
+            className={styles.ruler}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={onRulerClick}
+          >
             {ticks.map((time) => (
               <div
                 key={time}
@@ -138,31 +141,34 @@ export const TimelineCanvas = ({
               return (
                 <TimelineLineBlock
                   key={line.id ?? index}
+                  textFields={textFields}
                   index={index}
                   canManage={canManage}
-                  currentTime={currentTime}
-                  draftSync={draftSync}
                   isActive={activeLineIndex === index}
-                  isEditing={editingLineIndex === index}
                   isSelected={selectedLineIndexes.includes(index)}
                   top={top}
                   line={line}
                   height={height}
                   onConsumeClick={onConsumeLineClick}
-                  onDelete={onDeleteLine}
-                  onEdit={onEditLine}
-                  onLineTimeChange={onLineTimeChange}
                   onMouseDown={onLineMouseDown}
                   onResizeMouseDown={onResizeMouseDown}
                   onSelect={onSelectLine}
-                  onSplit={onSplitLine}
-                  onUpdateLine={onUpdateLine}
                 />
               );
             })}
           </div>
         </div>
       </div>
+      <TimelineTools
+        scale={pixelsPerSecond}
+        minScale={MIN_PIXELS_PER_SECOND}
+        maxScale={MAX_PIXELS_PER_SECOND}
+        zoom={zoom}
+        onCenter={onCenter}
+        fields={["kr", "jpReading", "en", "enReading"]}
+        selectedFields={textFields}
+        onFieldsChange={onTextFieldsChange}
+      />
     </section>
   );
 };

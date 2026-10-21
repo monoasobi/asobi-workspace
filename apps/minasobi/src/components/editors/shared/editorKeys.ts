@@ -1,5 +1,5 @@
 export const textTargetSelector =
-  'textarea, select, [role="textbox"], [role="combobox"], [role="listbox"], [role="menu"], [data-text-selection], [data-icon-picker]';
+  'textarea, select, [role="textbox"], [role="combobox"], [role="listbox"], [role="radiogroup"], [role="checkbox"], [role="menu"], [data-text-selection], [data-icon-picker]';
 export function isEditorTextTarget(target: EventTarget | null, space = false) {
   if (!(target instanceof Element)) return false;
   if (

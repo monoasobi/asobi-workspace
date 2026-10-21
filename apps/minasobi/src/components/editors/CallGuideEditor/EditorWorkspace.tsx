@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { Copy, ClipboardPaste } from "lucide-react";
+import { useMemo, useState, type RefObject } from "react";
+import { Copy, ClipboardPaste, Plus, ListMusic, Eye } from "lucide-react";
 import { NextIntlClientProvider } from "next-intl";
 import { messages } from "@asobi/loudasobi-view/i18n/messages";
 import {
@@ -9,6 +9,20 @@ import {
   type Locale,
 } from "@asobi/loudasobi-view/i18n/config";
 import { Button } from "@asobi/ui/components/button";
+import {
+  ButtonGroup,
+  ButtonGroupText,
+} from "@asobi/ui/components/button-group";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@asobi/ui/components/toggle-group";
+import { EditorHelp } from "../shared/EditorHelp";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@asobi/ui/components/tooltip";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import {
   NativeSelect,
@@ -46,13 +60,13 @@ export function EditorWorkspace({
   onChange,
   selected,
   onSelect,
-  loop,
-  onLoopChange,
   shortcutRoot,
   onUndo,
   onRedo,
   onSave,
+  message,
 }: {
+  message: string;
   shortcutRoot: RefObject<HTMLElement | null>;
   onUndo: () => void;
   onRedo: () => void;
@@ -67,8 +81,6 @@ export function EditorWorkspace({
   onChange: (guide: CallGuide) => void;
   selected: string | null;
   onSelect: (id: string | null) => void;
-  loop: boolean;
-  onLoopChange: (value: boolean) => void;
 }) {
   useEditorShortcuts({
     root: shortcutRoot,
@@ -106,26 +118,9 @@ export function EditorWorkspace({
   );
   const [preview, setPreview] = useState(false);
   const [previewLocale, setPreviewLocale] = useState<Locale>("ko");
-  const loopSeeking = useRef(false);
   const cue = guide.cues.find((item) => item.id === selected);
   const newDuration = 480 / (music.bpm ?? 120);
   const { clock, seek } = playback;
-  useEffect(() => {
-    if (!loop || !cue) return;
-    return clock.subscribeFrame((sample) => {
-      if (sample.reset) {
-        loopSeeking.current = false;
-        return;
-      }
-      if (!sample.running || loopSeeking.current) return;
-      const start = Math.max(0, cue.start + track.sync - 1),
-        end = cue.end + track.sync;
-      if (sample.time >= end || sample.time < start) {
-        loopSeeking.current = true;
-        seek(start, true);
-      }
-    });
-  }, [loop, cue, clock, seek, track.sync]);
   function update(next: CallCue) {
     if (!disabled)
       onChange({
@@ -153,12 +148,10 @@ export function EditorWorkspace({
     onChange({ ...guide, cues: [...guide.cues, next] });
     setInspectingCue(undefined);
     onSelect(next.id);
-    onLoopChange(false);
   }
   function select(id: string) {
     setInspectingCue(undefined);
     onSelect(id);
-    onLoopChange(false);
   }
   function paste() {
     if (disabled || !copiedCue || guide.cues.length >= 500) return;
@@ -188,22 +181,26 @@ export function EditorWorkspace({
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2">
-        <Button
-          size="xs"
-          variant={!preview ? "secondary" : "outline"}
-          aria-pressed={!preview}
-          onClick={() => setPreview(false)}
+        <ToggleGroup
+          type="single"
+          value={preview ? "preview" : "timeline"}
+          onValueChange={(value) => {
+            if (value) setPreview(value === "preview");
+          }}
+          variant="outline"
+          size="sm"
+          spacing={0}
+          aria-label="편집 화면"
         >
-          세로 타임라인
-        </Button>
-        <Button
-          size="xs"
-          variant={preview ? "secondary" : "outline"}
-          aria-pressed={preview}
-          onClick={() => setPreview(true)}
-        >
-          감상 미리보기
-        </Button>
+          <ToggleGroupItem value="timeline">
+            <ListMusic />
+            타임라인
+          </ToggleGroupItem>
+          <ToggleGroupItem value="preview">
+            <Eye />
+            미리보기
+          </ToggleGroupItem>
+        </ToggleGroup>
         {preview && (
           <NativeSelect
             aria-label="미리보기 언어"
@@ -217,64 +214,53 @@ export function EditorWorkspace({
             ))}
           </NativeSelect>
         )}
-        <Button
-          size="xs"
-          variant="outline"
-          disabled={
-            disabled || !selectedLines.length || guide.cues.length >= 500
-          }
-          onClick={() =>
-            create(
-              presentation.lines[selectedLines[0]].start,
-              presentation.lines[selectedLines.at(-1)!].end,
-              true,
-            )
-          }
-        >
-          선택 가사로 콜 추가 ({selectedLines.length})
-        </Button>
-        <Button
-          size="xs"
-          variant="outline"
-          disabled={disabled || !cue || !selectedLines.length}
-          onClick={() =>
-            cue &&
-            update({
-              ...cue,
-              lines: selectedSource.filter((line) => line.id).map(snapshotLine),
-              selection: undefined,
-              textSelections: undefined,
-            })
-          }
-        >
-          선택 블록에 가사 연결
-        </Button>
-        <Button
-          size="xs"
-          variant="outline"
-          disabled={
-            disabled ||
-            guide.cues.length >= 500 ||
-            (playback.duration > 0 &&
-              playback.clock.read().time >= playback.duration - 0.01)
-          }
-          onClick={() => {
-            const start = roundTime(playback.clock.read().time - track.sync);
-            create(
-              start,
-              roundTime(
-                Math.min(
-                  start + newDuration,
-                  playback.duration > 0
-                    ? playback.duration - track.sync
-                    : start + newDuration,
+        <ButtonGroup aria-label="콜 추가">
+          <ButtonGroupText className="gap-1 text-xs">
+            <Plus className="size-3" />콜
+          </ButtonGroupText>
+          <Button
+            size="xs"
+            variant="outline"
+            disabled={
+              disabled ||
+              guide.cues.length >= 500 ||
+              (playback.duration > 0 &&
+                playback.clock.read().time >= playback.duration - 0.01)
+            }
+            onClick={() => {
+              const start = roundTime(playback.clock.read().time - track.sync);
+              create(
+                start,
+                roundTime(
+                  Math.min(
+                    start + newDuration,
+                    playback.duration > 0
+                      ? playback.duration - track.sync
+                      : start + newDuration,
+                  ),
                 ),
-              ),
-            );
-          }}
-        >
-          현재 위치에 콜 추가
-        </Button>
+              );
+            }}
+          >
+            현재 위치
+          </Button>
+          <Button
+            size="xs"
+            variant="outline"
+            disabled={
+              disabled || !selectedLines.length || guide.cues.length >= 500
+            }
+            onClick={() =>
+              create(
+                presentation.lines[selectedLines[0]].start,
+                presentation.lines[selectedLines.at(-1)!].end,
+                true,
+              )
+            }
+          >
+            선택 가사 ({selectedLines.length})
+          </Button>
+        </ButtonGroup>
         <Button
           size="xs"
           variant="outline"
@@ -298,54 +284,59 @@ export function EditorWorkspace({
             setInspectingCue(selected);
           }}
         >
-          가이드 추가
+          <Plus className="size-3" />
+          가이드
         </Button>
-        <div
-          className="flex items-center gap-1"
-          role="group"
-          aria-label="콜 복사와 붙여넣기"
-        >
-          <Button
-            size="xs"
-            variant="outline"
-            disabled={!cue}
-            onClick={() => {
-              if (!cue) return;
-              setCopiedCue(structuredClone(cue));
-              setCopyMessage(
-                "선택한 콜을 복사했습니다. 원하는 위치로 이동한 뒤 붙여넣어 주세요.",
-              );
-            }}
+        {(cue || copiedCue) && (
+          <ButtonGroup aria-label="콜 복사와 붙여넣기">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon-xs"
+                  variant="outline"
+                  aria-label="콜 복사"
+                  disabled={!cue}
+                  onClick={() => {
+                    if (!cue) return;
+                    setCopiedCue(structuredClone(cue));
+                    setCopyMessage(
+                      "선택한 콜을 복사했습니다. 원하는 위치로 이동한 뒤 붙여넣어 주세요.",
+                    );
+                  }}
+                >
+                  <Copy className="size-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>콜 복사</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon-xs"
+                  variant="outline"
+                  aria-label="현재 위치에 붙여넣기"
+                  disabled={disabled || !copiedCue || guide.cues.length >= 500}
+                  onClick={paste}
+                  title="복사한 콜을 현재 재생 위치에 붙여넣기"
+                >
+                  <ClipboardPaste className="size-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>현재 위치에 붙여넣기</TooltipContent>
+            </Tooltip>
+          </ButtonGroup>
+        )}
+        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+          <p
+            role="status"
+            className="min-w-0 truncate text-right text-xs text-muted-foreground/70"
+            title={message || copyMessage}
           >
-            <Copy className="size-3" />콜 복사
-          </Button>
-          <Button
-            size="xs"
-            variant="outline"
-            disabled={disabled || !copiedCue || guide.cues.length >= 500}
-            onClick={paste}
-            title="복사한 콜을 현재 재생 위치에 붙여넣기"
-          >
-            <ClipboardPaste className="size-3" />
-            현재 위치에 붙여넣기
-          </Button>
+            {message || copyMessage}
+          </p>
+          <EditorHelp />
         </div>
-        <Button
-          size="xs"
-          variant="ghost"
-          onClick={() => setInspectingCue(selected)}
-        >
-          가사·가이드 설정
-        </Button>
       </div>
-      {copyMessage && (
-        <p
-          role="status"
-          className="shrink-0 border-b px-3 py-2 text-xs text-muted-foreground"
-        >
-          {copyMessage}
-        </p>
-      )}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         {preview ? (
           <NextIntlClientProvider
@@ -402,6 +393,17 @@ export function EditorWorkspace({
           ) : cue ? (
             <CueInspector
               cue={cue}
+              selectedLineCount={selectedLines.length}
+              onLinkLyrics={() =>
+                update({
+                  ...cue,
+                  lines: selectedSource
+                    .filter((line) => line.id)
+                    .map(snapshotLine),
+                  selection: undefined,
+                  textSelections: undefined,
+                })
+              }
               lines={track.lyric}
               defaultBpm={music.bpm}
               sync={track.sync}
@@ -421,22 +423,9 @@ export function EditorWorkspace({
                   cues: guide.cues.filter((item) => item.id !== cue.id),
                 });
                 onSelect(null);
-                onLoopChange(false);
-              }}
-              loop={loop}
-              onLoop={() => {
-                onLoopChange(!loop);
-                if (!loop)
-                  playback.seek(Math.max(0, cue.start + track.sync - 1), true);
               }}
             />
-          ) : (
-            <p className="p-4 text-sm text-muted-foreground">
-              왼쪽 가사를 선택하거나 오른쪽 빈 시간 구간을 드래그해 콜 블록을
-              만드세요. 오른쪽에서 종류를 바꾸고 박자 패턴과 ±0.01초 위치 조절을
-              설정할 수 있습니다.
-            </p>
-          )}
+          ) : null}
         </ScrollArea>
       </div>
     </div>

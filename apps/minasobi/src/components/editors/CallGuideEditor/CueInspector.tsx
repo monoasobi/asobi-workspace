@@ -40,9 +40,11 @@ export function CueInspector({
   issue,
   onChange,
   onDelete,
-  loop,
-  onLoop,
+  selectedLineCount,
+  onLinkLyrics,
 }: {
+  selectedLineCount: number;
+  onLinkLyrics: () => void;
   cue: CallCue;
   lines: LyricLine[];
   defaultBpm?: number;
@@ -52,8 +54,6 @@ export function CueInspector({
   issue?: string;
   onChange: (cue: CallCue) => void;
   onDelete: () => void;
-  loop: boolean;
-  onLoop: () => void;
 }) {
   const effects = customCueEffects(cue);
   return (
@@ -63,24 +63,14 @@ export function CueInspector({
           {issue}
         </p>
       )}
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          size="xs"
-          variant="outline"
-          disabled={!playback.ready}
-          onClick={() => playback.seek(Math.max(0, cue.start + sync - 1), true)}
-        >
-          1초 전부터 재생
-        </Button>
-        <Button
-          size="xs"
-          variant={loop ? "secondary" : "outline"}
-          disabled={!playback.ready}
-          onClick={onLoop}
-        >
-          구간 반복 {loop ? "ON" : "OFF"}
-        </Button>
-      </div>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={disabled || !selectedLineCount}
+        onClick={onLinkLyrics}
+      >
+        선택 블록에 가사 연결 ({selectedLineCount})
+      </Button>
       <fieldset disabled={disabled} className="min-w-0 space-y-4">
         <div className="space-y-1.5">
           <p id="cue-type-label" className="text-sm font-medium">
@@ -114,10 +104,6 @@ export function CueInspector({
               </Button>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">
-            종류를 바꿔도 위치와 연결 가사는 유지됩니다. 떼창에서 다른 종류로
-            바꾸면 선택 강조는 해제됩니다.
-          </p>
         </div>
         <div className="min-w-0 space-y-2">
           <p className="text-xs font-medium text-muted-foreground">
@@ -153,12 +139,6 @@ export function CueInspector({
               </Button>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {cue.type === "singalong"
-              ? "이 블록만 이동합니다."
-              : "이 블록과 내부 펄스만 함께 이동합니다."}{" "}
-            곡 전체 싱크는 바뀌지 않습니다.
-          </p>
         </div>
         {cue.type === "chant" || cue.type === "custom" ? (
           <div className="space-y-3 rounded-lg border bg-muted/20 p-3">
@@ -224,35 +204,8 @@ export function CueInspector({
                 onChange({ ...cue, labels, label: labels.ko })
               }
             />
-            <p className="text-xs text-muted-foreground">
-              {cue.type === "custom"
-                ? "가사에 없는 의성어·떼창 문구나 콜 가이드의 역주를 입력하세요. 박자 없이도 구간 동안 표시됩니다."
-                : "사용자가 선택한 언어의 내용을 표시합니다."}
-            </p>
           </div>
-        ) : (
-          <div className="space-y-1">
-            <Label htmlFor="cue-label" className="font-semibold">
-              배지 문구
-            </Label>
-            <Input
-              className="font-semibold"
-              placeholder="배지에 강조할 문구"
-              id="cue-label"
-              value={cue.label}
-              maxLength={200}
-              onChange={(event) =>
-                onChange({ ...cue, label: event.target.value })
-              }
-            />
-            <TextSuggestions
-              kind="badge"
-              value={{ ko: cue.label, ja: "", en: "" }}
-              disabled={disabled}
-              onSelect={(value) => onChange({ ...cue, label: value.ko })}
-            />
-          </div>
-        )}
+        ) : null}
         <Accordion type="single" collapsible>
           <AccordionItem value="notes">
             <AccordionTrigger>콜 설명</AccordionTrigger>
@@ -291,10 +244,6 @@ export function CueInspector({
                   disabled={disabled}
                   onSelect={(notes) => onChange({ ...cue, notes })}
                 />
-                <p className="text-xs text-muted-foreground">
-                  이 콜 블록에 속한 설명으로, 현재 가사 위에 표시됩니다. 번역이
-                  비어 있으면 한국어 메모를 표시합니다.
-                </p>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -345,10 +294,6 @@ export function CueInspector({
                 />
               </div>
             ))}
-            <p className="text-xs text-muted-foreground">
-              각 효과를 따로 켜거나 함께 사용할 수 있습니다. 모두 끄면 문구만
-              표시합니다.
-            </p>
           </div>
         )}
         {cue.type !== "singalong" &&
@@ -362,24 +307,33 @@ export function CueInspector({
               onChange={onChange}
             />
           )}
-        <div className="grid grid-cols-2 gap-2">
-          <NumberField
-            label="시작 (재생 초)"
-            value={roundTime(cue.start + sync)}
-            min={0}
-            max={cue.end + sync - 0.01}
-            onChange={(value) =>
-              onChange(resizeCue(cue, "start", value - sync))
-            }
-          />
-          <NumberField
-            label="끝 (재생 초)"
-            value={roundTime(cue.end + sync)}
-            min={cue.start + sync + 0.01}
-            max={playback.duration || 86400}
-            onChange={(value) => onChange(resizeCue(cue, "end", value - sync))}
-          />
-        </div>
+        <Accordion key={cue.id} type="single" collapsible>
+          <AccordionItem value="timing">
+            <AccordionTrigger>시작·끝 시간</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-2 gap-2">
+                <NumberField
+                  label="시작 (재생 초)"
+                  value={roundTime(cue.start + sync)}
+                  min={0}
+                  max={cue.end + sync - 0.01}
+                  onChange={(value) =>
+                    onChange(resizeCue(cue, "start", value - sync))
+                  }
+                />
+                <NumberField
+                  label="끝 (재생 초)"
+                  value={roundTime(cue.end + sync)}
+                  min={cue.start + sync + 0.01}
+                  max={playback.duration || 86400}
+                  onChange={(value) =>
+                    onChange(resizeCue(cue, "end", value - sync))
+                  }
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
         <Button variant="destructive" size="sm" onClick={onDelete}>
           블록 삭제
         </Button>

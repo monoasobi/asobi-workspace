@@ -3,7 +3,6 @@ import { roundTime } from "../time";
 
 export const ZOOM_FACTOR = 1.18;
 export const TICK_SECONDS = 5;
-export const NONE_CALL_TYPE = "NONE";
 
 export const getTimelineGridInterval = (pixelsPerSecond: number) => {
   if (pixelsPerSecond >= 240) return 0.01;

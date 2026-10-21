@@ -11,11 +11,11 @@ export function clapSteps(pattern: NonNullable<CallSection["clapPattern"]>) {
   const divisor = displayDivisor(pattern);
   const steps = new Set(pattern.steps.map((step) => step / divisor));
   let display = Array.from(
-    { length: (8 * pattern.subdivision) / divisor },
+    { length: ((pattern.beats ?? 8) * pattern.subdivision) / divisor },
     (_, index) => steps.has(index),
   );
   while (
-    display.length > 8 &&
+    display.length > (pattern.beats ?? 8) &&
     display
       .slice(0, display.length / 2)
       .every((hit, index) => hit === display[index + display.length / 2])
