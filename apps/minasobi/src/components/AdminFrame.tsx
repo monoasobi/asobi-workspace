@@ -11,12 +11,13 @@ import {
   type SidebarLayout,
 } from "@asobi/content-core/sidebarOrder";
 import { adminSidebarAtom, initialAdminSidebar } from "@/atoms/adminSidebar";
-import type { AdminMusic } from "@/types/music";
+import type { getAdminMusicList } from "@/server/queries/music";
 import { AdminAuthForm } from "./AdminAuthForm";
 import { AlbumArtwork } from "./AlbumArtwork";
 import { NavigationGuard, useNavigationGuard } from "./NavigationGuard";
+type AdminMusicList = Awaited<ReturnType<typeof getAdminMusicList>>;
 export function AdminFrame(props: {
-  musics: AdminMusic[];
+  musics: AdminMusicList;
   layout: SidebarLayout;
   readOnly: boolean;
   children: React.ReactNode;
@@ -33,7 +34,7 @@ function Frame({
   readOnly,
   children,
 }: {
-  musics: AdminMusic[];
+  musics: AdminMusicList;
   layout: SidebarLayout;
   readOnly: boolean;
   children: React.ReactNode;
@@ -112,12 +113,8 @@ function Frame({
           <SongList
             showBadges={false}
             catalog={musics.map((music) => ({
-              music: {
-                ...music,
-                fanLightColor: music.fanLightColor ?? undefined,
-              },
+              music,
               hasLyrics: music.hasLyrics,
-              publish: music.publish,
             }))}
             layout={projectSidebar(
               layout,

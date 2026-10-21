@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { requireAdminSession } from "@/server/auth/access";
 import { getDb } from "@asobi/database";
 import {
@@ -9,6 +9,23 @@ import {
   loudasobiCallGuides,
 } from "@asobi/database/schema";
 import type { AdminMusic } from "@/types/music";
+
+export async function getAdminMusicList() {
+  await requireAdminSession();
+  return getDb()
+    .select({
+      id: musics.id,
+      title: musics.title,
+      korTitle: musics.korTitle,
+      enTitle: musics.enTitle,
+      albumArtKey: musics.albumArtKey,
+      // Only existence is needed to preserve navigation between lyric editors.
+      hasLyrics: sql<boolean>`exists (select 1 from ${lyricTracks} where ${lyricTracks.musicId} = ${musics.id})`.mapWith(Boolean),
+    })
+    .from(musics)
+    .where(isNull(musics.deletedAt))
+    .orderBy(asc(musics.id));
+}
 
 export async function getAdminMusics(id?: number): Promise<AdminMusic[]> {
   await requireAdminSession();
