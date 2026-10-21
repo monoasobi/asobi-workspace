@@ -1,5 +1,12 @@
 # 0단계 원본 소스 목록
 
+## 후속 LOUDASOBI 메타데이터 소유 경로 (2026-10-21)
+
+- 공개 /와 /musics/[id]는 apps/loudasobi/src/app/(public)/ 아래로 이동했으며 URL은 동일합니다. 공통 layout이 기존 PublicMusicPage/AppFrame을 유지합니다.
+- /musics/[id]/page.tsx의 generateMetadata가 언어별 곡 제목·OG/X·canonical을 제공합니다. 공통 문구와 이미지 URL은 src/lib/metadata.ts에서 구성합니다.
+- 기존 /manifest.webmanifest 정적 파일은 동일 URL의 manifest.webmanifest/route.ts로 교체했습니다. ?lang=ko/ja/en 및 기존 요청 locale을 지원하며 siteDescriptions를 재사용합니다.
+- 기존 공통 OG PNG/alt·아이콘 파일과 관리자 경로는 그대로입니다. 집중 검사는 scripts/check-loud-metadata.ts입니다.
+
 ## 후속 LOUDASOBI 공개 곡 주소 (2026-10-21)
 
 - 신규 공개 페이지: /musics/[id] → apps/loudasobi/src/app/musics/[id]/page.tsx. 기존 /도 유지합니다.

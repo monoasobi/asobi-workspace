@@ -1,5 +1,9 @@
 # 기존 코드 재사용·소유권 지도
 
+## LOUDASOBI 다국어 메타데이터 후속 (2026-10-21)
+
+기존 PublicMusicPage/AppFrame을 (public)/layout.tsx에서 재사용해 홈·곡 이동 사이의 목록/플레이어 상태를 보존합니다. page별 generateMetadata가 기존 공개 카탈로그와 locale 결정을 사용하며 React cache로 동일 요청 중복만 제거합니다. 앨범아트는 content-core/getAlbumArtUrl의 검증을 재사용하고 OG에만 1300px JPEG 변환을 연결합니다. 사이트 설명은 metadata.ts/siteDescriptions 하나를 사이트·OG/X·manifest Route Handler가 공유합니다. 새 플레이어·이미지 서버·영구 카탈로그 캐시는 없습니다.
+
 ## LOUDASOBI 곡별 URL (2026-10-21)
 
 기존 src/app/page.tsx의 공개 조회/추천 필터/AppFrame 연결을 src/components/layout/PublicMusicPage.tsx로 옮겼습니다. 홈과 /musics/[id]가 같은 서버 컴포넌트를 사용하며 새 조회 API·캐시·플레이어·공용 목록 사본은 없습니다. AppFrame은 기존 선택곡 state만 usePathname/history.pushState로 대체합니다. 관리자는 변경하지 않았습니다.

@@ -1,5 +1,21 @@
 # ASOBI 이관 진행 기록
 
+## LOUDASOBI 다국어 문구·곡별 OG 적용 (2026-10-21)
+
+문구/manifest 커밋: `dc3179b 라우다소비 메타 문구와 매니페스트 다국어 적용`. 기존 사용자 수정인 기본 제목·applicationName의 LOUDASOBI 대문자는 유지하고 이번 관련 커밋에 포함했습니다. 사이트 설명과 공유 PNG·alt는 변경하지 않았습니다.
+
+공통 OG/X 제목은 ko ‘YOASOBI 콜 가이드’, ja ‘YOASOBI コールガイド’, en ‘YOASOBI Call Guide’이며 OG siteName은 LOUDASOBI입니다. 곡 페이지 제목은 언어별 korTitle/title/enTitle + ‘ | LOUDASOBI’, OG/X 제목은 같은 곡명 + 언어별 공통 제목입니다. canonical/og:url도 곡 주소를 가리킵니다. 언어는 기존 쿠키/Accept-Language 기준이며 /ko·/ja·/en URL 추가는 하지 않았습니다.
+
+곡별 OG/X 이미지는 기존 getAlbumArtUrl의 공개 키/도메인 검증을 재사용해 Cloudflare width=1300,fit=scale-down,format=jpeg,quality=85로 제공합니다. 정사각형 앨범아트는 비율을 유지하고 작은 원본은 확대하지 않으며 메타 태그에 추정 치수를 기록하지 않습니다. 화면용 공용 5개 크기/loader는 변경하지 않았습니다. 유효한 키/asset base가 없으면 기존 공통 OG PNG를 사용합니다.
+
+정적 manifest를 동일 URL의 Route Handler로 교체하고 description은 siteDescriptions와 공유합니다. HTML manifest 링크의 ?lang=ko/ja/en으로 요청 언어를 명시해 브라우저가 manifest 요청에 쿠키를 싣지 않아도 일치합니다. lang 없이 접근하면 기존 언어 결정 함수를 사용합니다. private/no-store 및 Vary로 언어별 응답 혼용을 방지하며 이름·아이콘·start_url·display는 유지했습니다.
+
+곡 이동의 서버 메타데이터 갱신을 위해 native history를 router.push로 변경하고 기존 PublicMusicPage/AppFrame을 (public) 공통 layout에 연결했습니다. 홈·곡별 page는 기존 URL을 유지하며 메타데이터와 공개 ID 검증만 담당합니다. React cache는 동일 서버 요청 안에서 카탈로그 중복 조회만 줄이며 cross-request 캐시/TTL은 추가하지 않았습니다. 언어 변경 시 router.refresh가 메타데이터/manifest를 갱신하며 선택곡·정렬·플레이어는 유지합니다.
+
+Context7에서 Next.js generateMetadata 상속/병합, dynamic manifest, route group/shared layout/router.refresh/React cache 문서를 확인하고 설치된 16.3.5 문서·resolver와 대조했습니다. Loud lint/typecheck, node --import tsx scripts/check-loud-metadata.ts, 기존 URL 파싱 검사 및 diff 공백 검사 통과. 최초 타입 검사는 이동 전 .next/dev/types 경로 때문에 실패했으며 dev 타입 재생성 후 정상 통과했습니다.
+
+HTTP로 홈/곡 0의 한·일·영 title·OG/X 제목·이미지·manifest 설명 일치와 no-store, 잘못된/없는 곡 404/noindex를 확인했습니다. 공개 CDN 샘플은 실제 JPEG 1300×1300/200 응답입니다. 브라우저에서 곡 0→1 이동과 OG 이미지/제목 갱신, KO→EN→JA 제목·manifest 갱신, 뒤로/앞으로 가기와 정렬 유지, 언어 변경 전후 동일 YouTube iframe(widget4) 유지를 확인했습니다. 실제 음원 전체 재생·모바일/OS 설치·SNS 수집과 운영 배포는 미검증입니다. 빌드·푸시·운영 DB/R2/DNS 설정 변경은 없습니다. 확인용 서버는 종료합니다.
+
 ## LOUDASOBI 선택곡과 URL 연결 (2026-10-21)
 
 구현 커밋: `1df61fc 라우다소비 선택곡과 URL 연결`.

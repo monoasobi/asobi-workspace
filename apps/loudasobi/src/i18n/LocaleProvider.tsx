@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { isLocale, localeCookie, type Locale } from "./config";
 import { messages } from "./messages";
+import { useRouter } from "next/navigation";
 
 const LocaleSetter = createContext<(value: string) => void>(() => {});
 export const useSetLocale = () => useContext(LocaleSetter);
@@ -14,6 +15,7 @@ export function LocaleProvider({
   children: React.ReactNode;
 }) {
   const [locale, setLocale] = useState(initialLocale);
+  const router = useRouter();
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
@@ -21,6 +23,7 @@ export function LocaleProvider({
     if (!isLocale(value)) return;
     setLocale(value);
     document.cookie = `${localeCookie}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+    router.refresh();
   }
   return (
     <LocaleSetter.Provider value={changeLocale}>

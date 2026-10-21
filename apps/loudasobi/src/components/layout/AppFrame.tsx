@@ -24,10 +24,12 @@ export function AppFrame({
   catalog,
   sidebarLayout,
   unavailable = false,
+  children,
 }: {
   catalog: CatalogEntry[];
   sidebarLayout: SidebarLayout;
   unavailable?: boolean;
+  children: React.ReactNode;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -54,13 +56,14 @@ export function AppFrame({
     if (pathname !== path) {
       const url = new URL(window.location.href);
       url.pathname = path;
-      window.history.pushState(null, "", url);
+      router.push(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
     }
     if (compact) setMobileOpen(false);
   }
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
+      {children}
       <a
         href="#main-content"
         className="sr-only z-50 rounded bg-background p-3 focus:not-sr-only focus:absolute"

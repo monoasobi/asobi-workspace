@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { linesSchema } from "@asobi/content-core/catalogLyrics";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
@@ -14,7 +15,7 @@ import { parseGuide, resolveGuide } from "@asobi/content-core/callGuide";
 import type { CatalogEntry } from "@/types/catalog";
 
 // No shared MV fallback, static fallback, or cross-request cache.
-export async function getPublicCatalog(): Promise<CatalogEntry[]> {
+export const getPublicCatalog = cache(async (): Promise<CatalogEntry[]> => {
   const rows = await getDb()
     .select({
       id: musics.id,
@@ -75,4 +76,4 @@ export async function getPublicCatalog(): Promise<CatalogEntry[]> {
             },
     };
   });
-}
+});
