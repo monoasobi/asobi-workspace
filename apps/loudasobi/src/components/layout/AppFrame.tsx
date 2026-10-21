@@ -129,7 +129,7 @@ export function AppFrame({
           <div inert={isPending} className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden">
             {unavailable && pathname !== "/" ? <CatalogError /> : children}
           </div>
-          {isPending && <LoadingOverlay />}
+          {isPending && <LoadingOverlay label={t("dataLoading")} />}
         </main>
       </div>
     </div>
