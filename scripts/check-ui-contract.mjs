@@ -75,7 +75,7 @@ assert.deepEqual(
   ["NovelReader.module.css"],
 );
 assert.equal(
-  (await walk("apps/adminasobi/src")).some((p) => p.endsWith(".module.css")),
+  (await walk("apps/minasobi/src")).some((p) => p.endsWith(".module.css")),
   false,
 );
 for (const p of publicFiles.filter(

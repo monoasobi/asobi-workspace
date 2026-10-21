@@ -1,10 +1,6 @@
 "use client";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { Badge } from "@asobi/ui/components/badge";
-import {
-  adminNavigationAtom,
-  confirmAdminNavigation,
-} from "@/atoms/adminNavigation.atom";
 import { useHydrated } from "@/hooks/useHydrated";
 import type { Music } from "@appTypes/music";
 import type { Novel } from "@appTypes/novel";
@@ -14,7 +10,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { AlbumArtwork } from "@/components/common/AlbumArtwork";
 import { getAlbumArtSrc } from "@/lib/albumArt";
 import Link from "next/link";
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import styles from "./Sidebar.styles";
 type ItemTone = "active" | "available" | "untranslated";
@@ -28,7 +24,6 @@ interface SidebarClientProps {
 interface ItemProps {
   item: SidebarItem;
   isActive: boolean;
-  isAdmin: boolean;
 }
 export const SidebarClient = ({ items }: SidebarClientProps) => {
   const [isSidebar, setIsSidebar] = useAtom(sidebarAtom);
@@ -36,17 +31,6 @@ export const SidebarClient = ({ items }: SidebarClientProps) => {
   const isSidebarOpen = isHydrated ? isSidebar : false;
   const [sidebarScrollTop, setSidebarScrollTop] = useAtom(sidebarScrollTopAtom);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
-  const requestedMusicId = Number(
-    searchParams.get("musicId") ??
-      (pathname.startsWith("/admin/lyrics/")
-        ? pathname.split("/")[3]
-        : items[0]?.music.id),
-  );
-  const selectedMusicId =
-    items.find((item) => item.music.id === requestedMusicId)?.music.id ??
-    items[0]?.music.id;
   const params = useParams<{
     id?: string;
   }>();
@@ -103,18 +87,15 @@ export const SidebarClient = ({ items }: SidebarClientProps) => {
         >
           <div className="flex flex-col gap-1">
             {items
-              .filter((item) => isAdmin || item.novel)
+              .filter((item) => item.novel)
               .map((item) => (
                 <Item
                   item={item}
                   key={item.music.id}
-                  isAdmin={isAdmin}
                   isActive={
-                    isAdmin
-                      ? item.music.id === selectedMusicId
-                      : item.music.specialPath
-                        ? pathname.includes(item.music.specialPath)
-                        : params.id === String(item.novel?.id)
+                    item.music.specialPath
+                      ? pathname.includes(item.music.specialPath)
+                      : params.id === String(item.novel?.id)
                   }
                 />
               ))}
@@ -139,9 +120,8 @@ const getTone = ({
   if (specialPath || translated || isPublished) return "available";
   return "untranslated";
 };
-const Item = ({ item, isActive, isAdmin }: ItemProps) => {
+const Item = ({ item, isActive }: ItemProps) => {
   const { music, novel } = item;
-  const guard = useAtomValue(adminNavigationAtom);
   const { korTitle, title, enTitle, specialPath } = music;
   const setIsSidebar = useSetAtom(sidebarAtom);
   const hasPrivateReaderAccess = useAtomValue(privateReaderAtom);
@@ -149,30 +129,17 @@ const Item = ({ item, isActive, isAdmin }: ItemProps) => {
   const closeHandler = () => {
     if (window.innerWidth < 1024) setIsSidebar(false);
   };
-  const href = isAdmin
-    ? `/admin?musicId=${music.id}`
-    : specialPath
-      ? `/${specialPath}`
-      : `/novel/${novel?.id}`;
+  const href = specialPath ? `/${specialPath}` : `/novel/${novel?.id}`;
   const tone = getTone({ isActive, specialPath, translated, isPublished });
   const showPublishedBadge =
-    !isAdmin && isPublished && !hasPrivateReaderAccess && !specialPath;
+    isPublished && !hasPrivateReaderAccess && !specialPath;
   return (
     <Link
       href={href}
-      onNavigate={(event) => {
-        if (!isAdmin) return;
-        if (!confirmAdminNavigation(guard)) {
-          event.preventDefault();
-          return;
-        }
-        closeHandler();
-      }}
-      onClick={isAdmin ? undefined : closeHandler}
+      onClick={closeHandler}
       title={`${title} - ${korTitle} / ${enTitle}`}
       className={styles.item}
       aria-current={isActive ? "page" : undefined}
-      scroll={isAdmin ? false : undefined}
       data-active={isActive}
       data-tone={tone}
     >
