@@ -145,7 +145,6 @@ export function MusicSettingsForm({
                     id="youtube-id"
                     aria-describedby="youtube-help"
                     value={youtubeId}
-                    maxLength={11}
                     pattern="[A-Za-z0-9_-]{11}"
                     placeholder="11자리 영상 ID"
                     onChange={(event) => {

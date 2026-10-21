@@ -1,5 +1,13 @@
 # ASOBI 이관 진행 기록
 
+## 관리자 YouTube 입력 글자 수 제한 제거 (2026-10-22)
+
+사용자 요청으로 `MusicSettingsForm`의 LOUDASOBI 전용 YouTube 입력에서 `maxLength={11}`만 제거했습니다. 입력 변경은 전체 문자열을 그대로 상태에 반영하므로 URL을 자르지 않고 필드에서 편집할 수 있습니다. 기존 HTML pattern, 저장 전 trim, 공용 musicSettingsSchema·musicSettingsUpdateSchema와 API/mutation 검증은 유지합니다. 전체 URL을 전용 ID로 저장하도록 허용하는 변경은 아닙니다.
+
+공용 Input, 공통 곡 정보 MusicInfoFields, 신규 등록의 editorConfigs/music·AdminEditorField 사용처를 확인했습니다. 이 경로에는 YouTube 입력을 자르는 제한이 없었습니다. 공통 곡 정보의 기존 musicSchema 검증도 변경하지 않았습니다.
+
+MINASOBI lint/typecheck와 diff 공백 검사 통과. 실제 스키마 실행으로 정상 ID·빈 비공개 ID 허용, URL·10/12자리·잘못된 문자 및 공개 시 빈 ID 거부를 확인했고 공통 musicSchema의 기존 URL 처리도 대조했습니다. 브라우저 붙여넣기·수동 편집과 인증된 저장/DB 반영은 미검증입니다. 빌드·푸시·배포·운영 데이터 변경 없이 소스와 이 기록을 하나의 기능 단위로 로컬 커밋합니다.
+
 ## Loud 가사 왼쪽 뱃지 표시 정리 (2026-10-21)
 
 사용자 요청으로 공용 LyricRow에서 활성 뱃지 내부 왼쪽 점과 떼창 뱃지 텍스트를 제거했습니다. 챈트 문구와 각 유형 아이콘·활성 색상은 유지하며 아이콘만 남은 떼창에도 접근성 이름을 제공합니다. 같은 렌더러를 쓰는 관리자 감상 미리보기에도 반영됩니다.
