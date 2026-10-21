@@ -10,7 +10,7 @@
 
 기존 src/app/page.tsx의 공개 조회/추천 필터/AppFrame 연결을 src/components/layout/PublicMusicPage.tsx로 옮겼습니다. 홈과 /musics/[id]가 같은 서버 컴포넌트를 사용하며 새 조회 API·캐시·플레이어·공용 목록 사본은 없습니다. AppFrame은 기존 선택곡 state만 usePathname/history.pushState로 대체합니다. 관리자는 변경하지 않았습니다.
 
-기준일: 2026-10-20. 상태: **8단계 로컬 검증·운영 DB/R2 연결 및 승인된 앨범아트 36곡 전환 완료. 사용자 배포/나머지 QA 후 기존 관리자 종료 예정**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
+기준일: 2026-10-21. 상태: **8단계 이관·최초 배포·사용자 캐시 해결 확인 완료. 기존 관리자 코드/쓰기 API/전용 의존성은 로컬 제거했고 운영 종료 반영과 세부 QA는 남음**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
 
 기존 소스 전체는 각각 `apps/monoasobi`, `apps/loudasobi`에 Git 이력과 함께 가져왔습니다. 2단계에서는 아래 실제 이동 목록의 공통 구현을 packages로 옮기고 소비자 import를 변경했습니다. public 자산과 편집기/재생 알고리즘은 보존했습니다. 아래 본문 표에는 이후 관리자/미리보기 이관 목표도 포함되며, 모든 목표가 구현됐다는 뜻은 아닙니다.
 
@@ -198,3 +198,8 @@
 | Mono custom/Guide.tsx·Guide.styles.ts | packages/ui/src/components/NovelMarkdownGuide.tsx·styles | 문법 예시 11개와 실제 미리보기 재사용. 관리자 /guide 및 헤더 메뉴로 제공. Mono /guide는 사용자 요청으로 제거 |
 | Mono content/NovelMarkdown.tsx·module.css | packages/ui/src/components/NovelMarkdown.tsx·module.css | 렌더링 JSX·상수·문법 CSS 그대로 이동. Mono의 기존 파일은 fontAtom adapter. 기존 승인 해시 재사용 검사 |
 | Mono KoPubBatang-Medium.woff2 | packages/ui/src/assets, novel-guide.css | 관리자 번들에 같은 원본 폰트를 포함. Mono 기존 정적 폰트 URL은 호환 보존. 가이드 범위 읽기 팔레트는 기존 sRGB/P3 값으로 유지하며 Themes 의존성은 추가하지 않음 |
+
+
+## 9단계 후속 의존성 소유권
+
+Loud의 옛 아이콘 선택기 사본 제거 후 @tanstack/react-virtual/fuse.js/usehooks-ts는 실제 소비자인 apps/minasobi만 직접 선언합니다. lockfile도 실제 apps/minasobi 경로를 사용하며 workspace 이름 @asobi/adminasobi는 유지합니다. 버전/무결성은 변경하지 않았습니다. 소설 읽기 테마 보존용 Radix Theme/CSS와 공개 앨범아트 호환 API는 유지합니다. 최종 확인 범위는 [migration-handoff.md](migration-handoff.md)를 따릅니다.

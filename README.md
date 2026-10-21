@@ -1,14 +1,14 @@
 # ASOBI Workspace
 
-MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. **8단계 코드/로컬 검증과 운영 DB·원문 R2 연결을 마쳤고, 앨범아트 36곡의 고해상도 키 전환·기존 배포 호환/캐시 검증도 완료했습니다.** 사용자 QA는 진행 중이며 실제 배포는 사용자가 담당합니다. [운영 환경변수·배포 인계](docs/production-environment.md)를 먼저 확인하세요. 기존 관리자 쓰기는 정상 배포/새 관리자 동작 확인 직후 제거합니다.
+MONOASOBI·LOUDASOBI 공개 앱과 MINASOBI 통합 관리자를 함께 관리하는 npm workspace입니다. **0~8단계 코드 이관·공용화와 사용자 최초 배포, 캐시 문제 해결을 마쳤습니다.** 옛 관리자/쓰기 API 제거와 관리자 전용 의존성 정리는 로컬 완료했으며, 공개 두 앱의 운영 종료 변경 반영은 확인이 남습니다. [최종 인계·남은 QA](docs/migration-handoff.md)와 [운영 환경변수](docs/production-environment.md)를 확인하세요.
 
 ## 현재 구조
 
 ```text
 apps/
-  monoasobi/       # 기존 공개 서비스와 기존 관리자
-  loudasobi/       # 기존 공개 서비스와 기존 관리자
-  minasobi/      # 통합 관리자: 곡 정보·앨범아트·가사/콜 편집
+  monoasobi/       # 원작·만화·가사 공개 서비스
+  loudasobi/       # 콜·박수·떼창 공개 서비스
+  minasobi/        # 통합 관리자: 곡 정보·앨범아트·가사/콜 편집
 packages/
   ui/             # 기존 shadcn·공통 브랜드·곡 사이드바
   content-core/   # 가사 타입·검증·콜 계산·시간·추천 정렬
@@ -50,11 +50,11 @@ npm run dev:loud
 npm run dev:admin
 ```
 
-| 앱 | 기본 주소 | 기존 관리자 |
+| 앱 | 기본 주소 | 관리자 경로 |
 | --- | --- | --- |
-| MONOASOBI | http://localhost:3000 | http://localhost:3000/admin |
-| LOUDASOBI | http://localhost:3001 | http://localhost:3001/admin |
-| ADMINASOBI | http://localhost:3002 | `/login` → `/musics/[id]` |
+| MONOASOBI | http://localhost:3000 | `/admin`은 이전 안내 |
+| LOUDASOBI | http://localhost:3001 | `/admin`은 이전 안내 |
+| MINASOBI | http://localhost:3002 | `/login` → `/musics/[id]` |
 
 기존 서버가 기본 포트를 사용 중이면 포트를 바꿀 수 있습니다. 1단계 실행 확인에는 아래 명령을 사용했습니다.
 
