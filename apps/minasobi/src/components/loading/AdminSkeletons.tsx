@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
 import { NovelMarkdownGuide } from "@asobi/ui/components/NovelMarkdownGuide";
@@ -286,7 +287,15 @@ export function AdminFrameSkeleton({ children }: { children?: ReactNode }) {
           >
             <PanelLeft className="size-5" />
           </Button>
-          <h1 className="text-sm font-semibold">ASOBI 관리자</h1>
+          <h1 className="shrink-0">
+            <Image
+              src="/assets/logo.svg"
+              alt="MINASOBI"
+              width={363}
+              height={90}
+              className="h-auto w-[120px]"
+            />
+          </h1>
           <Skeleton className="h-5 w-16 rounded-full" />
         </div>
         <div className="flex flex-wrap items-center gap-2">

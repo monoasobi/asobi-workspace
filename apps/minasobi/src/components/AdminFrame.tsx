@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useAtom } from "jotai";
 import { usePathname } from "next/navigation";
 import { useLoadingRouter } from "@/components/NavigationGuard";
@@ -70,7 +71,15 @@ function Frame({
           >
             <PanelLeft className="size-5" />
           </Button>
-          <h1 className="text-sm font-semibold">ASOBI 관리자</h1>
+          <h1 className="shrink-0">
+            <Image
+              src="/assets/logo.svg"
+              alt="MINASOBI"
+              width={363}
+              height={90}
+              className="h-auto w-[120px]"
+            />
+          </h1>
           <Badge variant="secondary">{readOnly ? "열람 전용" : "관리자"}</Badge>
         </div>
         <div className="flex flex-wrap items-center gap-2">
