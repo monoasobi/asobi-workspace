@@ -8,7 +8,7 @@ MONOASOBI와 LOUDASOBI를 함께 관리하는 npm workspace입니다. **8단계 
 apps/
   monoasobi/       # 기존 공개 서비스와 기존 관리자
   loudasobi/       # 기존 공개 서비스와 기존 관리자
-  adminasobi/      # 통합 관리자: 곡 정보·앨범아트·가사/콜 편집
+  minasobi/      # 통합 관리자: 곡 정보·앨범아트·가사/콜 편집
 packages/
   ui/             # 기존 shadcn·공통 브랜드·곡 사이드바
   content-core/   # 가사 타입·검증·콜 계산·시간·추천 정렬
@@ -23,7 +23,7 @@ package.json
 package-lock.json # 전체 workspace의 단일 lockfile
 ```
 
-`adminasobi`에서 로그인·곡 선택·공통 곡 정보/콜 설정 저장·앨범아트 관리와 공개 갱신 알림을 제공합니다. 기존 관리자 두 개는 기능별 전환을 확인할 때까지 유지합니다. 가사·콜은 `/musics/[id]/lyrics`, `/musics/[id]/calls`의 별도 페이지이며 같은 사이드바를 사용합니다. 곡별 콘텐츠는 `/musics/[id]/content`, 전체 서적은 `/books`, 추천 그룹·정렬은 `/sidebar`에서 관리합니다. 새 앱 템플릿으로 제품을 다시 생성하지 않았으며, 기존 UI·편집·재생 구현을 공용 위치로 옮기고 import와 연결부만 수정했습니다. 정적 자산 URL은 유지합니다.
+`minasobi`에서 로그인·곡 선택·공통 곡 정보/콜 설정 저장·앨범아트 관리와 공개 갱신 알림을 제공합니다. 기존 관리자 두 개와 공개 앱의 관리자 쓰기 API는 사용자 승인으로 제거했습니다. `/admin`과 하위 주소는 MINASOBI 이전 안내만 표시합니다. 가사·콜은 `/musics/[id]/lyrics`, `/musics/[id]/calls`의 별도 페이지이며 같은 사이드바를 사용합니다. 곡별 콘텐츠는 `/musics/[id]/content`, 전체 서적은 `/books`, 추천 그룹·정렬은 `/sidebar`에서 관리합니다. 새 앱 템플릿으로 제품을 다시 생성하지 않았으며, 기존 UI·편집·재생 구현을 공용 위치로 옮기고 import와 연결부만 수정했습니다. 정적 자산 URL은 유지합니다.
 
 ## 실행
 
@@ -66,7 +66,7 @@ npm run dev:mono -- --port 3100 --hostname 127.0.0.1
 npm run dev:loud -- --port 3101 --hostname 127.0.0.1
 ```
 
-관리자는 `npm run dev:admin -- --port 3102 --hostname 127.0.0.1`로 확인했습니다. 로컬 로그인 비밀번호는 `apps/adminasobi/.env.local`의 `ADMIN_PASSWORD`입니다.
+관리자는 `npm run dev:admin -- --port 3102 --hostname 127.0.0.1`로 확인했습니다. 로컬 로그인 비밀번호는 `apps/minasobi/.env.local`의 `ADMIN_PASSWORD`입니다.
 
 Loud `.env.local`의 `NEXT_PUBLIC_MONOASOBI_URL`과 `NEXT_PUBLIC_SITE_URL`, 관리자 `NEXT_PUBLIC_MONOASOBI_URL`도 실제 포트에 맞춥니다. 해당 값은 공개 URL이며 서버 비밀값과 다릅니다.
 
@@ -151,9 +151,9 @@ node --test apps/monoasobi/scripts/activeLyric.test.mjs
 세 앱의 로컬 개발 서버가 3100/3101/3102에서 실행 중이면 아래 명령으로 합성 데이터 저장 흐름을 재확인할 수 있습니다. **ASOBI의 `.local/development.sqlite`와 loopback 주소만 허용하며, ID 0의 곡·설정을 잠시 수정한 뒤 원래 필드 값으로 복원합니다.** 저장 시각은 갱신됩니다. 실제 콘텐츠를 연결한 DB에서는 실행하지 마세요.
 
 ```sh
-node apps/adminasobi/scripts/local-flow-check.mjs
-node apps/adminasobi/scripts/editor-flow-check.mjs
-node apps/adminasobi/scripts/content-flow-check.mjs
+node apps/minasobi/scripts/local-flow-check.mjs
+node apps/minasobi/scripts/editor-flow-check.mjs
+node apps/minasobi/scripts/content-flow-check.mjs
 ```
 
 편집 HTTP 검사는 확인용 곡 하나만 있는 합성 DB인지 추가 확인하며, 가사·콜·설정 fixture를 원래 값과 시각으로 복원합니다. 단축키·공통 코드 위치·Mono 편의 기능·수동 QA 목록은 [편집기 이관 기록](docs/editor-migration.md)을 참고하세요.
@@ -174,4 +174,4 @@ node apps/adminasobi/scripts/content-flow-check.mjs
 6단계 기능 대조·코드 위치·숨김/복원·서적 관계·동시 편집 한계는 [콘텐츠 이관 기록](docs/content-migration.md)을 확인하세요. 상단 메뉴에서 곡 추가·서적·추천 정렬·숨긴 곡으로 이동할 수 있습니다. 사용자 QA와 운영 검토사항은 별도 진행 중이며 결정이 모이면 반영합니다.
 
 
-7단계 일반 공개 UI와 새 관리자는 Tailwind·공용 shadcn/타이포 역할을 사용합니다. 소설은 사용자 지정 문법 CSS Modules를 유지하고 기존 Radix Themes 부품을 HTML/Tailwind·공용 shadcn으로 대체했습니다. 읽기 테마 값과 종료 전 관리자를 위해 Radix Theme/CSS는 임시 유지합니다. [최소 디자인 시스템](docs/ui-design-system.md), [소설 보존·실제 검증 범위](docs/ui-migration.md)를 확인하세요. 종료 예정인 옛 Mono 관리자만 별도 CSS Modules를 임시 유지합니다.
+7단계 일반 공개 UI와 새 관리자는 Tailwind·공용 shadcn/타이포 역할을 사용합니다. 소설은 사용자 지정 문법 CSS Modules를 유지하고 기존 Radix Themes 부품을 HTML/Tailwind·공용 shadcn으로 대체했습니다. 읽기 테마 값을 보존하기 위해 Radix Theme/CSS는 유지합니다. [최소 디자인 시스템](docs/ui-design-system.md), [소설 보존·실제 검증 범위](docs/ui-migration.md)를 확인하세요. 옛 Mono 관리자와 해당 CSS Modules는 제거했습니다.

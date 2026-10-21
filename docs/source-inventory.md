@@ -1,5 +1,7 @@
 # 0단계 원본 소스 목록
 
+> 2026-10-21 현재 상태: 이 문서는 원본 감사 기준 목록입니다. 사용자 배포 완료·관리자 제거 승인 후 Mono/Loud의 /admin 구현·/api/admin 쓰기·전용 인증/query/mutation/편집기 사본은 제거했고 /admin 하위는 MINASOBI 이전 안내로 대체했습니다. 공개 콘텐츠/독자 인증/Agent API·Mono 내부 캐시 API는 유지합니다. 실제 관리자 소유 경로는 apps/minasobi입니다.
+
 ## 후속 LOUDASOBI 메타데이터 소유 경로 (2026-10-21)
 
 - 공개 /와 /musics/[id]는 apps/loudasobi/src/app/(public)/ 아래로 이동했으며 URL은 동일합니다. 공통 layout이 기존 PublicMusicPage/AppFrame을 유지합니다.

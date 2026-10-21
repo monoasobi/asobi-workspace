@@ -1,5 +1,7 @@
 # 5단계 편집기 이관 계약과 QA
 
+> 2026-10-21 후속: 사용자 배포 완료와 기존 관리자 삭제 승인에 따라 공개 두 앱의 옛 가사/콜 편집기 사본을 제거했습니다. 편집기 단일 소유자는 apps/minasobi이며 공통 계산/공개 미리보기는 기존 패키지를 계속 사용합니다. 편집 계약 검사 7개 통과. 상세 수동 QA는 기존 기록과 구분합니다.
+
 기준: 2026-10-20. 기존 가사·콜 편집기를 새 관리자에 이관하고 정적 검사·합성 로컬 DB 저장 검증을 마쳤습니다. **실제 브라우저 입력·영상 재생·시각 QA는 사용자 요청으로 보류 중**입니다. production build·배포·운영 DB 변경은 하지 않았습니다.
 
 ## 화면과 코드 위치
@@ -12,7 +14,7 @@
 
 | 소유 위치 | 역할 |
 | --- | --- |
-| `apps/adminasobi/src/components/editors/shared` | 두 편집기의 단축키·history·zoom·viewport·이동 보호 등록·JSON 복사 |
+| `apps/minasobi/src/components/editors/shared` | 두 편집기의 단축키·history·zoom·viewport·이동 보호 등록·JSON 복사 |
 | `.../editors/lyric-timeline` | Mono 원본 선택/드래그/스냅/resize, 가사 줄 UI |
 | `.../editors/CallGuideEditor*` | Loud 원본 콜/펄스/패턴·연결/스냅샷·문구/아이콘 |
 | `.../editors/playback` | Mono 원본 pending seek·영상/가사 재생 제어 |
@@ -75,7 +77,7 @@
 - `npm run check:core`: 3개, admin `check:editors`: 4개, `check:security`: 3개 통과.
 - Mono 기존 activeLyric·timelineSnap 검사: 2개 통과.
 - `npm ci --dry-run --ignore-scripts --offline`: lockfile 설치 계획 통과. 실제 clean install이나 배포 빌드 검증을 뜻하지 않습니다.
-- `node apps/adminasobi/scripts/local-flow-check.mjs`: 기존 곡/설정 분리 저장·권한·공개 HTTP 반영 회귀 통과.
-- `node apps/adminasobi/scripts/editor-flow-check.mjs`: 로컬 ID 0 합성 fixture에서 auth/role/Origin/400/404/409, 영어·줄 ID·필드 소유권, 가사 수정 뒤 콜 참조 경고, 두 페이지 HTTP 200 통과. 수정한 fixture는 원래 값·시각으로 복원했습니다.
+- `node apps/minasobi/scripts/local-flow-check.mjs`: 기존 곡/설정 분리 저장·권한·공개 HTTP 반영 회귀 통과.
+- `node apps/minasobi/scripts/editor-flow-check.mjs`: 로컬 ID 0 합성 fixture에서 auth/role/Origin/400/404/409, 영어·줄 ID·필드 소유권, 가사 수정 뒤 콜 참조 경고, 두 페이지 HTTP 200 통과. 수정한 fixture는 원래 값·시각으로 복원했습니다.
 
 HTTP 검사는 세 로컬 서버가 127.0.0.1:3100/3101/3102에서 실행 중이어야 합니다. 검사 helper는 정확한 `.local/development.sqlite`와 loopback 갱신 대상만 허용하며 편집 검사는 확인용 곡 하나인지 추가 검사합니다. 실제 콘텐츠 DB에 연결해 실행하지 않습니다. SSR 200은 브라우저에서 편집 동작이 확인됐다는 뜻이 아닙니다.

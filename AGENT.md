@@ -35,7 +35,7 @@
 - Git 저장소 하나에 독립 배포하는 Next.js 앱 세 개를 둡니다.
   - `apps/monoasobi`: 원작·만화·가사 감상 공개 서비스.
   - `apps/loudasobi`: 콜·박수·떼창 가이드 공개 서비스.
-  - `apps/adminasobi`: 두 기존 관리자를 합친 한국어 관리자.
+  - `apps/minasobi`: 두 기존 관리자를 합친 한국어 관리자.
 - 두 공개 서비스의 기존 도메인·공개 URL·주요 동작을 보존하고 관리자만 새 주소로 분리합니다.
 - 공통 UI는 최근 LOUDASOBI의 shadcn/ui 구성을 기준으로 통일합니다. MONOASOBI의 Radix Themes는 점진적으로 제거합니다.
 - **브랜드 색상은 사용자 결정(2026-10-20)에 따라 LOUDASOBI의 기존 팔레트와 라이트·다크 semantic token을 세 앱에서 공용으로 사용합니다.** 단일 원본은 `packages/ui/src/brand.css`이며, Tailwind 연결은 `packages/ui/src/styles.css`입니다. 후속 사용자 확정 주조색은 **#F2285A**이고 라이트/다크 primary와 sidebar-primary 모두 magenta-500을 사용합니다. 기본 주조색을 600/400 단계로 임의 변경하지 않습니다. 앱별 색상 사본이나 별도 브랜드 테마를 만들지 않습니다. MONOASOBI의 실제 화면 적용은 7단계 UI 전환에서, 새 관리자는 생성 시부터 이 기준을 사용합니다.
@@ -78,7 +78,7 @@ asobi-workspace/
   apps/
     monoasobi/
     loudasobi/
-    adminasobi/
+    minasobi/
   packages/
     ui/                     # 공용 shadcn 부품·테마·범용 이미지 표시
     content-core/           # 브라우저/서버에서 쓸 순수 타입·검증·가사/콜 계산
@@ -230,7 +230,7 @@ asobi-workspace/
 
 ### 5단계 — 기존 가사·콜 편집기 별도 페이지 이관
 
-현재 이관 코드와 로컬 검증을 마쳤고 사용자 화면·재생 QA는 대기 중입니다. 구현 계약·QA 목록은 `docs/editor-migration.md`, 커밋과 결과는 `docs/migration-status.md`를 확인합니다. 이미 이관한 편집기를 다시 만들지 않습니다. 공통 조작은 `apps/adminasobi/src/components/editors/shared`, 공개/관리자 콜 렌더러는 `packages/loudasobi-view`가 소유합니다.
+현재 이관 코드와 로컬 검증을 마쳤고 사용자 화면·재생 QA는 대기 중입니다. 구현 계약·QA 목록은 `docs/editor-migration.md`, 커밋과 결과는 `docs/migration-status.md`를 확인합니다. 이미 이관한 편집기를 다시 만들지 않습니다. 공통 조작은 `apps/minasobi/src/components/editors/shared`, 공개/관리자 콜 렌더러는 `packages/loudasobi-view`가 소유합니다.
 
 작업:
 - 기존 MONOASOBI `src/app/admin/_components/lyric-timeline/`을 기반으로 영어 해석·독음까지 포함한 가사 편집 페이지를 이관합니다. 컴포넌트와 테마를 교체하며 계산·재생·드래그 훅은 보존합니다.
@@ -294,7 +294,7 @@ asobi-workspace/
 
 ### 9단계 — Vercel 연결·운영 전환·중복 관리자 종료
 
-**최신 사용자 결정:** GitHub 연결·푸시·Vercel 배포는 사용자가 진행하므로 에이전트는 배포 준비와 로컬 커밋까지만 수행합니다. `docs/production-environment.md`의 실제 운영 환경변수와 인계 순서를 따릅니다. 사용자가 정상 배포·새 관리자 동작 확인을 알려주면 지체 없이 기존 두 관리자/쓰기 API 제거 작업을 진행합니다. 그 전에는 삭제하지 않습니다. 공개 콘텐츠·독자 인증·Agent API·소설 로컬 편집 경로와 원본 저장소/기존 파일은 보존합니다. 사이드바는 세 앱 모두 200px 요청으로 고정하며 다른 표시의 크기별 제공은 유지합니다.
+**최신 사용자 결정(2026-10-21):** 사용자가 세 앱의 Vercel 배포 완료와 기존 두 관리자/쓰기 API 즉시 삭제를 명시했습니다. 기존 관리자·전용 인증·쓰기 API는 제거했고 `/admin` 및 하위 주소에는 MINASOBI 이전 안내만 제공합니다. 통합 관리자의 현재 폴더는 `apps/minasobi`이며 workspace 이름 `@asobi/adminasobi`와 `dev:admin`은 유지합니다. 공개 앱 로컬의 불필요한 관리자 키는 제거했으며 배포 환경 키 삭제와 이번 종료 커밋 배포는 사용자가 진행합니다. 공개 운영 Mono 캐시 API는 503 / Unavailable(REVALIDATION_SECRET 미설정)을 반환합니다. 사용자 환경값 수정/재배포 및 인증된 성공 확인 전까지 정상으로 보고하지 않습니다. 공개 콘텐츠·독자 인증·Agent API·소설 로컬 편집 경로·원본 저장소/기존 파일과 사이드바 200px 계약을 보존합니다. 빌드·푸시·배포는 이번 작업 범위에 포함하지 않습니다.
 
 작업:
 - 같은 Git 저장소에 Vercel 프로젝트 3개를 연결하고 각 Root Directory를 해당 apps 폴더로 지정합니다. 루트 lockfile·공통 패키지 소스 접근·빌드 설정·독립 환경변수를 확인합니다.

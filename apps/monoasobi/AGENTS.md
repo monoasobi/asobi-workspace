@@ -9,7 +9,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## 모노레포 이관 범위
 
 - 이 디렉터리는 기존 MONOASOBI를 이관한 사본입니다. 상세 단계·보존 계약·승인은 루트 `../../AGENT.md`와 `../../docs/migration-status.md`를 따릅니다.
-- 공개 일반 UI는 공용 shadcn/Tailwind로 전환했습니다. 소설은 문법별 CSS Modules를 보존하고 Themes 부품을 HTML/Tailwind·공용 shadcn으로 대체합니다. 종료 예정인 관리자와 읽기 테마 값은 기존 Radix Theme/CSS를 사용합니다. 가사/관리자 기능은 3~6단계에 adminasobi로, 공통 UI는 2·7단계에 인계했습니다. 기존 편집기·재생 로직을 재개발하지 않습니다.
+- 공개 일반 UI는 공용 shadcn/Tailwind로 전환했습니다. 소설은 문법별 CSS Modules를 보존하고 Themes 부품을 HTML/Tailwind·공용 shadcn으로 대체합니다. 기존 관리자는 사용자 승인으로 제거했고 읽기 테마 값은 기존 Radix Theme/CSS를 사용합니다. 가사/관리자 기능은 3~6단계에 adminasobi로, 공통 UI는 2·7단계에 인계했습니다. 기존 편집기·재생 로직을 재개발하지 않습니다.
 - DB 정의·연결·마이그레이션의 단일 소유자는 `packages/database`입니다. 이 앱에 스키마/마이그레이션 사본을 만들지 않습니다. 운영 migrate/seed는 별도 승인 없이 실행하지 않습니다.
 - Next 문서는 이 workspace에서 실제로 resolve되는 `next/package.json` 옆 `dist/docs/`를 확인합니다. 의존성이 루트로 hoist될 수 있습니다.
 
@@ -27,7 +27,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - 전역 UI 상태는 Jotai atom을 사용합니다.
 - DB는 Turso와 Drizzle ORM을 사용합니다.
 - 소설 Markdown과 만화 이미지는 Cloudflare R2에 저장하고, 앱 API를 통해 제공합니다.
-- 관리자 화면은 음악, 소설, 만화, 가사 트랙, 서적 데이터를 관리합니다.
+- 음악·소설·만화·가사·서적 쓰기는 `../minasobi`가 소유합니다. 이 앱의 `/admin` 하위는 이전 안내만 제공하며 관리자 API와 전용 인증은 제거했습니다.
 - Agent API는 외부 프로젝트에서 catalog를 읽기 위한 읽기 전용 API입니다.
 
 ## 주요 디렉터리 역할
@@ -105,7 +105,7 @@ src/app/admin/_components/
 - 소설을 위해 필요한 Radix Theme와 CSS는 legacy 레이어에 유지합니다. Tailwind preflight를 전역에 추가하지 않습니다. 기존 색상 상속은 Markdown 모듈 경계에서 명시하고 원래 읽기 배경은 viewer marker로 유지합니다.
 - 새 UI의 ScrollArea는 viewportRef/viewportProps와 data-slot을 명시합니다. 소설도 동일한 viewportRef/viewportProps·data-slot 계약을 사용하며 읽던 위치 저장/복원을 보존합니다.
 - 가사·콜의 읽기 위계는 일반 UI 타이포그래피와 별도입니다. 재생/시간/스냅/영상 크롭·기존 iframe 전체화면 fallback을 UI 통일 때문에 바꾸지 않습니다.
-- 9단계 종료 예정인 기존 관리자는 전환 검증 전까지 유지하며 그 사본을 새 디자인 시스템으로 재개발하지 않습니다.
+- 2026-10-21 사용자 승인으로 기존 관리자·쓰기 API·전용 인증을 제거했습니다. 이관 전 관리자를 되살리거나 공개 앱에 새 쓰기 경로를 추가하지 않습니다.
 - 상세 역할과 검증 경계는 루트 `docs/ui-design-system.md`, `docs/ui-migration.md`를 읽습니다. `npm run check:ui`는 소설 원문 스타일/승인된 렌더러 보존과 공개 Themes import 제거를 점검합니다. 실제 픽셀/모바일 QA를 대신하지 않습니다.
 
 ## App Router 작업 주의

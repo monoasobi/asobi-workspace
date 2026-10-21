@@ -1,5 +1,7 @@
 # 6단계 콘텐츠·추천 관리 이관
 
+> 2026-10-21 후속: 사용자 운영 소설 38 수정 응답으로 저장 성공을 확인했습니다. Mono 캐시 알림은 실패 상태이며 원인 상세 표시를 추가했습니다. 사용자 승인으로 공개 두 앱의 옛 관리자/API/쓰기 mutation은 제거했고 콘텐츠 관리 소유자는 apps/minasobi입니다. 콘텐츠 계약 검사 5개 통과. 운영 파일 업로드/정리 전체 QA 완료를 뜻하지 않습니다.
+
 2026-10-20 기준: 코드 이관과 정적/합성 로컬 HTTP 검증을 마쳤습니다. 사용자는 기존 QA와 검토사항을 별도로 진행 중이며 **결정이 모이면 함께 반영**하기로 했습니다. 화면·실제 콘텐츠·R2 통합·운영 전환은 완료 처리하지 않습니다.
 
 ## 기능 대조와 실제 진입점
@@ -45,9 +47,9 @@
 
 - 전체 `npm run lint`, `npm run typecheck`: 모든 앱/패키지 통과. 마지막 연결 수정 후 admin lint/typecheck 재확인 통과.
 - core 3개, editor 4개, security 3개, 새 content 계약 2개 통과.
-- `node apps/adminasobi/scripts/local-flow-check.mjs`: 기존 곡/설정 저장과 공개 HTTP 반영 회귀 통과.
-- `node apps/adminasobi/scripts/editor-flow-check.mjs`: 기존 가사/콜 revision·EN·필드 소유권 회귀 통과.
-- `node apps/adminasobi/scripts/content-flow-check.mjs`: 인증·viewer·Origin·입력, 곡/소설/만화/서적/가사 CRUD, 없는 소설 ID 거부 시 관계/링크 무변경, 숨긴 곡의 서적 관계 보존, 가사 삭제 revision, 곡 숨김/복원 시 관련 행 보존, 추천 revision/membership, 새 페이지 HTTP 200 통과.
+- `node apps/minasobi/scripts/local-flow-check.mjs`: 기존 곡/설정 저장과 공개 HTTP 반영 회귀 통과.
+- `node apps/minasobi/scripts/editor-flow-check.mjs`: 기존 가사/콜 revision·EN·필드 소유권 회귀 통과.
+- `node apps/minasobi/scripts/content-flow-check.mjs`: 인증·viewer·Origin·입력, 곡/소설/만화/서적/가사 CRUD, 없는 소설 ID 거부 시 관계/링크 무변경, 숨긴 곡의 서적 관계 보존, 가사 삭제 revision, 곡 숨김/복원 시 관련 행 보존, 추천 revision/membership, 새 페이지 HTTP 200 통과.
 - 콘텐츠 검사는 정확한 `.local/development.sqlite`, 확인용 곡 하나와 빈 콘텐츠 fixture, loopback 갱신 대상만 허용합니다. `finally`에서 관련 10개 테이블을 원래 값·시각으로 복원하고 공개 캐시를 다시 갱신합니다. 실제 콘텐츠 DB에서는 실행하지 않습니다.
 
 미검증: 실제 브라우저 폼 입력·드래그·레이아웃/스크롤·history·R2 이미지 업로드/부분 실패 복구·실제 콘텐츠 전수 대조·production build·배포. 로컬 HTTP/계약 검사로 대신하지 않습니다. 새 의존성과 DB schema/migration 변경은 없습니다.
