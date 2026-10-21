@@ -4,7 +4,7 @@ import { BookOpen, Check, Plus } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@asobi/ui/components/card";
 import { useNavigationGuard } from "@/components/NavigationGuard";
-import { FormSkeleton, ListSkeleton } from "../loading/AdminSkeletons";
+import { BookDetailSkeleton, BookRowsSkeleton } from "../loading/BookSkeletons";
 import { PendingSection } from "../loading/PendingSection";
 import { AdminDocumentPanel } from "./AdminDocumentPanel";
 import { getSelectedNodeKey } from "./utils";
@@ -37,7 +37,7 @@ export function ContentWorkspace({ data, node, readOnly }: {
             {!readOnly && <Button type="button" variant="ghost" size="icon-sm" aria-label="서적 추가" title="서적 추가" disabled={guard.busy} onClick={addBook}><Plus className="size-4" /></Button>}
           </CardHeader>
           <CardContent className="min-h-0 flex-1 overflow-y-auto p-2">
-            <PendingSection loading={guard.refreshing} fallback={<ListSkeleton />}>
+            <PendingSection loading={guard.refreshing} fallback={<BookRowsSkeleton />}>
             <nav aria-label="서적 관리">
               <ul className="grid gap-1">
                 {data.books.map(book => {
@@ -65,7 +65,7 @@ export function ContentWorkspace({ data, node, readOnly }: {
         </Card>
         <Card className="min-h-0 gap-0 py-0">
           <CardContent className="min-h-0 flex-1 overflow-y-auto p-0 pt-5">
-            <PendingSection fallback={<FormSkeleton />}>
+            <PendingSection fallback={<BookDetailSkeleton creating={guard.destination ? guard.destination.includes("type=newBook") : node?.type === "newBook"} />}>
             {node ? <AdminDocumentPanel key={getSelectedNodeKey(node)} embedded data={data} node={node} readOnly={readOnly} onDeleted={() => router.replace("/books")} /> : (
               <div className="flex min-h-full flex-col items-center justify-center gap-3 px-6 pb-5 text-center">
                 <span className="flex size-12 items-center justify-center rounded-xl bg-muted"><BookOpen aria-hidden className="size-6 text-muted-foreground" /></span>

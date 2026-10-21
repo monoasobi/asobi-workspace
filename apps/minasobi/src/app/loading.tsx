@@ -1,5 +1,5 @@
-import { AdminFrameSkeleton } from "@/components/loading/AdminSkeletons";
+import { AdminFrameLoading } from "@/components/loading/AdminLoading";
 
 export default function Loading() {
-  return <AdminFrameSkeleton />;
+  return <AdminFrameLoading />;
 }

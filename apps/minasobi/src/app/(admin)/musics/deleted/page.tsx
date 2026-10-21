@@ -15,7 +15,7 @@ export default async function DeletedMusicPage() {
         연결 자료와 콜 공개 설정은 보존됩니다. 복원하면 이전 공개 설정이 다시
         적용될 수 있습니다.
       </p>
-      <PendingSection fallback={<ListSkeleton />}>
+      <PendingSection fallback={<ListSkeleton variant="deleted" />}>
       {musics.map((m) => (
         <article
           key={m.id}

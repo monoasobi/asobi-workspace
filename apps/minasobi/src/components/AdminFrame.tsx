@@ -5,6 +5,7 @@ import { useLoadingRouter } from "@/components/NavigationGuard";
 import { useTheme } from "next-themes";
 import { PanelLeft, SunMoon } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
+import { LoadingOverlay } from "@asobi/ui/components/loading-overlay";
 import { SidebarSkeleton } from "./loading/AdminSkeletons";
 import { PendingSection } from "./loading/PendingSection";
 import { Badge } from "@asobi/ui/components/badge";
@@ -45,6 +46,7 @@ function Frame({
   const path = usePathname(),
     router = useLoadingRouter(),
     guard = useNavigationGuard();
+  const editorLoading = guard.pending && (/\/(lyrics|calls)(?:[?#]|$)/.test(path) || /\/(lyrics|calls)(?:[?#]|$)/.test(guard.destination ?? ""));
   const { resolvedTheme, setTheme } = useTheme();
   const [stored, setSidebar] = useAtom(adminSidebarAtom);
   const sidebar = stored ?? initialAdminSidebar;
@@ -177,8 +179,9 @@ function Frame({
             )}
           /></PendingSection>
         </aside>
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-muted/30">
-          {children}
+        <div className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-muted/30">
+          <div inert={editorLoading} className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
+          {editorLoading && <LoadingOverlay />}
         </div>
       </div>
     </main>

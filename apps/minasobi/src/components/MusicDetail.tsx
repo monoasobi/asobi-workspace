@@ -6,7 +6,7 @@ import { RefreshStatus } from "./RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { AlbumArtForm } from "./AlbumArtForm";
 import { useEffect, useState } from "react";
-import { FormSkeleton, MusicOverviewSkeleton } from "./loading/AdminSkeletons";
+import { MusicContentSkeleton, MusicSettingsSkeleton, MusicOverviewSkeleton } from "./loading/AdminSkeletons";
 import { PendingSection } from "./loading/PendingSection";
 import { PanelsTopLeft } from "lucide-react";
 import { useLoadingRouter } from "@/components/NavigationGuard";
@@ -73,7 +73,7 @@ export function MusicDetail({
       </section>
       <div className="grid min-h-0 flex-1 grid-rows-2 gap-5 xl:grid-cols-2 xl:grid-rows-1">
         <section className="flex max-h-full min-h-0 min-w-0 self-start flex-col overflow-hidden rounded-xl border bg-card">
-          <PendingSection fallback={<FormSkeleton />}>
+          <PendingSection fallback={<MusicContentSkeleton />}>
           <MusicContentTabs
             data={contentData} musicId={music.id} readOnly={readOnly}
             initialNode={contentNode} revision={contentRevision} contentActive={contentActive}
@@ -85,7 +85,7 @@ export function MusicDetail({
           </PendingSection>
         </section>
         <section className="max-h-full min-h-0 min-w-0 self-start overflow-y-auto rounded-xl border bg-card">
-          <PendingSection fallback={<FormSkeleton />}>
+          <PendingSection fallback={<MusicSettingsSkeleton />}>
           <MusicSettingsForm
             editAction={<Button type="button" variant="outline" size="sm" disabled={guard.busy} onClick={() => {
               if (guard.confirmLeave()) router.push(`/musics/${music.id}/calls`);

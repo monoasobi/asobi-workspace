@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { AdminFrameSkeleton } from "@/components/loading/AdminSkeletons";
+import { AdminFrameLoading } from "@/components/loading/AdminLoading";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
 import { getAdminMusicList } from "@/server/queries/music";
@@ -28,5 +28,5 @@ async function AdminDataFrame({
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<AdminFrameSkeleton />}><AdminDataFrame>{children}</AdminDataFrame></Suspense>;
+  return <Suspense fallback={<AdminFrameLoading />}><AdminDataFrame>{children}</AdminDataFrame></Suspense>;
 }

@@ -1,5 +1,5 @@
-import { EditorSkeleton } from "@/components/loading/AdminSkeletons";
+import { EditorLoading } from "@/components/loading/EditorLoading";
 
 export default function Loading() {
-  return <EditorSkeleton />;
+  return <EditorLoading />;
 }

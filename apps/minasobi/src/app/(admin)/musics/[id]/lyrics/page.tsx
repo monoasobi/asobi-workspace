@@ -1,5 +1,3 @@
-import { EditorSkeleton } from "@/components/loading/AdminSkeletons";
-import { PendingSection } from "@/components/loading/PendingSection";
 import { notFound, redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
 import { parseMusicId } from "@/lib/musicId";
@@ -18,12 +16,10 @@ export default async function LyricsPage({
   const initial = await readLyrics(id);
   if (!initial) notFound();
   return (
-    <PendingSection fallback={<EditorSkeleton />}>
     <LyricTimelineEditor
       key={id}
       initial={initial}
       readOnly={session.role !== "admin"}
     />
-    </PendingSection>
   );
 }
