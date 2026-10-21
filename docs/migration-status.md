@@ -6,6 +6,14 @@
 
 Context7의 Next.js 아이콘·공유 이미지·manifest 문서 세 항목과 실제 설치된 Next.js 16.3.5 dist/docs를 대조했습니다. Loud lint/typecheck, 원본 SVG 바이트·PNG 크기·ICO 내부 3개 이미지·manifest 참조 검증이 통과했습니다. 임시 개발 서버 HTTP에서 아이콘/manifest 자동 link 태그와 모든 자산 200 응답을 확인했습니다. 기기별 홈 화면·브라우저 파비콘 표시와 운영 배포는 미검증입니다. 확인용 서버는 종료했습니다.
 
+아이콘 구현 커밋: `e34bd9d 라우다소비 브랜드 아이콘 적용`.
+
+## LOUDASOBI 제공 오픈그래프 이미지 적용 (2026-10-21)
+
+사용자 제공 opengraph.png(1200×630)를 재인코딩 없이 src/app/opengraph-image.png로 복사하고 기존 생성 TSX를 제거했습니다. 사용자가 먼저 수정한 alt 문구 ‘LOUDASOBI — SHOUT OUR MUSIC’은 opengraph-image.alt.txt로 보존했습니다. 별도 X 이미지나 수동 meta 태그를 추가하지 않았으며 Next.js의 OG 이미지 상속으로 summary_large_image에 같은 이미지를 제공합니다.
+
+Loud lint/typecheck 및 diff 공백 검사 통과. 원본/적용 파일과 HTTP 응답의 바이트 동일성, 홈 HTML의 OG/X 이미지 URL 일치·1200×630·alt 태그, 이미지 200 응답을 확인했습니다. 실제 SNS 수집/캐시·브라우저 시각 QA·운영 배포는 미검증이며 빌드·푸시·운영 데이터 변경은 하지 않았습니다. 기존 사용자 수정인 metadata.ts의 title/applicationName 대문자 변경은 그대로 두고 이번 커밋에서 제외합니다.
+
 상세 실행 원칙은 [AGENT.md](../AGENT.md)를 따릅니다. 이 문서는 실제 진행 상태와 확인 결과를 기록합니다.
 
 ## 현재 상태
