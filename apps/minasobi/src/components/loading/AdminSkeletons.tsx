@@ -192,10 +192,10 @@ export function AdminPageSkeleton({
             <MusicOverviewSkeleton />
           </section>
           <div className="grid min-h-0 flex-1 grid-rows-2 gap-5 overflow-hidden xl:grid-cols-2 xl:grid-rows-1">
-            <section className="overflow-hidden rounded-xl border bg-card">
+            <section className="max-h-full min-h-0 min-w-0 self-start overflow-y-auto rounded-xl border bg-card">
               <MusicContentSkeleton />
             </section>
-            <section className="overflow-hidden rounded-xl border bg-card">
+            <section className="max-h-full min-h-0 min-w-0 self-start overflow-y-auto rounded-xl border bg-card">
               <MusicSettingsSkeleton />
             </section>
           </div>
