@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
 import { AdminAuthForm } from "@/components/AdminAuthForm";
+export const metadata: Metadata = { title: "로그인" };
+
 export default async function LoginPage() {
   if ((await getAdminSession()).authenticated) redirect("/musics");
   return (

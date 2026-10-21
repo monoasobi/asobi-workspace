@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
 import { getBooksData } from "@/server/queries/content";
 import { contentSelection } from "@/components/content/routeSelection";
 import { ContentWorkspace } from "@/components/content/ContentWorkspace";
+export const metadata: Metadata = { title: "서적 관리" };
+
 export default async function BooksPage({
   searchParams,
 }: {

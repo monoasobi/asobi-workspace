@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { PendingSection } from "@/components/loading/PendingSection";
 import { ListSkeleton } from "@/components/loading/AdminSkeletons";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
 import { getDeletedMusics } from "@/server/queries/content";
 import { MusicLifecycle } from "@/components/content/MusicLifecycle";
+export const metadata: Metadata = { title: "숨긴 곡" };
+
 export default async function DeletedMusicPage() {
   const session = await getAdminSession();
   if (!session.authenticated) redirect("/login");

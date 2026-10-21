@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
 import { parseMusicId } from "@/lib/musicId";
 import { readGuide } from "@/server/queries/guide";
 import { CallEditorPage } from "@/components/editors/CallEditorPage";
+
+export const metadata: Metadata = { title: "콜 편집" };
 
 export default async function CallsPage({
   params,

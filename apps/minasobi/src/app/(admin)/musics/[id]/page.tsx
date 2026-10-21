@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { MusicDetail } from "@/components/MusicDetail";
 import { notFound } from "next/navigation";
 import { requireAdminSession } from "@/server/auth/access";
 import { getMusicContent } from "@/server/queries/musicContent";
 import { contentSelection } from "@/components/content/routeSelection";
 import { parseMusicId } from "@/lib/musicId";
+export const metadata: Metadata = { title: "곡 정보" };
+
 export default async function MusicPage({ params, searchParams }: {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;

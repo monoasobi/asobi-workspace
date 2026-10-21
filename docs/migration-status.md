@@ -1,5 +1,13 @@
 # ASOBI 이관 진행 기록
 
+## MINASOBI manifest·메타데이터 정리 (2026-10-22)
+
+기존에는 전 화면 제목이 관리자 | ASOBI이고 manifest·OG/X 소개가 없었습니다. 기본 이름/설명을 MINASOBI 통합 관리자로 맞추고 로그인·곡 정보·가사/콜 편집·곡 추가·숨긴 곡·서적·추천·가이드의 고정 화면별 제목을 추가했습니다. OG/X에는 사용자 데이터 조회 없이 고정 앱 소개만 제공합니다. 기존 noindex/nofollow를 유지하고 robots.txt에 전체 크롤링 제외를 명시했습니다. sitemap이나 검색 노출용 콘텐츠는 추가하지 않았습니다.
+
+정적 manifest는 MINASOBI 이름·한국어·루트 시작/범위·브랜드 테마색과 기존 SVG에서 만든 192/512px PNG를 사용합니다. Loud와 같은 browser 표시로 기존 브라우저 탐색 환경을 유지하며 서비스 워커/오프라인 기능은 추가하지 않았습니다. Apple 홈 화면 이름과 브라우저 테마색도 설정했습니다.
+
+MINASOBI lint/typecheck·diff 공백 검사 통과. 기존 localhost:3002에서 로그인 탭 제목·앱/Apple 이름·테마색·OG/X·검색 제외·자동 manifest 링크, manifest MIME/내용·아이콘 2개 HTTP 200/실제 크기·robots 응답을 확인했습니다. 별도 서버 시작은 기존 서버 감지로 종료됐으며 사용자 서버는 유지했습니다. 인증된 각 페이지의 실제 탭 전환·홈 화면 추가/기기별 표시·외부 링크 미리보기는 미검증입니다. 빌드·푸시·배포·운영 데이터 변경은 하지 않았으며 한 기능 단위로 로컬 커밋합니다.
+
 ## MINASOBI 파비콘·헤더 로고 (2026-10-22)
 
 사용자 제공 MINASOBI_logo.svg를 public/assets/logo.svg로, minasobi.svg를 app/icon.svg로 원본 그대로 적용했습니다. Loud 헤더와 같은 next/image·가로 120px·원본 비율로 기존 관리자 제목을 교체했고 초기 AdminFrameSkeleton에도 같은 로고를 표시합니다. 기존 헤더 배치와 메뉴·이동 보호는 유지합니다. Loud의 최근 브랜드 아이콘 적용(e34bd9d)을 참고해 투명 96px PNG·16/32/48px ICO·흰 배경 180px Apple 아이콘도 기존 storage의 Sharp로 생성했습니다. 새 의존성은 추가하지 않았습니다.

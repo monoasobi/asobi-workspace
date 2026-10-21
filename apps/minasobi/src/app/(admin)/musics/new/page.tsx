@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
+export const metadata: Metadata = { title: "곡 추가" };
+
 export default async function NewMusicPage() {
   const session = await getAdminSession();
   if (!session.authenticated) redirect("/login");
