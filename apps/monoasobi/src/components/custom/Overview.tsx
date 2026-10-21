@@ -1,6 +1,6 @@
-import { cn } from "@asobi/ui/lib/utils";
-import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { Button } from "@asobi/ui/components/button";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { cn } from "@asobi/ui/lib/utils";
 import {
   BookOpenIcon,
   HeartIcon,
@@ -229,8 +229,8 @@ export const Overview = () => {
               </div>
             </div>
             <Button size="lg" variant="outline" asChild>
-              <a href="mailto:envi.9.official@gmail.com?subject=모노아소비 문의">
-                envi.9.official@gmail.com
+              <a href="mailto:yoasobi.fc.kr@gmail.com?subject=모노아소비 문의">
+                yoasobi.fc.kr@gmail.com
               </a>
             </Button>
           </div>

@@ -1,7 +1,7 @@
 "use client";
-import { cn } from "@asobi/ui/lib/utils";
-import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { Button } from "@asobi/ui/components/button";
+import { ScrollArea } from "@asobi/ui/components/scroll-area";
+import { cn } from "@asobi/ui/lib/utils";
 import Link from "next/link";
 import styles from "./Translate.styles";
 interface TranslateProps {
@@ -32,8 +32,8 @@ export const Translate = ({ originUrl }: TranslateProps) => {
             <div className="flex flex-col gap-4">
               <span className="type-body">
                 번역본 기여하기:{" "}
-                <a href="mailto:envi.9.official@gmail.com?subject=모노아소비 번역본 기여 문의">
-                  envi.9.official@gmail.com
+                <a href="mailto:yoasobi.fc.kr@gmail.com?subject=모노아소비 번역본 기여 문의">
+                  yoasobi.fc.kr@gmail.com
                 </a>
               </span>
               {originUrl && (
