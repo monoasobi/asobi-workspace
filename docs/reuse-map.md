@@ -1,5 +1,9 @@
 # 기존 코드 재사용·소유권 지도
 
+## LOUDASOBI 곡별 URL (2026-10-21)
+
+기존 src/app/page.tsx의 공개 조회/추천 필터/AppFrame 연결을 src/components/layout/PublicMusicPage.tsx로 옮겼습니다. 홈과 /musics/[id]가 같은 서버 컴포넌트를 사용하며 새 조회 API·캐시·플레이어·공용 목록 사본은 없습니다. AppFrame은 기존 선택곡 state만 usePathname/history.pushState로 대체합니다. 관리자는 변경하지 않았습니다.
+
 기준일: 2026-10-20. 상태: **8단계 로컬 검증·운영 DB/R2 연결 및 승인된 앨범아트 36곡 전환 완료. 사용자 배포/나머지 QA 후 기존 관리자 종료 예정**. 4단계 승인된 CDN/72개 객체 검증도 보존합니다.
 
 기존 소스 전체는 각각 `apps/monoasobi`, `apps/loudasobi`에 Git 이력과 함께 가져왔습니다. 2단계에서는 아래 실제 이동 목록의 공통 구현을 packages로 옮기고 소비자 import를 변경했습니다. public 자산과 편집기/재생 알고리즘은 보존했습니다. 아래 본문 표에는 이후 관리자/미리보기 이관 목표도 포함되며, 모든 목표가 구현됐다는 뜻은 아닙니다.

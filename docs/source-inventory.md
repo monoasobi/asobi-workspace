@@ -1,5 +1,12 @@
 # 0단계 원본 소스 목록
 
+## 후속 LOUDASOBI 공개 곡 주소 (2026-10-21)
+
+- 신규 공개 페이지: /musics/[id] → apps/loudasobi/src/app/musics/[id]/page.tsx. 기존 /도 유지합니다.
+- 공개 조회/추천 필터 단일 소유: apps/loudasobi/src/components/layout/PublicMusicPage.tsx. 기존 공개 카탈로그만 사용해 비공개/숨긴 곡은 404 처리합니다.
+- URL 생성/ID 해석: apps/loudasobi/src/lib/musicRoute.ts. 집중 검사는 scripts/check-loud-music-route.mjs입니다.
+- 곡별 OG/canonical·언어별 URL·manifest 변경은 아직 적용하지 않았습니다.
+
 확인 시각: 2026-10-20 09:56 KST. 파일 목록은 각 원본의 Git 추적 파일을 기준으로 작성했습니다. 실제 비밀값은 읽거나 기록하지 않았습니다. 실행 기준과 재사용 위치는 [migration-status.md](migration-status.md), [reuse-map.md](reuse-map.md)를 봅니다.
 
 Next가 내부 생성하는 `_next` 경로는 아래 제품 route 목록에 포함하지 않습니다. 경로 표기는 현재 원본 기준이며 새 관리자 최종 URL과는 다릅니다.

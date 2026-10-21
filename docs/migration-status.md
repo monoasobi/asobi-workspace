@@ -1,5 +1,17 @@
 # ASOBI 이관 진행 기록
 
+## LOUDASOBI 선택곡과 URL 연결 (2026-10-21)
+
+구현 커밋: `1df61fc 라우다소비 선택곡과 URL 연결`.
+
+공개 곡 주소 /musics/[id]를 추가했습니다. 기존 홈의 connection()·공개 카탈로그·추천 목록 조회를 PublicMusicPage로 옮겨 홈과 곡별 페이지가 한 구현을 사용합니다. 곡 ID 0도 허용하고 잘못된 형식·안전 정수 범위 초과·공개 카탈로그에 없는 곡은 notFound() 처리합니다. DB 조회 실패 때는 기존 오류/재시도 화면을 유지합니다.
+
+AppFrame의 선택곡 로컬 상태를 usePathname 기반으로 바꾸고 Next.js native history.pushState로 곡 선택 시 URL을 변경합니다. 같은 주소는 이력을 중복 추가하지 않으며 query/hash와 목록 정렬·열림 상태를 유지합니다. 곡 변경 시 MusicExperience key 변경/재생 초기화는 기존 그대로입니다. 홈 /의 기본 첫 곡 동작도 유지합니다. 공용 목록 UI·재생기·조회 필터·i18n cookie는 수정하지 않았습니다.
+
+Context7의 Next.js native History API/usePathname·동적 params/notFound 문서와 설치된 16.3.5 문서를 대조했습니다. Loud lint/typecheck, node scripts/check-loud-music-route.mjs, diff 공백 검사 통과. 로컬 HTTP /와 /musics/0·29는 200 및 해당 제목, abc·01·999999는 404/noindex를 확인했습니다. 인앱 브라우저에서 목록 선택 1→2, 뒤로 1/앞으로 2, 새로고침 후 곡 2 복원 및 전환 중 발매일순 정렬 유지도 확인했습니다. 실제 음원 재생/모바일 전체 QA와 운영 배포는 미검증입니다.
+
+우선 URL 연결만 요청받았습니다. 곡별 제목/OG/canonical·manifest 정책과 /ko·/ja·/en 언어별 URL은 후속 범위이며 아직 사이트 공통 메타데이터/manifest를 사용합니다. native history 전환은 서버 메타데이터를 새로 요청하지 않으므로 후속 클라이언트 메타데이터 갱신 정책도 함께 정해야 합니다. 기존 metadata.ts의 사용자 미커밋 변경은 유지/커밋 제외했습니다. 운영 DB 쓰기·빌드·푸시·배포는 없고 확인용 서버는 종료합니다.
+
 ## LOUDASOBI 브랜드 아이콘 적용 (2026-10-21)
 
 사용자 제공 loud.svg를 src/app/icon.svg에 원본 그대로 적용했습니다. 기존 설치된 Sharp로 투명 96px PNG, 16/32/48px PNG를 포함한 ICO, 밝은 배경(#FAFAFA)의 Apple 180px 및 홈 화면용 192/512px PNG를 생성했습니다. 기존 apple-icon.tsx는 정적 apple-icon.png로 교체했습니다. manifest.webmanifest로 홈 화면 아이콘을 연결하되 display=browser로 기존 브라우저 이용 방식을 유지하고 서비스 워커·오프라인 기능은 추가하지 않았습니다. 화면 헤더 로고는 변경하지 않았습니다.
