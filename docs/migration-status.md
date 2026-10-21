@@ -1,5 +1,9 @@
 # ASOBI 이관 진행 기록
 
+## MINASOBI 편집 버튼 아이콘 (2026-10-22)
+
+사용자 요청으로 MusicDetail의 가사 편집·콜 편집 버튼에 Lucide PanelsTopLeft 아이콘을 16px로 추가했습니다. 기존 문구·비활성 조건·이동 보호는 유지하며 장식 아이콘은 aria-hidden으로 처리합니다. MINASOBI lint/typecheck와 diff 공백 검사 통과. 실제 브라우저 시각 QA·빌드·푸시·배포는 하지 않았습니다. 소스와 기록을 한 기능 단위로 로컬 커밋합니다.
+
 ## 세 앱 로딩 배경·안내 문구 변경 (2026-10-22)
 
 사용자 요청으로 공용 LoadingOverlay의 backdrop blur와 반투명 검정 배경을 제거하고 불투명한 bg-background 테마 배경으로 변경했습니다. 카드 없이 회전 인디케이터와 짧은 안내 문구를 표시합니다. MONO·MINA는 기본 한국어 문구, LOUD는 현재 ko/ja/en 언어의 문구를 사용합니다. 기존 우측 영역 크기·로딩 시점·이동/스크롤 보호는 유지합니다.

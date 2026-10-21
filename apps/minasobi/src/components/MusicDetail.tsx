@@ -6,6 +6,7 @@ import { RefreshStatus } from "./RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { AlbumArtForm } from "./AlbumArtForm";
 import { useEffect, useState } from "react";
+import { PanelsTopLeft } from "lucide-react";
 import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Button } from "@asobi/ui/components/button";
 import type { AdminMusic } from "@/types/music";
@@ -74,14 +75,14 @@ export function MusicDetail({
             media={<MusicInfoFields music={music} section="media" readOnly={readOnly || guard.busy} onDirtyChange={value => setDirty("music", value)} />}
             editAction={<Button type="button" variant="outline" size="sm" disabled={!initialMusic.hasLyrics || guard.busy} title="가사 타임라인 편집" onClick={() => {
               if (guard.confirmLeave()) router.push(`/musics/${music.id}/lyrics`);
-            }}>가사 편집</Button>}
+            }}><PanelsTopLeft aria-hidden="true" className="size-4" />가사 편집</Button>}
           />
         </section>
         <section className="max-h-full min-h-0 min-w-0 self-start overflow-y-auto rounded-xl border bg-card">
           <MusicSettingsForm
             editAction={<Button type="button" variant="outline" size="sm" disabled={guard.busy} onClick={() => {
               if (guard.confirmLeave()) router.push(`/musics/${music.id}/calls`);
-            }}>콜 편집</Button>}
+            }}><PanelsTopLeft aria-hidden="true" className="size-4" />콜 편집</Button>}
             onRefresh={reportRefresh}
             music={{ ...music, sourceSync: initialMusic.sourceSync, hasLyrics: initialMusic.hasLyrics }}
             readOnly={readOnly || guard.busy}
