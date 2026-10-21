@@ -158,7 +158,7 @@ export const LyricRow = memo(function LyricRow({
                     ? section.labels?.[locale] || section.label || t("custom")
                     : section.type === "clap" || section.type === "chant"
                       ? `${t(section.type)}${section.type === "chant" ? ` · ${section.labels?.[locale] || section.label || ""}` : ""}`
-                      : undefined
+                      : t(section.type)
                 }
                 data-active={activeSectionIds.has(section.id)}
                 className={cn(
@@ -167,12 +167,6 @@ export const LyricRow = memo(function LyricRow({
                   callBadgeStyles[section.type],
                 )}
               >
-                {activeSectionIds.has(section.id) && (
-                  <span
-                    aria-hidden="true"
-                    className="size-1.5 shrink-0 rounded-full bg-current"
-                  />
-                )}
                 <CallIcon
                   type={section.type}
                   icon={section.icon}
@@ -181,11 +175,6 @@ export const LyricRow = memo(function LyricRow({
                 {section.type === "chant" && (
                   <span>
                     {section.labels?.[locale] || section.label || t("chant")}
-                  </span>
-                )}
-                {section.type === "singalong" && (
-                  <span className="min-w-0 truncate text-left">
-                    {`${t("singalong")}${section.label ? ` · ${section.label}` : ""}`}
                   </span>
                 )}
               </Badge>
