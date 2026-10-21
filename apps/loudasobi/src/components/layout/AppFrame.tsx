@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Header } from "./Header";
@@ -16,6 +16,7 @@ import {
   SheetDescription,
 } from "@asobi/ui/components/sheet";
 import type { CatalogEntry } from "@/types/catalog";
+import { musicIdFromPath, musicPath } from "@/lib/musicRoute";
 import { useIsCompact } from "./AppFrame/useIsCompact";
 import { sidebarMusicIds, type SidebarLayout } from "@asobi/content-core/sidebarOrder";
 
@@ -29,13 +30,13 @@ export function AppFrame({
   unavailable?: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations();
   const compact = useIsCompact();
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(
-    sidebarMusicIds(sidebarLayout)[0] ?? catalog[0]?.music.id ?? null,
-  );
+  const selectedId =
+    musicIdFromPath(pathname) ?? sidebarMusicIds(sidebarLayout)[0] ?? null;
   const [sort, setSort] = useState<SongSort>("recommended");
   const songListItems = catalog.map(({ music, track }) => ({
     music,
@@ -49,7 +50,12 @@ export function AppFrame({
     ) ?? catalog[0];
 
   function selectMusic(id: number) {
-    setSelectedId(id);
+    const path = musicPath(id);
+    if (pathname !== path) {
+      const url = new URL(window.location.href);
+      url.pathname = path;
+      window.history.pushState(null, "", url);
+    }
     if (compact) setMobileOpen(false);
   }
 
