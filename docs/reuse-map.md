@@ -1,5 +1,9 @@
 # 기존 코드 재사용·소유권 지도
 
+## Loud 목록/상세·Mono 만화 파일 조회 후속 (2026-10-21)
+
+Loud의 기존 catalog JOIN/검증/resolver는 getPublicMusicById/readPublicMusicById의 단일 선택곡 조회로 재사용합니다. getPublicCatalog/readPublicCatalog는 경량 곡 목록과 가사 유무만 읽습니다. 공통 AppFrame의 사이드바·정렬·모바일 시트와 기존 MusicExperience/LocaleProvider는 재사용하고 곡 page에서 선택곡 재생기를 연결합니다. 실패 표시만 기존 JSX에서 CatalogError로 추출해 layout/page가 공유합니다. Mono 만화 두 API는 comicAccess/getComicContentAccess의 활성 만화 ID 확인을 공유하며 기존 R2·경로·no-store 제공은 그대로입니다. 신규 캐시/의존성/플레이어/서버는 추가하지 않았습니다.
+
 ## MINASOBI 화면별 관계 조회 통합 (2026-10-21)
 
 musicContent는 기존 musics→novels/comics/lyricTrack, novels→book/bookLinks, books→novels/purchaseLinks 관계를 조합하고 settings/callGuide ORM 관계만 공용 schema에 추가했습니다. 하나의 곡 상세 SQL과 별도 서적 ID/이름 목록으로 기존 MusicDetail/AdminDocumentPanel/editorConfigs를 연결합니다. 기존 lyricsDocument 해시/검증은 그대로 재사용합니다. /books는 getBooksData의 서적 관계/경량 소설 선택지로 같은 폼을 사용하며 데이터 타입은 전체 dashboard 조회 함수로부터 분리했습니다. 기존 전체 dashboard 함수는 제거했고 내부 콘텐츠 API도 서적 전용 데이터로 연결했습니다. 첫 곡 이동은 ID만 조회하고 추천 정렬은 기존 두 읽기 함수를 병렬로 조립합니다. 저장·권한·가사/콜 편집기·공개 앱 구현 사본은 추가하지 않았습니다. Mono/Loud 조회 감사 결과는 server-query-review.md에 별도 기록합니다.
