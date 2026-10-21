@@ -8,6 +8,7 @@ import { migrate } from "drizzle-orm/libsql/migrator";
 import * as schema from "@asobi/database/schema";
 import { readMusicContent } from "../src/server/queries/musicContent";
 import { readBooksData } from "../src/server/queries/content";
+import { readFirstAdminMusicId } from "../src/server/queries/music";
 
 test("song content is scoped by ID while book choices and lyric revisions are preserved", async () => {
   const client = createClient({ url: "file::memory:" });
@@ -81,6 +82,12 @@ test("song content is scoped by ID while book choices and lyric revisions are pr
     assert.equal(bookData.novelOptions?.[0].musicTitle, "곡");
     assert.equal(bookData.novelOptions?.[0].bookId, 0);
     assert.deepEqual(bookData.books[1].novels.map(link => link.novel.id), [10, 12]);
+    queries.length = 0;
+    assert.equal(await readFirstAdminMusicId(db), 0);
+    assert.equal(queries.length, 1);
+    assert(!queries[0].includes("join"));
+    assert.match(queries[0], /select "id"/);
+    assert.match(queries[0], /limit/);
     const other = await readMusicContent(db, 1);
     assert.deepEqual(other?.data.novels.map(novel => novel.id), [11]);
     assert.deepEqual(other?.data.books.map(book => book.id), [2]);
@@ -95,6 +102,8 @@ test("song content is scoped by ID while book choices and lyric revisions are pr
     assert.equal(empty.music.syncOffset, 0);
     assert.equal(await readMusicContent(db, 2), null);
     assert.equal(await readMusicContent(db, 999), null);
+    await db.update(schema.musics).set({ deletedAt: "2026-10-21" });
+    assert.equal(await readFirstAdminMusicId(db), null);
   } finally {
     client.close();
   }

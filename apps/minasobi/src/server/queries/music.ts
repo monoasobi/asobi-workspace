@@ -10,6 +10,17 @@ import {
 } from "@asobi/database/schema";
 import type { AdminMusic } from "@/types/music";
 
+export async function getFirstAdminMusicId() {
+  await requireAdminSession();
+  return readFirstAdminMusicId(getDb());
+}
+
+export async function readFirstAdminMusicId(db: Pick<ReturnType<typeof getDb>, "select">) {
+  const [music] = await db.select({ id: musics.id }).from(musics)
+    .where(isNull(musics.deletedAt)).orderBy(asc(musics.id)).limit(1);
+  return music?.id ?? null;
+}
+
 export async function getAdminMusicList() {
   await requireAdminSession();
   return getDb()

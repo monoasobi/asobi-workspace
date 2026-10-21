@@ -26,13 +26,15 @@ export async function readSidebarLayout(db: Reader = getDb()) {
 }
 export async function readAdminSidebar(db: Reader = getDb()) {
   await requireAdminSession();
-  const layout = await readSidebarLayout(db);
-  const songs = await db
-    .select({ id: musics.id, title: musics.title, korTitle: musics.korTitle })
-    .from(musics)
-    .innerJoin(musicSettings, eq(musics.id, musicSettings.musicId))
-    .where(and(isNull(musics.deletedAt), eq(musicSettings.publish, true)))
-    .orderBy(asc(musics.id));
+  const [layout, songs] = await Promise.all([
+    readSidebarLayout(db),
+    db
+      .select({ id: musics.id, title: musics.title, korTitle: musics.korTitle })
+      .from(musics)
+      .innerJoin(musicSettings, eq(musics.id, musicSettings.musicId))
+      .where(and(isNull(musics.deletedAt), eq(musicSettings.publish, true)))
+      .orderBy(asc(musics.id)),
+  ]);
   return {
     layout: projectSidebar(
       layout,
