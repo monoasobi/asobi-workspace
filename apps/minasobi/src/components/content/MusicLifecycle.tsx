@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Button } from "@asobi/ui/components/button";
 import { useNavigationGuard } from "@/components/NavigationGuard";
 import { useEditorGuard } from "@/components/editors/shared/useEditorGuard";
@@ -14,7 +14,7 @@ export function MusicLifecycle({
   id: number;
   restore?: boolean;
 }) {
-  const router = useRouter(),
+  const router = useLoadingRouter(),
     guard = useNavigationGuard();
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");

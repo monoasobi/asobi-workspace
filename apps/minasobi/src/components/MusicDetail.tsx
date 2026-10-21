@@ -6,7 +6,7 @@ import { RefreshStatus } from "./RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { AlbumArtForm } from "./AlbumArtForm";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Button } from "@asobi/ui/components/button";
 import type { AdminMusic } from "@/types/music";
 import { MusicInfoForm, MusicInfoFields } from "./MusicInfoForm";
@@ -27,7 +27,7 @@ export function MusicDetail({
   function reportRefresh(results: RefreshResult[]) {
     setRefresh(current => [...current.filter(item => !results.some(result => result.target === item.target)), ...results]);
   }
-  const router = useRouter();
+  const router = useLoadingRouter();
   const guard = useNavigationGuard();
   const { setDirty, setBusy } = guard;
   useEffect(() => () => {

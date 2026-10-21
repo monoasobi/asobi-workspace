@@ -7,9 +7,14 @@ import {
   useState,
   useRef,
   useLayoutEffect,
+  useTransition,
+  useMemo,
 } from "react";
+import { useRouter } from "next/navigation";
 import { installHistoryGuard } from "./NavigationGuard/history";
 const Context = createContext<{
+  pending: boolean;
+  router: ReturnType<typeof useRouter>;
   dirty: boolean;
   busy: boolean;
   setDirty: (section: string, value: boolean) => void;
@@ -17,6 +22,14 @@ const Context = createContext<{
   confirmLeave: () => boolean;
 } | null>(null);
 export function NavigationGuard({ children }: { children: React.ReactNode }) {
+  const nativeRouter = useRouter();
+  const [pending, startTransition] = useTransition();
+  const router = useMemo(() => ({
+    ...nativeRouter,
+    push: (...args: Parameters<typeof nativeRouter.push>) => startTransition(() => nativeRouter.push(...args)),
+    replace: (...args: Parameters<typeof nativeRouter.replace>) => startTransition(() => nativeRouter.replace(...args)),
+    refresh: () => startTransition(() => nativeRouter.refresh()),
+  }), [nativeRouter]);
   const [dirtySections, setDirtySections] = useState<Record<string, boolean>>(
     {},
   );
@@ -58,7 +71,7 @@ export function NavigationGuard({ children }: { children: React.ReactNode }) {
   }, [confirmLeave]);
   useEffect(() => installHistoryGuard(() => latest.current()), []);
   return (
-    <Context value={{ dirty, busy, setDirty, setBusy, confirmLeave }}>
+    <Context value={{ dirty, busy, setDirty, setBusy, confirmLeave, pending, router }}>
       {children}
     </Context>
   );
@@ -67,4 +80,8 @@ export function useNavigationGuard() {
   const value = useContext(Context);
   if (!value) throw new Error("NavigationGuard is required");
   return value;
+}
+
+export function useLoadingRouter() {
+  return useNavigationGuard().router;
 }

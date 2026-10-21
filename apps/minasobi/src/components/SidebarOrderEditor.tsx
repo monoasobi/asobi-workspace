@@ -4,6 +4,7 @@ import { RefreshStatus } from "@/components/RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { useState } from "react";
 import Link from "next/link";
+import { useLoadingRouter } from "./NavigationGuard";
 import { Button } from "@asobi/ui/components/button";
 import { Badge } from "@asobi/ui/components/badge";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
@@ -27,6 +28,7 @@ export function SidebarOrderEditor({
   initial: SidebarDocument;
   readOnly: boolean;
 }) {
+  const router = useLoadingRouter();
   const [saved, setSaved] = useState(initial);
   const [layout, setLayout] = useState(initial.layout);
   const [busy, setBusy] = useState(false);
@@ -122,6 +124,10 @@ export function SidebarOrderEditor({
                   !window.confirm("저장하지 않은 목록을 버리고 나갈까요?"))
               )
                 event.preventDefault();
+              else {
+                event.preventDefault();
+                router.push("/musics");
+              }
             }}
           >
             ← 곡 관리

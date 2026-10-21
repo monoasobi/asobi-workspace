@@ -30,7 +30,7 @@ import { useEditorShortcuts } from "../shared/useEditorShortcuts";
 import { useEditorHistory } from "../shared/useEditorHistory";
 import { useEditorViewport } from "../shared/useEditorViewport";
 import { useEditorGuard } from "../shared/useEditorGuard";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { useNavigationGuard } from "@/components/NavigationGuard";
 import { EditorHeader } from "../shared/EditorHeader";
 import { EditorHelp } from "../shared/EditorHelp";
@@ -68,7 +68,7 @@ export const LyricTimelineEditor = ({
   initial: LyricsDocument;
   readOnly: boolean;
 }) => {
-  const router = useRouter();
+  const router = useLoadingRouter();
   const navigation = useNavigationGuard();
   const [textFields, setTextFields] = useState<LyricTextField[]>([
     "jpReading",

@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { BookOpen, Check, Plus } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@asobi/ui/components/card";
@@ -13,7 +13,7 @@ export function ContentWorkspace({ data, node, readOnly }: {
   node: SelectedNode | null;
   readOnly: boolean;
 }) {
-  const router = useRouter();
+  const router = useLoadingRouter();
   const guard = useNavigationGuard();
   function open(target: SelectedNode) {
     if (guard.confirmLeave()) router.push(`/books?type=${target.type}${"id" in target ? `&id=${target.id}` : ""}`);

@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Button } from "@asobi/ui/components/button";
 import { useNavigationGuard } from "@/components/NavigationGuard";
 
@@ -12,7 +12,7 @@ export function EditorPage({
   title: string;
   children: React.ReactNode;
 }) {
-  const router = useRouter(),
+  const router = useLoadingRouter(),
     guard = useNavigationGuard();
   return (
     <section className="flex min-h-0 flex-1 flex-col overflow-hidden">

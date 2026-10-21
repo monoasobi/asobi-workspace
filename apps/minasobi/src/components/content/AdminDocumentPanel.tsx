@@ -1,6 +1,6 @@
 "use client";
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Pencil, Save, Trash2, X, ExternalLink } from "lucide-react";
 import { Separator } from "@asobi/ui/components/separator";
 import { Badge } from "@asobi/ui/components/badge";
@@ -43,7 +43,7 @@ export function AdminDocumentPanel({
   onNavigate?: (href: string) => void;
 }) {
   const fieldIdPrefix = useId();
-  const router = useRouter();
+  const router = useLoadingRouter();
   const navigate = (href: string) => onNavigate ? onNavigate(href) : router.replace(href);
   const config = getEditorConfig(data, node)!;
   const document = getSelectedDocument(data, node);

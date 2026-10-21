@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@asobi/ui/components/tabs";
 import { Button } from "@asobi/ui/components/button";
@@ -30,7 +30,7 @@ export function MusicContentTabs({
   initialNode: SelectedNode | null;
   revision?: string;
 }) {
-  const router = useRouter();
+  const router = useLoadingRouter();
   const guard = useNavigationGuard();
   const docs = getMusicDocuments(data, musicId);
   const groups: { value: string; label: string; items: { label: string; node: SelectedNode }[]; create?: SelectedNode }[] = [

@@ -17,7 +17,7 @@ import {
 } from "@asobi/ui/components/popover";
 import { SongGuideEditor } from "./CallGuideEditor/SongGuideEditor";
 import { Separator } from "@asobi/ui/components/separator";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
 import { Label } from "@asobi/ui/components/label";
@@ -48,7 +48,7 @@ export function CallGuideEditor({
   onBusyChange?: (busy: boolean) => void;
   onSaved?: (document: GuideDocument) => void;
 }) {
-  const router = useRouter();
+  const router = useLoadingRouter();
   const navigation = useNavigationGuard();
   const containerRef = useRef<HTMLElement>(null);
   const desktop = useEditorViewport(embedded ? containerRef : undefined);

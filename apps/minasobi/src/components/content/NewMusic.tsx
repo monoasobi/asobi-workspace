@@ -1,9 +1,9 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useLoadingRouter } from "@/components/NavigationGuard";
 import { AdminDocumentPanel } from "./AdminDocumentPanel";
 import type { AdminDashboardData } from "./data";
 export function NewMusic({ data }: { data: AdminDashboardData }) {
-  const router = useRouter();
+  const router = useLoadingRouter();
   return (
     <AdminDocumentPanel
       data={data}

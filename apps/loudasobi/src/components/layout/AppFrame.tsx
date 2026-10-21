@@ -1,10 +1,11 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useAtom } from "jotai";
 import { sidebarOpenAtom } from "@/atoms/sidebar";
 import { useTranslations } from "next-intl";
+import { LoadingOverlay } from "@asobi/ui/components/loading-overlay";
 import { Header } from "./Header";
 import { SongList } from "./SongList";
 import type { SongSort } from "./SongList/albumOrder";
@@ -33,6 +34,7 @@ export function AppFrame({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
   const t = useTranslations();
   const compact = useIsCompact();
@@ -47,7 +49,9 @@ export function AppFrame({
     if (pathname !== path) {
       const url = new URL(window.location.href);
       url.pathname = path;
-      router.push(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+      startTransition(() => {
+        router.push(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+      });
     }
     if (compact) setMobileOpen(false);
   }
@@ -119,9 +123,13 @@ export function AppFrame({
           id="main-content"
           ref={mainRef}
           tabIndex={-1}
-          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none"
+          aria-busy={isPending}
+          className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none"
         >
-          {unavailable && pathname !== "/" ? <CatalogError /> : children}
+          <div inert={isPending} className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden">
+            {unavailable && pathname !== "/" ? <CatalogError /> : children}
+          </div>
+          {isPending && <LoadingOverlay label={t("dataLoading.label")} description={t("dataLoading.description")} />}
         </main>
       </div>
     </div>
