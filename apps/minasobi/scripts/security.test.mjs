@@ -94,7 +94,7 @@ test("refresh requires an explicit success response and safely reports notificat
           options.headers.Authorization,
           "Bearer local-refresh-test",
         );
-        assert.equal(options.redirect, "error");
+        assert.equal(options.redirect, "manual");
         assert.equal(options.cache, "no-store");
         return Response.json({ ok: true });
       },
@@ -109,26 +109,33 @@ test("refresh requires an explicit success response and safely reports notificat
       { target: "monoasobi", ok: true },
     ]);
     assert.equal(mocked.mock.callCount(), callsBeforeLoud + 1);
-    mocked.mock.mockImplementation(async () =>
-      Response.json({ ok: true }, { status: 503 }),
-    );
-    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
-      { target: "monoasobi", ok: false },
-    ]);
+    for (const status of [301, 401, 403, 404, 500, 503]) {
+      mocked.mock.mockImplementation(async () => new Response(null, { status }));
+      const [result] = await refreshPublicCatalog(["monoasobi"]);
+      assert.equal(result.ok, false);
+      assert.equal(result.status, status);
+      assert(result.error);
+      assert(!JSON.stringify(result).includes("local-refresh-test"));
+    }
     mocked.mock.mockImplementation(async () => Response.json({}));
-    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
-      { target: "monoasobi", ok: false },
-    ]);
+    assert.match((await refreshPublicCatalog(["monoasobi"]))[0].error, /성공/);
     mocked.mock.mockImplementation(async () => {
       throw new Error("offline");
     });
-    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
-      { target: "monoasobi", ok: false },
-    ]);
+    assert.match((await refreshPublicCatalog(["monoasobi"]))[0].error, /연결/);
+    mocked.mock.mockImplementation(async () => {
+      throw new DOMException("timeout", "TimeoutError");
+    });
+    assert.match((await refreshPublicCatalog(["monoasobi"]))[0].error, /5초/);
     delete process.env.MONOASOBI_REVALIDATION_SECRET;
-    assert.deepEqual(await refreshPublicCatalog(["monoasobi"]), [
-      { target: "monoasobi", ok: false },
-    ]);
+    assert.match((await refreshPublicCatalog(["monoasobi"]))[0].error, /설정되지/);
+    process.env.MONOASOBI_REVALIDATION_SECRET = "local-refresh-test";
+    for (const url of ["invalid", "file:///tmp", "https://user:password@example.invalid"]) {
+      process.env.MONOASOBI_URL = url;
+      const calls = mocked.mock.callCount();
+      assert.match((await refreshPublicCatalog(["monoasobi"]))[0].error, /올바른/);
+      assert.equal(mocked.mock.callCount(), calls);
+    }
   } finally {
     for (const key of keys) {
       if (saved[key] === undefined) delete process.env[key];

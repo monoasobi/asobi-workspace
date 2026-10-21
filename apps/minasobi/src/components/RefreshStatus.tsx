@@ -47,6 +47,11 @@ export function RefreshStatus({
         저장은 완료했지만{" "}
         {failed.map((result) => result.target.toUpperCase()).join(", ")} 서버
         캐시 초기화를 확인하지 못했습니다.
+        {failed.map((result) => result.error && (
+          <span key={result.target} className="block text-destructive">
+            {result.error}{result.status ? ` (HTTP ${result.status})` : ""}
+          </span>
+        ))}
         {error && (
           <span role="alert" className="block text-destructive">
             {error}
