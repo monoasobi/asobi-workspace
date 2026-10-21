@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@asobi/ui/components/button";
@@ -18,13 +19,15 @@ export function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
       >
         <Menu className="size-5" />
       </Button>
-      <Image
-        src="/assets/logo.svg"
-        alt="loudasobi"
-        width={410}
-        height={129}
-        className="h-auto w-[120px]"
-      />
+      <Link href="/" className="rounded-sm outline-offset-4">
+        <Image
+          src="/assets/logo.svg"
+          alt="loudasobi"
+          width={410}
+          height={129}
+          className="h-auto w-[120px]"
+        />
+      </Link>
       <SettingsMenu />
     </header>
   );

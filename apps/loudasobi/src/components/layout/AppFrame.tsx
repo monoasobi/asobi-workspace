@@ -18,7 +18,7 @@ import {
 import type { CatalogEntry } from "@/types/catalog";
 import { musicIdFromPath, musicPath } from "@/lib/musicRoute";
 import { useIsCompact } from "./AppFrame/useIsCompact";
-import { sidebarMusicIds, type SidebarLayout } from "@asobi/content-core/sidebarOrder";
+import type { SidebarLayout } from "@asobi/content-core/sidebarOrder";
 
 export function AppFrame({
   catalog,
@@ -37,19 +37,14 @@ export function AppFrame({
   const compact = useIsCompact();
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const selectedId =
-    musicIdFromPath(pathname) ?? sidebarMusicIds(sidebarLayout)[0] ?? null;
+  const selectedId = musicIdFromPath(pathname);
   const [sort, setSort] = useState<SongSort>("recommended");
   const songListItems = catalog.map(({ music, track }) => ({
     music,
     hasLyrics: !!track?.lyric.length,
   }));
   const mainRef = useRef<HTMLElement>(null);
-  const selected =
-    catalog.find(
-      (entry) =>
-        entry.music.id === (selectedId ?? sidebarMusicIds(sidebarLayout)[0]),
-    ) ?? catalog[0];
+  const selected = catalog.find((entry) => entry.music.id === selectedId);
 
   function selectMusic(id: number) {
     const path = musicPath(id);
@@ -63,7 +58,7 @@ export function AppFrame({
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
-      {children}
+      {pathname !== "/" && children}
       <a
         href="#main-content"
         className="sr-only z-50 rounded bg-background p-3 focus:not-sr-only focus:absolute"
@@ -131,7 +126,9 @@ export function AppFrame({
           tabIndex={-1}
           className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none"
         >
-          {selected ? (
+          {pathname === "/" ? (
+            children
+          ) : selected ? (
             <MusicExperience
               key={selected.music.id}
               music={selected.music}

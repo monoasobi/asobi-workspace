@@ -1,5 +1,11 @@
 # ASOBI 이관 진행 기록
 
+## LOUDASOBI 메인 오버뷰 초안 (2026-10-21)
+
+사용자가 확정한 소개 글과 Author/Contributor 크레딧으로 `/` 오버뷰 초안을 구성했습니다. Mono Overview의 히어로 높이·콘텐츠 폭·섹션 여백과 공용 ScrollArea/타이포그래피를 참고했습니다. 사용자 제공 live.jpg와 loudasobi.svg는 public/assets/overview에 원본 그대로 두고 첫 화면/첫 소개 영역에 사용합니다. 기존 AppFrame에 메인 콘텐츠를 연결하고 헤더 로고에 홈 링크를 추가했습니다. 곡별 URL의 기존 플레이어는 유지하며 메인에서 첫 곡을 자동 선택하지 않습니다. 소개 본문은 검토용 한국어 초안입니다.
+
+Loud lint/typecheck와 diff 공백 검사 통과. 사용자 요청에 따라 브라우저 검증·빌드·커밋은 하지 않았고 화면 QA/문구 수정 대기입니다. 확인용 개발 서버는 localhost:3102로 실행했습니다.
+
 ## LOUDASOBI 다국어 문구·곡별 OG 적용 (2026-10-21)
 
 문구/manifest 커밋: `dc3179b 라우다소비 메타 문구와 매니페스트 다국어 적용`. 기존 사용자 수정인 기본 제목·applicationName의 LOUDASOBI 대문자는 유지하고 이번 관련 커밋에 포함했습니다. 사이트 설명과 공유 PNG·alt는 변경하지 않았습니다.
