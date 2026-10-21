@@ -1,4 +1,4 @@
-import { getComicById } from "@/server/queries/comic";
+import { getComicContentAccess } from "@/server/queries/comicAccess";
 import { getR2Object, r2BodyToResponseBody } from "@/server/storage";
 import { NextResponse } from "next/server";
 
@@ -13,7 +13,7 @@ export const GET = async (
   const { key } = await context.params;
   const objectKey = key.join("/");
   const match = /^comics\/(\d+)\//.exec(objectKey);
-  if (!match || objectKey.split("/").some(part => part === ".." || part === ".") || !(await getComicById(Number(match[1])))) {
+  if (!match || objectKey.split("/").some(part => part === ".." || part === ".") || !(await getComicContentAccess(Number(match[1])))) {
     return new Response("File not found", { status: 404 });
   }
 

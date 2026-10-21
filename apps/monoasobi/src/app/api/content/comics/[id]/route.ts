@@ -1,4 +1,4 @@
-import { getComicById } from "@/server/queries/comic";
+import { getComicContentAccess } from "@/server/queries/comicAccess";
 import { listR2ObjectKeys } from "@/server/storage";
 import { NextResponse } from "next/server";
 
@@ -10,7 +10,7 @@ export const GET = async (request: Request, context: ComicRouteContext) => {
   const { id } = await context.params;
 
   const comicId = Number(id);
-  if (!Number.isInteger(comicId) || comicId < 0 || !(await getComicById(comicId))) {
+  if (!Number.isInteger(comicId) || comicId < 0 || !(await getComicContentAccess(comicId))) {
     return new Response("Comic not found", { status: 404 });
   }
 
