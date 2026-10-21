@@ -1,6 +1,6 @@
 export type AdminDashboardData = Awaited<
   ReturnType<typeof import("@/server/queries/content").getAdminDashboard>
->;
+> & { bookOptions?: { id: number; name: string }[] };
 export type SelectedNode =
   | { type: "music"; id: number }
   | { type: "novel"; id: number }

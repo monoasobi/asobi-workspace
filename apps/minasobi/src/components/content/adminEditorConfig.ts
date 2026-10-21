@@ -13,7 +13,7 @@ export const getEditorConfig = (
 ): EditorConfig | null => {
   const bookOptions = [
     { value: EMPTY_SELECT_VALUE, label: "없음" },
-    ...data.books.map((book) => ({
+    ...(data.bookOptions ?? data.books).map((book) => ({
       value: String(book.id),
       label: `${book.id}: ${book.name}`,
     })),

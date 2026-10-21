@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "check:security": "node --conditions=react-server --test scripts/security.test.mjs",
     "check:editors": "node --import tsx --test scripts/editor-contracts.test.ts",
-    "check:content": "node --import tsx --test scripts/content-contracts.test.ts"
+    "check:content": "node --import tsx --test scripts/content-contracts.test.ts",
+    "check:music-content": "node --conditions=react-server --import tsx --test scripts/music-content.test.ts"
   },
   "dependencies": {
     "@asobi/ui": "0.1.0",

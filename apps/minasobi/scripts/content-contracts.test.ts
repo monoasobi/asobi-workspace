@@ -10,9 +10,23 @@ import { novelSchema, bookSchema } from "@asobi/content-core/contentInput";
 import { getBookEditorConfig } from "../src/components/content/editorConfigs/book";
 import { getNovelEditorConfig } from "../src/components/content/editorConfigs/novel";
 import { getLyricEditorConfig } from "../src/components/content/editorConfigs/lyric";
+import { getEditorConfig } from "../src/components/content/adminEditorConfig";
 import { getMusicDocuments } from "../src/components/content/selection";
 import { contentSelection } from "../src/components/content/routeSelection";
 import type { AdminDashboardData } from "../src/components/content/data";
+
+test("song novel forms can choose unrelated books using only ID and name options", () => {
+  const data = {
+    musics: [{ id: 0, title: "Song" }], novels: [], comics: [], books: [], lyricTracks: [],
+    bookOptions: [{ id: 0, name: "Available book" }, { id: 2, name: "Another book" }],
+  } as unknown as AdminDashboardData;
+  const config = getEditorConfig(data, { type: "newNovel", musicId: 0 });
+  const field = config?.fields.find(field => field.name === "bookId");
+  assert(field?.type === "select");
+  assert.deepEqual(field.options.slice(1), [
+    { value: "0", label: "0: Available book" }, { value: "2", label: "2: Another book" },
+  ]);
+});
 
 test("migrated form payloads preserve hidden book relationships and conditional fields", () => {
   const data = {

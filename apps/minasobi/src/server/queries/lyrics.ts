@@ -1,10 +1,9 @@
 import "server-only";
-import { createHash } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { getDb } from "@asobi/database";
 import { musics, lyricTracks } from "@asobi/database/schema";
-import { lyricTrackSchema } from "@asobi/content-core/lyricTrackInput";
 import { requireAdminSession } from "@/server/auth/access";
+import { createLyricsDocument } from "./lyricsDocument";
 
 export async function readLyrics(
   id: number,
@@ -29,15 +28,7 @@ export async function readLyrics(
     .innerJoin(lyricTracks, eq(musics.id, lyricTracks.musicId))
     .where(and(eq(musics.id, id), isNull(musics.deletedAt)));
   if (!row) return null;
-  return {
-    music: { ...row.music, youtubeId: row.music.youtubeId ?? undefined },
-    lyricTrack: lyricTrackSchema.parse({
-      musicId: row.musicId,
-      sync: row.sync,
-      lyricJson: row.lyricJson,
-    }),
-    revision: createHash("sha256").update(JSON.stringify(row)).digest("hex"),
-  };
+  return createLyricsDocument(row);
 }
 export type LyricsDocument = NonNullable<
   Awaited<ReturnType<typeof readLyrics>>
