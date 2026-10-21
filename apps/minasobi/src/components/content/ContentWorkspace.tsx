@@ -39,7 +39,7 @@ export function ContentWorkspace({ data, node, readOnly }: {
               <ul className="grid gap-1">
                 {data.books.map(book => {
                   const selected = node?.type === "book" && node.id === book.id;
-                  const novels = [...new Set([...book.novels.map(({ novel }) => novel.title), ...data.novels.filter(novel => novel.bookId === book.id).map(novel => novel.title)])];
+                  const novels = [...new Set([...book.novels.map(({ novel }) => novel.title), ...(data.novelOptions ?? data.novels).filter(novel => novel.bookId === book.id).map(novel => novel.title)])];
                   return <li key={book.id}>
                     <Button type="button" variant={selected ? "secondary" : "ghost"}
                       aria-current={selected ? "page" : undefined}

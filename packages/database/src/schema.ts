@@ -150,6 +150,14 @@ export const musicsRelations = relations(musics, ({ many, one }) => ({
   novels: many(novels),
   comics: many(comics),
   lyricTrack: one(lyricTracks),
+  settings: one(loudasobiMusicSettings, {
+    fields: [musics.id],
+    references: [loudasobiMusicSettings.musicId],
+  }),
+  callGuide: one(loudasobiCallGuides, {
+    fields: [musics.id],
+    references: [loudasobiCallGuides.musicId],
+  }),
 }));
 
 export const booksRelations = relations(books, ({ many, one }) => ({

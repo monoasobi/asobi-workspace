@@ -13,14 +13,15 @@ export const getBookEditorConfig = (
       : null;
 
   // Preserve saved links even when their novels are absent from the active catalog.
-  const novels = new Map<number, Pick<(typeof data.novels)[number], "id" | "title" | "musicId">>(data.novels.map(novel => [novel.id, novel]));
+  const novels = new Map<number, Pick<(typeof data.novels)[number], "id" | "title" | "musicId">>((data.novelOptions ?? data.novels).map(novel => [novel.id, novel]));
   for (const { novel } of book?.novels ?? []) {
     if (!novels.has(novel.id)) novels.set(novel.id, novel);
   }
   const novelOptions = [...novels.values()].map(novel => ({
     value: String(novel.id),
     label: novel.title || `소설 #${novel.id}`,
-    description: data.musics.find(music => music.id === novel.musicId)?.korTitle
+    description: data.novelOptions?.find(option => option.id === novel.id)?.musicTitle
+      || data.musics.find(music => music.id === novel.musicId)?.korTitle
       || data.musics.find(music => music.id === novel.musicId)?.title || "기존 연결 소설",
   }));
 

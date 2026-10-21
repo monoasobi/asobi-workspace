@@ -167,6 +167,9 @@ try {
   const dashboard = (await call("/api/admin/content")).data;
   assert(!dashboard.data.musics.some((row) => row.id === hidden.id));
   assert(!dashboard.data.novels.some((row) => row.id === n2.id));
+  assert(!dashboard.data.novelOptions.some((row) => row.id === n2.id));
+  assert.deepEqual(dashboard.data.lyricTracks, []);
+  assert.deepEqual(dashboard.data.comics, []);
   const visibleBook = dashboard.data.books.find((row) => row.id === book.id);
   assert.deepEqual(
     visibleBook.novels.map((row) => row.novel.id),

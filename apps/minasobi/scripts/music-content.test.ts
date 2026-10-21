@@ -7,6 +7,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
 import * as schema from "@asobi/database/schema";
 import { readMusicContent } from "../src/server/queries/musicContent";
+import { readBooksData } from "../src/server/queries/content";
 
 test("song content is scoped by ID while book choices and lyric revisions are preserved", async () => {
   const client = createClient({ url: "file::memory:" });
@@ -39,10 +40,19 @@ test("song content is scoped by ID while book choices and lyric revisions are pr
       { musicId: 0, sync: -0.01, lyricJson: lines, updatedAt: "2026-10-21" },
       { musicId: 1, lyricJson: [{ ...lines[0], id: "unrelated-lyric" }] },
     ]);
+    await db.insert(schema.loudasobiMusicSettings).values({ musicId: 0, youtubeId: "dedicated-video", bpm: 120, publish: true, syncOffset: 0.5 });
+    await db.insert(schema.loudasobiCallGuides).values({ musicId: 0, guideJson: { marker: "editor-only-guide" }, updatedAt: "2026-10-20" });
     queries.length = 0;
     const result = await readMusicContent(db, 0);
     assert(result);
-    assert.equal(queries.length, 3, "relations must not issue one query per document");
+    assert.equal(queries.length, 2, "song detail must use one relational query plus book choices");
+    assert(!queries.some(query => query.includes('"guide_json"')), "detail must not fetch editor-only call JSON");
+    assert.equal(result.music.youtubeId, "dedicated-video");
+    assert.equal(result.music.commonYoutubeId, null);
+    assert.equal(result.music.syncOffset, 0.5);
+    assert.equal(result.music.sourceSync, -0.01);
+    assert.equal(result.music.publish, true);
+    assert.equal(result.music.guideUpdatedAt, "2026-10-20");
     const { data, revision } = result;
     assert.deepEqual(data.musics.map(music => music.id), [0]);
     assert.deepEqual(data.novels.map(novel => novel.id), [10]);
@@ -59,6 +69,18 @@ test("song content is scoped by ID while book choices and lyric revisions are pr
       musicId: 0, sync: -0.01, lyricJson: lines, updatedAt: "2026-10-21",
     };
     assert.equal(revision, createHash("sha256").update(JSON.stringify(oldSnapshot)).digest("hex"));
+    queries.length = 0;
+    const bookData = await readBooksData(db);
+    assert.equal(queries.length, 2);
+    assert(!queries.some(query => /lyric_tracks|comics|guide_json/.test(query)), "books must not read lyrics, comics, or call data");
+    assert.deepEqual(bookData.musics, []);
+    assert.deepEqual(bookData.novels, []);
+    assert.deepEqual(bookData.comics, []);
+    assert.deepEqual(bookData.lyricTracks, []);
+    assert.deepEqual(bookData.novelOptions?.map(novel => novel.id), [10, 11]);
+    assert.equal(bookData.novelOptions?.[0].musicTitle, "곡");
+    assert.equal(bookData.novelOptions?.[0].bookId, 0);
+    assert.deepEqual(bookData.books[1].novels.map(link => link.novel.id), [10, 12]);
     const other = await readMusicContent(db, 1);
     assert.deepEqual(other?.data.novels.map(novel => novel.id), [11]);
     assert.deepEqual(other?.data.books.map(book => book.id), [2]);
@@ -68,6 +90,9 @@ test("song content is scoped by ID while book choices and lyric revisions are pr
     assert.deepEqual(empty.data.lyricTracks, []);
     assert.deepEqual(empty.data.books, []);
     assert.equal(empty.revision, undefined);
+    assert.equal(empty.music.hasLyrics, false);
+    assert.equal(empty.music.publish, false);
+    assert.equal(empty.music.syncOffset, 0);
     assert.equal(await readMusicContent(db, 2), null);
     assert.equal(await readMusicContent(db, 999), null);
   } finally {

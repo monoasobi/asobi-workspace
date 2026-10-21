@@ -1,8 +1,9 @@
 import "server-only";
-import { and, eq, inArray, isNull, or } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@asobi/database";
-import { musics, novels, bookNovels, books } from "@asobi/database/schema";
-import type { AdminDashboardData } from "@/components/content/data";
+import { musics, books, bookNovels } from "@asobi/database/schema";
+import type { AdminBook, AdminDashboardData } from "@/components/content/data";
+import type { AdminMusic } from "@/types/music";
 import { createLyricsDocument } from "./lyricsDocument";
 import { requireAdminSession } from "@/server/auth/access";
 
@@ -11,46 +12,73 @@ export async function getMusicContent(musicId: number) {
   return readMusicContent(getDb(), musicId);
 }
 
-// Keep the database reader injectable for isolated, in-memory checks.
+// Both direct bookId and book_novels links use the same nested book projection.
+const bookRelations = {
+  novels: {
+    orderBy: asc(bookNovels.order),
+    with: { novel: { columns: { id: true, title: true, musicId: true } } },
+  },
+  purchaseLinks: true,
+} as const;
+
 export async function readMusicContent(db: ReturnType<typeof getDb>, musicId: number) {
-  const songNovels = db.select({ id: novels.id }).from(novels).where(eq(novels.musicId, musicId));
-  const [music, linkedBooks, bookOptions] = await Promise.all([
+  const [row, bookOptions] = await Promise.all([
     db.query.musics.findFirst({
       where: and(eq(musics.id, musicId), isNull(musics.deletedAt)),
       with: {
-        novels: { orderBy: (table, { asc }) => asc(table.id), with: { music: true, book: true } },
-        comics: { orderBy: (table, { asc }) => asc(table.id), with: { music: true } },
+        settings: true,
+        callGuide: { columns: { updatedAt: true } },
+        novels: {
+          orderBy: (table, { asc }) => asc(table.id),
+          with: {
+            book: { with: bookRelations },
+            bookLinks: { with: { book: { with: bookRelations } } },
+          },
+        },
+        comics: { orderBy: (table, { asc }) => asc(table.id) },
         lyricTrack: true,
       },
     }),
-    db.query.books.findMany({
-      where: or(
-        inArray(books.id, db.select({ id: novels.bookId }).from(novels).where(eq(novels.musicId, musicId))),
-        inArray(books.id, db.select({ id: bookNovels.bookId }).from(bookNovels).where(inArray(bookNovels.novelId, songNovels))),
-      ),
-      orderBy: (table, { asc }) => asc(table.id),
-      with: {
-        novels: { orderBy: (table, { asc }) => asc(table.order), with: { novel: true } },
-        purchaseLinks: true,
-      },
-    }),
-    // Novel forms can choose any book, but only its ID and name are needed.
+    // This list is independent of the selected song and has no detail payloads.
     db.select({ id: books.id, name: books.name }).from(books).orderBy(books.id),
   ]);
-  if (!music) return null;
-  const { novels: songNovelsData, comics, lyricTrack, ...song } = music;
+  if (!row) return null;
+  const { novels, comics, lyricTrack, settings, callGuide, ...song } = row;
+  const linkedBooks = new Map<number, AdminBook>();
+  const songNovels = novels.map(({ bookLinks, book, ...novel }) => {
+    if (book) linkedBooks.set(book.id, book);
+    for (const link of bookLinks) linkedBooks.set(link.book.id, link.book);
+    return {
+      ...novel, music: song,
+      book: book ? { id: book.id, name: book.name, createdAt: book.createdAt, updatedAt: book.updatedAt } : null,
+    };
+  });
   const lyric = lyricTrack ? createLyricsDocument({ ...lyricTrack, music: song }) : null;
   const data: AdminDashboardData = {
     musics: [song],
-    novels: songNovelsData,
-    comics,
-    books: linkedBooks,
+    novels: songNovels,
+    comics: comics.map(comic => ({ ...comic, music: song })),
+    books: [...linkedBooks.values()].sort((a, b) => a.id - b.id),
     bookOptions,
-    lyricTracks: lyric ? [{
-      ...lyric.lyricTrack,
-      updatedAt: lyricTrack!.updatedAt,
-      lineCount: lyric.lyricTrack.lyricJson.length,
-    }] : [],
+    lyricTracks: lyric && lyricTrack ? [{ ...lyric.lyricTrack, updatedAt: lyricTrack.updatedAt, lineCount: lyric.lyricTrack.lyricJson.length }] : [],
   };
-  return { data, revision: lyric?.revision };
+  const music: AdminMusic = {
+    id: song.id,
+    title: song.title,
+    korTitle: song.korTitle,
+    enTitle: song.enTitle,
+    albumArtKey: song.albumArtKey,
+    commonYoutubeId: song.youtubeId,
+    specialPath: song.specialPath,
+    updatedAt: song.updatedAt,
+    guideUpdatedAt: callGuide?.updatedAt ?? null,
+    youtubeId: settings?.youtubeId ?? null,
+    fanLightColor: settings?.fanLightColor ?? null,
+    bpm: settings?.bpm ?? null,
+    publish: settings?.publish ?? false,
+    syncOffset: settings?.syncOffset ?? 0,
+    sourceSync: lyricTrack?.sync ?? 0,
+    hasLyrics: lyricTrack !== null,
+  };
+  return { music, data, revision: lyric?.revision };
 }

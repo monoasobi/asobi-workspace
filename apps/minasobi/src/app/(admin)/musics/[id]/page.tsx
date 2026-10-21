@@ -1,7 +1,6 @@
 import { MusicDetail } from "@/components/MusicDetail";
 import { notFound } from "next/navigation";
 import { requireAdminSession } from "@/server/auth/access";
-import { getAdminMusics } from "@/server/queries/music";
 import { getMusicContent } from "@/server/queries/musicContent";
 import { contentSelection } from "@/components/content/routeSelection";
 import { parseMusicId } from "@/lib/musicId";
@@ -12,11 +11,11 @@ export default async function MusicPage({ params, searchParams }: {
   const session = await requireAdminSession();
   const id = parseMusicId((await params).id);
   if (id === null) notFound();
-  const [[music], content, query] = await Promise.all([
-    getAdminMusics(id), getMusicContent(id), searchParams,
+  const [content, query] = await Promise.all([
+    getMusicContent(id), searchParams,
   ]);
-  if (!music || !content) notFound();
-  const { data, revision } = content;
+  if (!content) notFound();
+  const { music, data, revision } = content;
   const node = contentSelection(query, data, session.role === "admin", id);
   return (
     <MusicDetail
