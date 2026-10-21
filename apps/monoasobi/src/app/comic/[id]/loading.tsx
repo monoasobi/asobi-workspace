@@ -1,13 +1,5 @@
-export default function ComicLoading() {
-  return (
-    <div className="flex items-center justify-center flex-col gap-3 h-full">
-      <span
-        aria-hidden="true"
-        className="size-5 animate-spin rounded-full border-2 border-border border-t-primary motion-reduce:animate-none"
-      />
-      <span className="type-body text-muted-foreground font-medium">
-        만화를 불러오는 중입니다.
-      </span>
-    </div>
-  );
+import { Loading } from "@/components/feedback/Loading";
+
+export default function LoadingPage() {
+  return <Loading label="만화 정보를 불러오는 중입니다." />;
 }

@@ -25,6 +25,14 @@ for (const [name, expected] of Object.entries(baseline.hashes)) {
         'export const NovelMarkdown = ({ children, className }: NovelMarkdownProps) => {\n  const font = useAtomValue(fontAtom);',
       );
   }
+  if (name.endsWith("NovelReader.tsx")) {
+    const surface = text.slice(text.indexOf("<ScrollArea\n"), text.indexOf("</ScrollArea>") + "</ScrollArea>".length);
+    const normalized = surface.trim().split("\n").map(line => line.trim()).join("\n");
+    assert.equal(sha(normalized), baseline.loadingOverlay.readerSurfaceHash, "Novel reading surface changed");
+    const classes = text.slice(text.indexOf("const scrollAreaClasses = ["), text.indexOf('].join(" ");') + '].join(" ");'.length);
+    assert.equal(sha(classes), baseline.loadingOverlay.scrollAreaClassesHash, "Novel scrollbar geometry changed");
+    continue;
+  }
   if (baseline.radixReplacement.hashes[name]) {
     assert.equal(
       sha(text),

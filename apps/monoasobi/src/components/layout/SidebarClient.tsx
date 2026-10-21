@@ -12,6 +12,7 @@ import { getAlbumArtSrc } from "@/lib/albumArt";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useContentNavigation } from "./ContentNavigation";
 import styles from "./Sidebar.styles";
 type ItemTone = "active" | "available" | "untranslated";
 export interface SidebarItem {
@@ -121,6 +122,7 @@ const getTone = ({
   return "untranslated";
 };
 const Item = ({ item, isActive }: ItemProps) => {
+  const { navigate } = useContentNavigation();
   const { music, novel } = item;
   const { korTitle, title, enTitle, specialPath } = music;
   const setIsSidebar = useSetAtom(sidebarAtom);
@@ -136,6 +138,10 @@ const Item = ({ item, isActive }: ItemProps) => {
   return (
     <Link
       href={href}
+      onNavigate={event => {
+        event.preventDefault();
+        navigate(href);
+      }}
       onClick={closeHandler}
       title={`${title} - ${korTitle} / ${enTitle}`}
       className={styles.item}

@@ -1,5 +1,6 @@
 import { Header } from "@components/layout/Header";
 import { Sidebar } from "@components/layout/Sidebar";
+import { ContentNavigation, ContentRegion } from "./ContentNavigation";
 import styles from "./AppFrame.styles";
 
 interface AppFrameProps {
@@ -10,10 +11,12 @@ export const AppFrame = ({ children }: AppFrameProps) => {
   return (
     <div className={styles.frame}>
       <Header />
-      <div className={styles.body}>
-        <Sidebar />
-        <main className={styles.content}>{children}</main>
-      </div>
+      <ContentNavigation>
+        <div className={styles.body}>
+          <Sidebar />
+          <ContentRegion>{children}</ContentRegion>
+        </div>
+      </ContentNavigation>
     </div>
   );
 };

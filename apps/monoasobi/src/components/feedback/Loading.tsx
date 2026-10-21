@@ -1,18 +1,12 @@
 "use client";
+import { LoadingOverlay } from "@asobi/ui/components/loading-overlay";
+
 export const Loading = ({
   label = "불러오는 중입니다.",
 }: {
   label?: string;
 }) => (
-  <div
-    role="status"
-    aria-live="polite"
-    className="flex flex-1 w-full min-h-[160px] p-4 gap-3 flex-col justify-center items-center"
-  >
-    <span
-      aria-hidden="true"
-      className="size-5 animate-spin rounded-full border-2 border-border border-t-primary motion-reduce:animate-none"
-    />
-    <span className="type-body text-muted-foreground">{label}</span>
+  <div className="relative isolate flex min-h-[160px] w-full flex-1 self-stretch">
+    <LoadingOverlay label={label} description="잠시만 기다려 주세요." />
   </div>
 );

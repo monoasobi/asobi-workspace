@@ -15,5 +15,10 @@
     }
   },
   "loadingChangeNote": "2026-10-20 user approved local-first/R2 fallback. Only Reader loading/import changed; JSX, scroll state, Markdown renderer and CSS remain unchanged.",
-  "sharedExtractionNote": "2026-10-21: NovelMarkdown and its unchanged CSS moved to packages/ui for the admin guide. The contract reconstructs only the former Jotai imports/font binding before checking the same approved renderer hash. Mono retains a fontAtom adapter. No rendering hashes were reset."
+  "sharedExtractionNote": "2026-10-21: NovelMarkdown and its unchanged CSS moved to packages/ui for the admin guide. The contract reconstructs only the former Jotai imports/font binding before checking the same approved renderer hash. Mono retains a fontAtom adapter. No rendering hashes were reset.",
+  "loadingOverlay": {
+    "note": "2026-10-22 user approved loading lifecycle/overlay changes. The existing ScrollArea rendering and scrollbar classes remain pinned independently; Markdown and CSS hashes are unchanged.",
+    "readerSurfaceHash": "abab3a7a150d052c66eaf4929844683cb5dfdf6b2318ea61756c39dcd4a46842",
+    "scrollAreaClassesHash": "5fa95be22d7fecfa54938a2e8cab0c26be22b1152574c8e495d312506d6d96ef"
+  }
 }

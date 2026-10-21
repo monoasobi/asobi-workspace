@@ -1,12 +1,18 @@
 "use client";
 
 import { Error as ErrorView } from "@components/feedback/Error";
-import { Loading } from "@components/feedback/Loading";
+import { LoadingOverlay } from "@asobi/ui/components/loading-overlay";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { useEffect, useRef, useState, type UIEvent } from "react";
 import { NovelMarkdown } from "./NovelMarkdown";
 import { fetchNovelMarkdown } from "./NovelReader/fetchNovelMarkdown";
 import styles from "./NovelReader.module.css";
+
+interface NovelDocument {
+  id: string;
+  markdown: string;
+  error?: boolean;
+}
 
 interface NovelReaderProps {
   id: number | string;
@@ -25,9 +31,12 @@ const scrollAreaClasses = [
 ].join(" ");
 
 export const NovelReader = ({ id }: NovelReaderProps) => {
-  const [markdown, setMarkdown] = useState<string | undefined>("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const [document, setDocument] = useState<NovelDocument | null>(null);
+  const [readyDocument, setReadyDocument] = useState<NovelDocument | null>(null);
+  const isCurrent = document?.id === String(id);
+  const isLoading = !isCurrent || !document || readyDocument !== document;
+  const isError = isCurrent && document?.error;
+  const markdown = document?.markdown ?? "";
   const novelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,16 +44,11 @@ export const NovelReader = ({ id }: NovelReaderProps) => {
     const fetchNovel = async (novelId: number | string) => {
       const isDev = process.env.NODE_ENV === "development";
       try {
-        setIsLoading(true);
-        setIsError(false);
-
         const text = await fetchNovelMarkdown(novelId, isDev);
-        if (!ignore) setMarkdown(text);
+        if (!ignore) setDocument({ id: String(novelId), markdown: text });
       } catch (error) {
         console.error(error);
-        if (!ignore) setIsError(true);
-      } finally {
-        if (!ignore) setIsLoading(false);
+        if (!ignore) setDocument({ id: String(novelId), markdown: "", error: true });
       }
     };
 
@@ -55,48 +59,69 @@ export const NovelReader = ({ id }: NovelReaderProps) => {
   }, [id]);
 
   useEffect(() => {
-    if (!markdown) return;
-    const novelElement = novelRef.current;
-    if (novelElement) {
-      const scrollTop = localStorage.getItem(`novel-${id}`);
-      if (scrollTop) novelElement.scrollTo(0, parseInt(scrollTop, 10) || 0);
-    }
-  }, [markdown, id]);
+    if (!document || document.id !== String(id) || document.error) return;
+    const frame = requestAnimationFrame(() => {
+      const novelElement = novelRef.current;
+      if (!novelElement) return;
+      try {
+        const scrollTop = localStorage.getItem(`novel-${id}`);
+        novelElement.scrollTo(0, parseInt(scrollTop ?? "0", 10) || 0);
+      } catch {
+        // Reading remains available when browser storage is blocked.
+      }
+      setReadyDocument(document);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [document, id]);
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    if (isLoading) return;
     const el = event.currentTarget;
     const scrollTop = el.scrollTop;
     const scrollKey = `novel-${id}`;
 
-    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
-      localStorage.removeItem(scrollKey);
-    } else {
-      localStorage.setItem(scrollKey, scrollTop.toString());
+    try {
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
+        localStorage.removeItem(scrollKey);
+      } else {
+        localStorage.setItem(scrollKey, scrollTop.toString());
+      }
+    } catch {
+      // Storage failures must not interrupt reading.
     }
   };
 
-  if (isLoading) return <Loading />;
   if (isError) return <ErrorView />;
 
   return (
-    <ScrollArea
-      data-novel-viewer
-      viewportRef={novelRef}
-      className={`${styles.container} ${scrollAreaClasses}`}
-      scrollHideDelay={0}
-      viewportProps={{
-        onScroll: handleScroll,
-        className:
-          "flex flex-col overscroll-auto rounded-none transition-none focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-[var(--focus-8)] focus-visible:-outline-offset-2 [&>div]:w-fit [&>div]:grow",
-      }}
-    >
-      <div className={`${styles.readerFrame} flex justify-center`}>
-        <div className={styles.novelContainer}>
-          <NovelMarkdown className={styles.markdown}>
-            {markdown ?? ""}
-          </NovelMarkdown>
-        </div>
+    <div className="relative isolate w-full" aria-busy={isLoading}>
+      <div inert={isLoading} className="relative z-0">
+        <ScrollArea
+          data-novel-viewer
+          viewportRef={novelRef}
+          className={`${styles.container} ${scrollAreaClasses}`}
+          scrollHideDelay={0}
+          viewportProps={{
+            onScroll: handleScroll,
+            className:
+              "flex flex-col overscroll-auto rounded-none transition-none focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-[var(--focus-8)] focus-visible:-outline-offset-2 [&>div]:w-fit [&>div]:grow",
+          }}
+        >
+          <div className={`${styles.readerFrame} flex justify-center`}>
+            <div className={styles.novelContainer}>
+              <NovelMarkdown className={styles.markdown}>
+                {markdown ?? ""}
+              </NovelMarkdown>
+            </div>
+          </div>
+        </ScrollArea>
       </div>
-    </ScrollArea>
+      {isLoading && (
+        <LoadingOverlay
+          label={isCurrent ? "읽던 위치를 복원하는 중입니다." : "소설 본문을 불러오는 중입니다."}
+          description="잠시만 기다려 주세요."
+        />
+      )}
+    </div>
   );
 };
