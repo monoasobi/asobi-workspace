@@ -117,10 +117,7 @@ export const NovelReader = ({ id }: NovelReaderProps) => {
         </ScrollArea>
       </div>
       {isLoading && (
-        <LoadingOverlay
-          label={isCurrent ? "읽던 위치를 복원하는 중입니다." : "소설 본문을 불러오는 중입니다."}
-          description="잠시만 기다려 주세요."
-        />
+        <LoadingOverlay />
       )}
     </div>
   );

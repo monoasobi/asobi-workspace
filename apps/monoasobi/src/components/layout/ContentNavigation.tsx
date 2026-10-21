@@ -33,7 +33,7 @@ export function ContentRegion({ children }: { children: ReactNode }) {
       <div inert={pending} className="relative z-0 flex min-h-0 w-full flex-1 flex-col">
         {children}
       </div>
-      {pending && <LoadingOverlay label="작품 정보를 불러오는 중입니다." description="잠시만 기다려 주세요." />}
+      {pending && <LoadingOverlay />}
     </main>
   );
 }

@@ -24,7 +24,7 @@ export const SidebarLoading = () => {
         onClick={() => setIsSidebar(false)}
       />
       <aside className={styles.container} data-open={isOpen}>
-        <Loading label="목록을 불러오는 중입니다." />
+        <Loading />
       </aside>
     </>
   );

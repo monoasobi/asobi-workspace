@@ -180,7 +180,7 @@ function Frame({
           <div inert={guard.pending} className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}
           </div>
-          {guard.pending && <LoadingOverlay label="데이터를 불러오는 중…" description="잠시만 기다려 주세요." />}
+          {guard.pending && <LoadingOverlay />}
         </div>
       </div>
     </main>
