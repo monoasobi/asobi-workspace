@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import { musicIdFromPath } from "@/lib/musicRoute";
-import { getPublicCatalog } from "@/server/queries/catalog";
+import { getPublicCatalog, getPublicMusicById } from "@/server/queries/catalog";
 import { getRequestLocale } from "@/i18n/server";
 import { localizedMetadata, localizedMusicMetadata } from "@/lib/metadata";
+
+import { MusicExperience } from "@/components/player/MusicExperience";
+import { CatalogError } from "@/components/layout/CatalogError";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -29,6 +32,22 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function MusicPage({ params }: Props) {
-  await getMusic(params);
-  return null;
+  const { id } = await params;
+  const musicId = musicIdFromPath(`/musics/${id}`);
+  if (musicId === null) notFound();
+  let entry;
+  try {
+    entry = await getPublicMusicById(musicId);
+  } catch {
+    return <CatalogError />;
+  }
+  if (!entry) notFound();
+  return (
+    <MusicExperience
+      key={entry.music.id}
+      music={entry.music}
+      track={entry.track}
+      sections={entry.sections}
+    />
+  );
 }

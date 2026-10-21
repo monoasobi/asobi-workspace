@@ -4,10 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Header } from "./Header";
-import { Button } from "@asobi/ui/components/button";
 import { SongList } from "./SongList";
 import type { SongSort } from "./SongList/albumOrder";
-import { MusicExperience } from "@/components/player/MusicExperience";
+import { CatalogError } from "./CatalogError";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +14,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@asobi/ui/components/sheet";
-import type { CatalogEntry } from "@/types/catalog";
+import type { SongListItem } from "@/types/catalog";
 import { musicIdFromPath, musicPath } from "@/lib/musicRoute";
 import { useIsCompact } from "./AppFrame/useIsCompact";
 import type { SidebarLayout } from "@asobi/content-core/sidebarOrder";
@@ -26,7 +25,7 @@ export function AppFrame({
   unavailable = false,
   children,
 }: {
-  catalog: CatalogEntry[];
+  catalog: SongListItem[];
   sidebarLayout: SidebarLayout;
   unavailable?: boolean;
   children: React.ReactNode;
@@ -39,12 +38,7 @@ export function AppFrame({
   const [mobileOpen, setMobileOpen] = useState(false);
   const selectedId = musicIdFromPath(pathname);
   const [sort, setSort] = useState<SongSort>("recommended");
-  const songListItems = catalog.map(({ music, track }) => ({
-    music,
-    hasLyrics: !!track?.lyric.length,
-  }));
   const mainRef = useRef<HTMLElement>(null);
-  const selected = catalog.find((entry) => entry.music.id === selectedId);
 
   function selectMusic(id: number) {
     const path = musicPath(id);
@@ -58,7 +52,6 @@ export function AppFrame({
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
-      {pathname !== "/" && children}
       <a
         href="#main-content"
         className="sr-only z-50 rounded bg-background p-3 focus:not-sr-only focus:absolute"
@@ -83,11 +76,11 @@ export function AppFrame({
           >
             <div className="h-full w-[360px] border-r">
               <SongList
-                catalog={songListItems}
+                catalog={catalog}
                 layout={sidebarLayout}
                 sort={sort}
                 onSort={setSort}
-                selectedId={selected?.music.id}
+                selectedId={selectedId ?? undefined}
                 onSelect={selectMusic}
               />
             </div>
@@ -111,11 +104,11 @@ export function AppFrame({
               </SheetDescription>
             </SheetHeader>
             <SongList
-              catalog={songListItems}
+              catalog={catalog}
               layout={sidebarLayout}
               sort={sort}
               onSort={setSort}
-              selectedId={selected?.music.id}
+              selectedId={selectedId ?? undefined}
               onSelect={selectMusic}
             />
           </SheetContent>
@@ -126,32 +119,7 @@ export function AppFrame({
           tabIndex={-1}
           className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden outline-none"
         >
-          {pathname === "/" ? (
-            children
-          ) : selected ? (
-            <MusicExperience
-              key={selected.music.id}
-              music={selected.music}
-              track={selected.track}
-              sections={selected.sections}
-            />
-          ) : (
-            <div
-              className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-6 text-center text-muted-foreground"
-              role="status"
-            >
-              <p>{unavailable ? t("catalogError") : t("noSongs")}</p>
-              {unavailable && (
-                <Button
-                  type="button"
-                  onClick={() => router.refresh()}
-                  variant="link"
-                >
-                  {t("retry")}
-                </Button>
-              )}
-            </div>
-          )}
+          {unavailable && pathname !== "/" ? <CatalogError /> : children}
         </main>
       </div>
     </div>
