@@ -1,5 +1,11 @@
 # ASOBI 이관 진행 기록
 
+## LOUDASOBI 브랜드 아이콘 적용 (2026-10-21)
+
+사용자 제공 loud.svg를 src/app/icon.svg에 원본 그대로 적용했습니다. 기존 설치된 Sharp로 투명 96px PNG, 16/32/48px PNG를 포함한 ICO, 밝은 배경(#FAFAFA)의 Apple 180px 및 홈 화면용 192/512px PNG를 생성했습니다. 기존 apple-icon.tsx는 정적 apple-icon.png로 교체했습니다. manifest.webmanifest로 홈 화면 아이콘을 연결하되 display=browser로 기존 브라우저 이용 방식을 유지하고 서비스 워커·오프라인 기능은 추가하지 않았습니다. 화면 헤더 로고는 변경하지 않았습니다.
+
+Context7의 Next.js 아이콘·공유 이미지·manifest 문서 세 항목과 실제 설치된 Next.js 16.3.5 dist/docs를 대조했습니다. Loud lint/typecheck, 원본 SVG 바이트·PNG 크기·ICO 내부 3개 이미지·manifest 참조 검증이 통과했습니다. 임시 개발 서버 HTTP에서 아이콘/manifest 자동 link 태그와 모든 자산 200 응답을 확인했습니다. 기기별 홈 화면·브라우저 파비콘 표시와 운영 배포는 미검증입니다. 확인용 서버는 종료했습니다.
+
 상세 실행 원칙은 [AGENT.md](../AGENT.md)를 따릅니다. 이 문서는 실제 진행 상태와 확인 결과를 기록합니다.
 
 ## 현재 상태
