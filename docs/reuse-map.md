@@ -1,5 +1,9 @@
 # 기존 코드 재사용·소유권 지도
 
+## MINASOBI 화면별 관계 조회 통합 (2026-10-21)
+
+musicContent는 기존 musics→novels/comics/lyricTrack, novels→book/bookLinks, books→novels/purchaseLinks 관계를 조합하고 settings/callGuide ORM 관계만 공용 schema에 추가했습니다. 하나의 곡 상세 SQL과 별도 서적 ID/이름 목록으로 기존 MusicDetail/AdminDocumentPanel/editorConfigs를 연결합니다. 기존 lyricsDocument 해시/검증은 그대로 재사용합니다. /books는 getBooksData의 서적 관계/경량 소설 선택지로 같은 폼을 사용하며 데이터 타입은 전체 dashboard 조회 함수로부터 분리했습니다. 기존 전체 dashboard 함수는 제거했고 내부 콘텐츠 API도 서적 전용 데이터로 연결했습니다. 첫 곡 이동은 ID만 조회하고 추천 정렬은 기존 두 읽기 함수를 병렬로 조립합니다. 저장·권한·가사/콜 편집기·공개 앱 구현 사본은 추가하지 않았습니다. Mono/Loud 조회 감사 결과는 server-query-review.md에 별도 기록합니다.
+
 ## MINASOBI 선택곡 조회 후속 (2026-10-21)
 
 기존 music JOIN은 오른쪽 선택곡 정보에 재사용하고, 사이드바에는 곡 목록 필드와 가사 존재 여부만 전달합니다. 기존 Drizzle 관계 정의와 콘텐츠 폼은 그대로 사용하며 `server/queries/musicContent.ts`가 선택곡의 소설·만화·가사·연결 서적을 조회합니다. 소설 폼의 전체 서적 선택지는 ID·이름만 별도로 전달합니다. `lyricsDocument.ts`는 기존 readLyrics의 검증·해시 생성을 추출해 독립 가사 편집기와 곡 상세가 공유하며 중복 가사 조회를 제거합니다. DB 스키마/저장 형식/공개 앱에는 변경이 없습니다.
