@@ -1,3 +1,4 @@
+import { OverviewFooter } from "@asobi/ui/components/overview-footer";
 import { Button } from "@asobi/ui/components/button";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
 import { cn } from "@asobi/ui/lib/utils";
@@ -235,6 +236,12 @@ export const Overview = () => {
             </Button>
           </div>
         </section>
+        <OverviewFooter
+          fanNotice="본 사이트는 팬이 제작한 비공식 팬사이트이며,"
+          copyrightNotice="모든 음원과 영상 및 이미지의 저작권은 원 아티스트에게 있습니다."
+          instagramLabel="TRACING A DREAM 인스타그램"
+          emailLabel="TRACING A DREAM 이메일"
+        />
       </main>
     </ScrollArea>
   );

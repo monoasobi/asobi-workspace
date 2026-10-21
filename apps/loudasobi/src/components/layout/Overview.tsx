@@ -1,7 +1,7 @@
 "use client";
 
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
-import { Mail } from "lucide-react";
+import { OverviewFooter } from "@asobi/ui/components/overview-footer";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -100,48 +100,13 @@ export function Overview() {
           </div>
         </section>
 
-        <footer className="border-t border-border bg-card px-8 py-6 text-right max-[480px]:px-5">
-          <div className="type-caption mx-auto flex w-full max-w-[1120px] flex-col items-end gap-3">
-            <p className="leading-relaxed">
-              {t("fanNotice")}
-              <br />
-              {t("copyrightNotice")}
-            </p>
-            <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center justify-end gap-1 leading-5">
-                <p>
-                  Author.{" "}
-                  <span className="font-semibold text-foreground">
-                    TRACING A DREAM
-                  </span>
-                </p>
-                <a
-                  className="inline-flex size-5 items-center justify-center rounded-sm transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  href="https://www.instagram.com/yoasobi_fc_korea/"
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={t("instagramLabel")}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="size-3 shrink-0 bg-current [mask:url('/assets/overview/instagram.svg')_center/contain_no-repeat]"
-                  />
-                </a>
-                <a
-                  className="inline-flex size-5 items-center justify-center rounded-sm transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  href="mailto:yoasobi.fc.kr@gmail.com"
-                  aria-label={t("emailLabel")}
-                >
-                  <Mail className="size-3 shrink-0" aria-hidden="true" />
-                </a>
-              </div>
-              <p className="leading-5">
-                Contributor.{" "}
-                <span className="font-semibold text-foreground">WH</span>
-              </p>
-            </div>
-          </div>
-        </footer>
+        <OverviewFooter
+          fanNotice={t("fanNotice")}
+          copyrightNotice={t("copyrightNotice")}
+          instagramLabel={t("instagramLabel")}
+          emailLabel={t("emailLabel")}
+          contributor="WH"
+        />
       </div>
     </ScrollArea>
   );

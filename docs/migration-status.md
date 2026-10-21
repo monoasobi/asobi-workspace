@@ -1,5 +1,9 @@
 # ASOBI 이관 진행 기록
 
+## Mono/Loud 오버뷰 공용 푸터 (2026-10-21)
+
+사용자 요청으로 Loud의 우측 정렬·축소 여백·팬사이트/저작권 안내·Author/연락처 아이콘 푸터를 packages/ui의 OverviewFooter로 추출해 Mono 오버뷰 하단에도 연결했습니다. Mono는 Contributor를 표시하지 않고 Loud는 기존 WH와 ko/ja/en 번역을 유지합니다. Instagram은 기존 SVG 경로를 공용 인라인 아이콘으로 재사용합니다. Mono 기존 소개/문의 영역은 유지했습니다. 두 앱과 ui의 lint/typecheck 및 diff 공백 검사 통과. 브라우저 검증·빌드·커밋은 하지 않았습니다.
+
 ## LOUDASOBI 오버뷰 다국어 적용 (2026-10-21)
 
 사용자 최신 한국어 본문을 유지하면서 일본어·영어 번역을 추가했습니다. 앱 전용 i18n/overviewMessages.ts의 문구 20개를 기존 LocaleProvider 메시지에 overview namespace로 병합하고 Overview에서 useTranslations로 읽습니다. 본문·제목·팬사이트/저작권 안내·사진 alt·연락처 접근성 이름을 전환하며 브랜드 문구와 Author/Contributor 고유 표기는 유지합니다. 기존 공용 플레이어 메시지와 언어 저장/변경 흐름은 재사용합니다.
