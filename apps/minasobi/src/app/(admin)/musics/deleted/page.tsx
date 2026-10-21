@@ -1,3 +1,5 @@
+import { PendingSection } from "@/components/loading/PendingSection";
+import { ListSkeleton } from "@/components/loading/AdminSkeletons";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/server/auth/access";
 import { getDeletedMusics } from "@/server/queries/content";
@@ -13,6 +15,7 @@ export default async function DeletedMusicPage() {
         연결 자료와 콜 공개 설정은 보존됩니다. 복원하면 이전 공개 설정이 다시
         적용될 수 있습니다.
       </p>
+      <PendingSection fallback={<ListSkeleton />}>
       {musics.map((m) => (
         <article
           key={m.id}
@@ -25,6 +28,7 @@ export default async function DeletedMusicPage() {
         </article>
       ))}
       {!musics.length && <p>숨긴 곡이 없습니다.</p>}
+      </PendingSection>
     </section>
   );
 }

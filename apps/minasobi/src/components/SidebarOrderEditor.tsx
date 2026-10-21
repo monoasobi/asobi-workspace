@@ -4,7 +4,9 @@ import { RefreshStatus } from "@/components/RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { useState } from "react";
 import Link from "next/link";
-import { useLoadingRouter } from "./NavigationGuard";
+import { useLoadingRouter, useNavigationGuard } from "./NavigationGuard";
+import { PendingSection } from "./loading/PendingSection";
+import { ListSkeleton } from "./loading/AdminSkeletons";
 import { Button } from "@asobi/ui/components/button";
 import { Badge } from "@asobi/ui/components/badge";
 import { ScrollArea } from "@asobi/ui/components/scroll-area";
@@ -29,9 +31,11 @@ export function SidebarOrderEditor({
   readOnly: boolean;
 }) {
   const router = useLoadingRouter();
+  const navigation = useNavigationGuard();
   const [saved, setSaved] = useState(initial);
   const [layout, setLayout] = useState(initial.layout);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [drag, setDrag] = useState<SidebarDrag | null>(null);
   const [over, setOver] = useState<string | null>(null);
@@ -53,6 +57,7 @@ export function SidebarOrderEditor({
     )
       return;
     setBusy(true);
+    setLoading(true);
     try {
       const response = await fetch("/api/admin/sidebar", { cache: "no-store" });
       const result = await response.json();
@@ -64,6 +69,7 @@ export function SidebarOrderEditor({
       setMessage("목록을 불러오지 못했습니다. 초안은 유지됩니다.");
     } finally {
       setBusy(false);
+      setLoading(false);
     }
   }
   async function save() {
@@ -200,6 +206,7 @@ export function SidebarOrderEditor({
           {message || "그룹 이름은 1~80자로 입력해 주세요."}
         </p>
       )}
+      <PendingSection loading={loading || navigation.pending} fallback={<div className="min-h-0 flex-1 overflow-hidden"><ListSkeleton /></div>}>
       <div className="flex min-h-0 flex-1">
         <ScrollArea className="min-h-0 min-w-0 flex-1">
           <div className="mx-auto max-w-3xl space-y-4 p-5">
@@ -278,6 +285,7 @@ export function SidebarOrderEditor({
           </div>
         </ScrollArea>
       </div>
+      </PendingSection>
     </main>
   );
 }

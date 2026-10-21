@@ -6,6 +6,8 @@ import { RefreshStatus } from "./RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { AlbumArtForm } from "./AlbumArtForm";
 import { useEffect, useState } from "react";
+import { FormSkeleton, MusicOverviewSkeleton } from "./loading/AdminSkeletons";
+import { PendingSection } from "./loading/PendingSection";
 import { PanelsTopLeft } from "lucide-react";
 import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Button } from "@asobi/ui/components/button";
@@ -41,6 +43,7 @@ export function MusicDetail({
     <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-hidden p-4 sm:p-6">
       <RefreshStatus results={refresh} onRefresh={reportRefresh} />
       <section className="max-h-[45dvh] min-w-0 shrink-0 overflow-y-auto rounded-xl border bg-card xl:max-h-none" aria-label="곡 개요">
+        <PendingSection fallback={<MusicOverviewSkeleton />}>
         <MusicInfoForm
           music={music}
           readOnly={readOnly || guard.busy}
@@ -66,9 +69,11 @@ export function MusicDetail({
             router.refresh();
           }}
         />
+        </PendingSection>
       </section>
       <div className="grid min-h-0 flex-1 grid-rows-2 gap-5 xl:grid-cols-2 xl:grid-rows-1">
         <section className="flex max-h-full min-h-0 min-w-0 self-start flex-col overflow-hidden rounded-xl border bg-card">
+          <PendingSection fallback={<FormSkeleton />}>
           <MusicContentTabs
             data={contentData} musicId={music.id} readOnly={readOnly}
             initialNode={contentNode} revision={contentRevision} contentActive={contentActive}
@@ -77,8 +82,10 @@ export function MusicDetail({
               if (guard.confirmLeave()) router.push(`/musics/${music.id}/lyrics`);
             }}><PanelsTopLeft aria-hidden="true" className="size-4" />가사 편집</Button>}
           />
+          </PendingSection>
         </section>
         <section className="max-h-full min-h-0 min-w-0 self-start overflow-y-auto rounded-xl border bg-card">
+          <PendingSection fallback={<FormSkeleton />}>
           <MusicSettingsForm
             editAction={<Button type="button" variant="outline" size="sm" disabled={guard.busy} onClick={() => {
               if (guard.confirmLeave()) router.push(`/musics/${music.id}/calls`);
@@ -90,6 +97,7 @@ export function MusicDetail({
             onBusyChange={value => setBusy("settings", value)}
             onSaved={saved => { setMusic(saved); router.refresh(); }}
           />
+          </PendingSection>
         </section>
       </div>
     </div>

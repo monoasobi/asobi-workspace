@@ -1,5 +1,5 @@
-import { LoadingOverlay } from "@asobi/ui/components/loading-overlay";
+import { AdminPageSkeleton } from "@/components/loading/AdminSkeletons";
 
 export default function Loading() {
-  return <LoadingOverlay />;
+  return <AdminPageSkeleton />;
 }

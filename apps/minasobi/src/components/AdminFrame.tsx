@@ -5,7 +5,8 @@ import { useLoadingRouter } from "@/components/NavigationGuard";
 import { useTheme } from "next-themes";
 import { PanelLeft, SunMoon } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
-import { LoadingOverlay } from "@asobi/ui/components/loading-overlay";
+import { SidebarSkeleton } from "./loading/AdminSkeletons";
+import { PendingSection } from "./loading/PendingSection";
 import { Badge } from "@asobi/ui/components/badge";
 import { SongList } from "@asobi/ui/components/song-list";
 import {
@@ -112,7 +113,7 @@ function Frame({
               : "flex h-[30dvh] shrink-0 flex-col border-b bg-card md:h-auto md:w-[300px] md:border-r md:border-b-0"
           }
         >
-          <SongList
+          <PendingSection loading={stored === null || guard.refreshing} fallback={<SidebarSkeleton />}><SongList
             showBadges={false}
             catalog={musics.map((music) => ({
               music,
@@ -174,13 +175,10 @@ function Frame({
                 className={className}
               />
             )}
-          />
+          /></PendingSection>
         </aside>
-        <div aria-busy={guard.pending} className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-muted/30">
-          <div inert={guard.pending} className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden">
-            {children}
-          </div>
-          {guard.pending && <LoadingOverlay />}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-muted/30">
+          {children}
         </div>
       </div>
     </main>

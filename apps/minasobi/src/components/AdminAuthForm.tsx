@@ -1,8 +1,9 @@
 "use client";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowRight, LoaderCircle } from "lucide-react";
+import { AlertCircle, ArrowRight } from "lucide-react";
 import { Button } from "@asobi/ui/components/button";
+import { Skeleton } from "@asobi/ui/components/skeleton";
 import { Input } from "@asobi/ui/components/input";
 import { Label } from "@asobi/ui/components/label";
 
@@ -83,10 +84,7 @@ export function AdminAuthForm({
         className={authenticated ? undefined : "mt-2 h-11 w-full"}
       >
         {busy && (
-          <LoaderCircle
-            aria-hidden="true"
-            className="size-4 motion-safe:animate-spin"
-          />
+          <Skeleton aria-hidden="true" className="h-4 w-8 bg-current/20" />
         )}
         {busy ? "처리 중…" : authenticated ? "로그아웃" : "로그인"}
         {!authenticated && !busy && (
