@@ -1,5 +1,9 @@
 # ASOBI 이관 진행 기록
 
+## 공용 로딩 안내 카드 제거 (2026-10-22)
+
+사용자 요청으로 LoadingOverlay 안내 영역의 카드 배경·테두리·둥근 모서리·그림자·카드용 여백을 제거했습니다. MONO·LOUD·MINA 모두 기존 반투명 블러 위에 인디케이터와 문구만 표시합니다. 로딩 시점과 접근성·블러 농도는 유지합니다. 공용 UI lint/typecheck와 diff 공백 검사 통과. 실제 브라우저 시각 확인·빌드·푸시·배포는 수행하지 않았습니다. 이 기록과 한 줄 스타일 변경을 함께 로컬 커밋합니다.
+
 ## MONO 소설 로딩 폭 안정화·배경 표시 (2026-10-22)
 
 사용자 보고의 좁은 왼쪽 로딩 → 전체 로딩 전환은 우측 main의 가로 flex 배치와 width/flex 확장이 없는 route fallback, 본문 조회 중 NovelReader의 조기 Loading 반환이 겹치는 경로였습니다. 우측 main을 독립적인 flex-column/flex-basis 0 영역으로 고정하고 공통 Loading에 전체 폭·높이 확장을 부여했습니다. 소설/만화 route fallback도 같은 공용 LoadingOverlay(2px 블러·검정 15%)를 사용합니다.
