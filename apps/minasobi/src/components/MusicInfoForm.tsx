@@ -1,6 +1,8 @@
 "use client";
 import type { RefreshResult } from "@/types/refresh";
 import { useState, type FormEvent, type ReactNode } from "react";
+import { Skeleton } from "@asobi/ui/components/skeleton";
+import { PendingSection } from "./loading/PendingSection";
 import { Button } from "@asobi/ui/components/button";
 import { Input } from "@asobi/ui/components/input";
 import { Label } from "@asobi/ui/components/label";
@@ -104,10 +106,12 @@ export function MusicInfoFields({ music, section, readOnly, onDirtyChange }: {
       {selectedFields.map(({ key, label, ...options }) => (
         <div className="grid min-w-0 gap-2" key={key}>
           <Label htmlFor={`common-${key}`}>{label}</Label>
+          <PendingSection fallback={<Skeleton className="h-8 w-full" />}>
           <Input id={`common-${key}`} name={key} form={`music-info-${music.id}`}
             disabled={readOnly}
             defaultValue={(key === "youtubeId" ? music.commonYoutubeId : music[key]) ?? ""}
             required={"required" in options && options.required} />
+          </PendingSection>
         </div>
       ))}
     </div>

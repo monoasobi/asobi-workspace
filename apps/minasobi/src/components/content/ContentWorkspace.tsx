@@ -65,16 +65,16 @@ export function ContentWorkspace({ data, node, readOnly }: {
         </Card>
         <Card className="min-h-0 gap-0 py-0">
           <CardContent className="min-h-0 flex-1 overflow-y-auto p-0 pt-5">
-            <PendingSection fallback={<BookDetailSkeleton creating={guard.destination ? guard.destination.includes("type=newBook") : node?.type === "newBook"} />}>
             {node ? <AdminDocumentPanel key={getSelectedNodeKey(node)} embedded data={data} node={node} readOnly={readOnly} onDeleted={() => router.replace("/books")} /> : (
+              <PendingSection fallback={<BookDetailSkeleton creating={guard.destination?.includes("type=newBook")} />}>
               <div className="flex min-h-full flex-col items-center justify-center gap-3 px-6 pb-5 text-center">
                 <span className="flex size-12 items-center justify-center rounded-xl bg-muted"><BookOpen aria-hidden className="size-6 text-muted-foreground" /></span>
                 <h2 className="type-section-title">{data.books.length ? "서적을 선택해 주세요" : "첫 서적을 추가해 주세요"}</h2>
                 <p className="max-w-sm type-description">{data.books.length ? "목록에서 서적을 선택하면 상세 정보를 확인하고 수정할 수 있습니다." : "서적을 등록하고 소설을 연결하면 해당 곡의 서적 탭에도 표시됩니다."}</p>
                 {!readOnly && <Button type="button" size="sm" className="mt-1" disabled={guard.busy} onClick={addBook}><Plus className="size-4" />서적 추가</Button>}
               </div>
+              </PendingSection>
             )}
-            </PendingSection>
           </CardContent>
         </Card>
       </div>

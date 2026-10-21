@@ -6,7 +6,7 @@ import { RefreshStatus } from "./RefreshStatus";
 import type { RefreshResult } from "@/types/refresh";
 import { AlbumArtForm } from "./AlbumArtForm";
 import { useEffect, useState } from "react";
-import { MusicContentSkeleton, MusicSettingsSkeleton, MusicOverviewSkeleton } from "./loading/AdminSkeletons";
+import { MusicSettingsSkeleton, MusicOverviewSkeleton } from "./loading/AdminSkeletons";
 import { PendingSection } from "./loading/PendingSection";
 import { PanelsTopLeft } from "lucide-react";
 import { useLoadingRouter } from "@/components/NavigationGuard";
@@ -73,16 +73,14 @@ export function MusicDetail({
       </section>
       <div className="grid min-h-0 flex-1 grid-rows-2 gap-5 xl:grid-cols-2 xl:grid-rows-1">
         <section className="flex max-h-full min-h-0 min-w-0 self-start flex-col overflow-hidden rounded-xl border bg-card">
-          <PendingSection fallback={<MusicContentSkeleton />}>
           <MusicContentTabs
             data={contentData} musicId={music.id} readOnly={readOnly}
             initialNode={contentNode} revision={contentRevision} contentActive={contentActive}
             media={<MusicInfoFields music={music} section="media" readOnly={readOnly || guard.busy} onDirtyChange={value => setDirty("music", value)} />}
-            editAction={<Button type="button" variant="outline" size="sm" disabled={!initialMusic.hasLyrics || guard.busy} title="가사 타임라인 편집" onClick={() => {
+            editAction={<Button type="button" variant="outline" size="sm" disabled={!initialMusic.hasLyrics || guard.busy || guard.pending} title="가사 타임라인 편집" onClick={() => {
               if (guard.confirmLeave()) router.push(`/musics/${music.id}/lyrics`);
             }}><PanelsTopLeft aria-hidden="true" className="size-4" />가사 편집</Button>}
           />
-          </PendingSection>
         </section>
         <section className="max-h-full min-h-0 min-w-0 self-start overflow-y-auto rounded-xl border bg-card">
           <PendingSection fallback={<MusicSettingsSkeleton />}>

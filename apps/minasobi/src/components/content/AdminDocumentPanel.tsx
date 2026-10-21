@@ -1,4 +1,6 @@
 "use client";
+import { Skeleton } from "@asobi/ui/components/skeleton";
+import { PendingSection } from "../loading/PendingSection";
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useLoadingRouter } from "@/components/NavigationGuard";
 import { Pencil, Save, Trash2, X, ExternalLink } from "lucide-react";
@@ -51,7 +53,7 @@ export function AdminDocumentPanel({
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   const guard = useNavigationGuard();
-  const blocked = busy || guard.busy;
+  const blocked = busy || guard.busy || guard.pending;
   const [editRevision, setEditRevision] = useState(revision);
   const [flags, setFlags] = useState(() => getInitialVisibilityFlags(config));
   const [editing, setEditing] = useState(config.method === "POST" && !readOnly);
@@ -209,9 +211,9 @@ export function AdminDocumentPanel({
     }
   }
   return (
-    <section className={embedded ? "min-w-0 p-5 pt-0" : "min-h-0 min-w-0 flex-1 overflow-y-auto p-5"} aria-busy={busy}>
+    <section className={embedded ? "min-w-0 p-5 pt-0" : "min-h-0 min-w-0 flex-1 overflow-y-auto p-5"} aria-busy={busy || guard.pending}>
       <header className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="min-w-0 flex-1 break-words type-card-title">{document.title}</h2>
+        <h2 className="min-w-0 flex-1 break-words type-card-title">{guard.pending && node.type !== "newMusic" && node.type !== "newBook" && node.type !== "lyric" ? <Skeleton className="h-5 w-36" /> : document.title}</h2>
         <div className="inline-flex shrink-0 items-center gap-2">
           {!readOnly && !nextHref && !deleted && (editing ? <>
             <Button type="button" size="sm" variant="outline" disabled={blocked} onClick={cancel}><X />취소</Button>
@@ -252,8 +254,10 @@ export function AdminDocumentPanel({
                   <Label htmlFor={`${fieldIdPrefix}-${field.name}`} className={field.type === "checkbox" ? "order-2" : ""}>
                     {documentLabels[field.name] ?? field.label}{"required" in field && field.required ? " *" : ""}
                   </Label>
+                  <PendingSection fallback={<Skeleton className={field.type === "textarea" ? "h-64 w-full" : field.type === "checkbox" ? "size-4" : "h-8 w-full"} />}>
                   <AdminEditorField id={`${fieldIdPrefix}-${field.name}`} field={field} disabled={blocked} onEdit={() => setDirty(true)} visibilityFlags={flags}
                     onVisibilityChange={(key, value) => { setFlags(prev => ({ ...prev, [key]: value })); setDirty(true); }} />
+                  </PendingSection>
                 </div>
               );
             })}
@@ -269,7 +273,7 @@ export function AdminDocumentPanel({
                   <TableRow key={field.key}>
                     <TableHead scope="row" className="h-auto w-28 whitespace-normal bg-muted/30 px-3 py-2.5 align-top text-xs text-muted-foreground">{field.label}</TableHead>
                     <TableCell className="break-words whitespace-pre-wrap px-3 py-2.5 align-top">
-                      {field.kind === "status" ? <Badge variant={field.value === "true" ? "secondary" : "outline"}>
+                      {guard.pending ? <Skeleton className="my-0.5 h-4 w-4/5" /> : field.kind === "status" ? <Badge variant={field.value === "true" ? "secondary" : "outline"}>
                         {field.key === "translated" ? field.value === "true" ? "번역됨" : "미번역" : field.value === "true" ? "발매됨" : "미발매"}
                       </Badge> : field.kind === "link" ? <a href={field.value} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-1.5 text-primary underline-offset-4 hover:underline" title={field.value}>
                         <span className="break-all">{new URL(field.value).hostname}</span><ExternalLink className="size-3.5 shrink-0" aria-hidden />
@@ -282,7 +286,7 @@ export function AdminDocumentPanel({
           </div>}
           {document.jsonText && <details className="min-w-0 rounded-lg border">
             <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium">가사 JSON 보기</summary>
-            <pre className="overflow-x-auto border-t p-3 text-xs">{document.jsonText}</pre>
+            {guard.pending ? <Skeleton className="m-3 h-32" /> : <pre className="overflow-x-auto border-t p-3 text-xs">{document.jsonText}</pre>}
           </details>}
         </div>
       )}

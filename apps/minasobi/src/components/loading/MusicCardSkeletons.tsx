@@ -1,34 +1,38 @@
 import { Skeleton } from "@asobi/ui/components/skeleton";
+import { Button } from "@asobi/ui/components/button";
+import { Tabs, TabsList, TabsTrigger } from "@asobi/ui/components/tabs";
+import { AudioLines, Globe, PanelsTopLeft, Save } from "lucide-react";
 
-const pulse =
-  "animate-pulse motion-reduce:animate-none [&_[data-slot=skeleton]]:animate-none";
-
-function Field({ help = false }: { help?: boolean }) {
+function Field({ label, help }: { label: string; help?: string }) {
   return (
     <div className="grid gap-2">
-      <Skeleton className="h-4 w-36 max-w-full" />
+      <p className="type-label">{label}</p>
       <Skeleton className="h-8 w-full" />
-      {help && <Skeleton className="h-3 w-5/6" />}
+      {help && <p className="type-caption">{help}</p>}
     </div>
   );
 }
 
 export function MusicOverviewSkeleton() {
   return (
-    <div aria-hidden="true" className={pulse}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-        <Skeleton className="h-5 w-16" />
+    <div>
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
+        <h1 className="type-section-title">곡 정보</h1>
         <div className="flex gap-2">
-          <Skeleton className="h-7 w-20" />
-          <Skeleton className="h-7 w-24" />
+          <Button disabled variant="outline" size="sm">
+            곡 숨기기
+          </Button>
+          <Button disabled size="sm">
+            곡 정보 저장
+          </Button>
         </div>
-      </div>
+      </header>
       <div className="flex min-w-0 items-start gap-4 p-5 sm:p-6">
         <Skeleton className="size-[120px] shrink-0 rounded-lg" />
         <div className="grid min-w-0 flex-1 gap-4 lg:grid-cols-3">
-          <Field />
-          <Field />
-          <Field />
+          <Field label="일본어 제목" />
+          <Field label="한국어 제목" />
+          <Field label="영어 제목" />
         </div>
       </div>
     </div>
@@ -37,18 +41,31 @@ export function MusicOverviewSkeleton() {
 
 export function MusicContentSkeleton() {
   return (
-    <div aria-hidden="true" className={pulse}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
-        <div className="flex items-center gap-2">
-          {[72, 32, 32, 32, 32].map((width, index) => (
-            <Skeleton key={index} className="h-6" style={{ width }} />
-          ))}
-        </div>
-        <Skeleton className="h-7 w-24" />
-      </div>
+    <div>
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
+        <Tabs value="media">
+          <TabsList aria-label="곡 콘텐츠 구분">
+            {[
+              ["media", "음원·페이지"],
+              ["novel", "소설"],
+              ["comic", "만화"],
+              ["lyric", "가사"],
+              ["book", "서적"],
+            ].map(([value, label]) => (
+              <TabsTrigger key={value} value={value} disabled>
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        <Button disabled variant="outline" size="sm">
+          <PanelsTopLeft aria-hidden className="size-4" />
+          가사 편집
+        </Button>
+      </header>
       <div className="grid gap-5 p-5 sm:p-6">
-        <Field />
-        <Field />
+        <Field label="MONOASOBI YouTube ID" />
+        <Field label="특별 페이지 경로" />
       </div>
     </div>
   );
@@ -56,46 +73,66 @@ export function MusicContentSkeleton() {
 
 export function MusicSettingsSkeleton() {
   return (
-    <div aria-hidden="true" className={pulse}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
+    <div>
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-16" />
+          <h2 className="type-section-title">콜 정보</h2>
           <Skeleton className="h-5 w-16 rounded-full" />
         </div>
         <div className="flex gap-2">
-          <Skeleton className="h-7 w-24" />
-          <Skeleton className="h-7 w-24" />
+          <Button disabled variant="outline" size="sm">
+            <PanelsTopLeft aria-hidden className="size-4" />콜 편집
+          </Button>
+          <Button disabled size="sm">
+            <Save aria-hidden className="size-4" />
+            설정 저장
+          </Button>
         </div>
-      </div>
+      </header>
       <div className="grid gap-5 p-5 sm:p-6">
-        <div>
+        <section>
           <div className="mb-4 flex items-start gap-3">
-            <Skeleton className="mt-0.5 size-5 shrink-0" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-5 w-24" />
-              <Skeleton className="h-3 w-72 max-w-full" />
+            <AudioLines
+              aria-hidden
+              className="mt-0.5 size-5 text-muted-foreground"
+            />
+            <div>
+              <h3 className="text-sm font-semibold">음원 및 표시</h3>
+              <p className="mt-1 type-caption">
+                재생할 음원과 곡의 킹블레이드 색상을 설정합니다.
+              </p>
             </div>
           </div>
           <div className="grid items-start gap-5 lg:grid-cols-2">
-            <Field help />
-            <Field />
+            <Field
+              label="loudasobi 전용 YouTube ID"
+              help="URL이 아닌 ID만 입력합니다. MONOASOBI의 MV ID와 별개입니다."
+            />
+            <Field label="킹블레이드 색상" />
           </div>
-        </div>
-        <div>
+        </section>
+        <section>
           <div className="mb-4 flex items-start gap-3">
-            <Skeleton className="mt-0.5 size-5 shrink-0" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-5 w-20" />
-              <Skeleton className="h-3 w-48 max-w-full" />
+            <Globe
+              aria-hidden
+              className="mt-0.5 size-5 text-muted-foreground"
+            />
+            <div>
+              <h3 className="text-sm font-semibold">공개 설정</h3>
+              <p className="mt-1 type-caption">
+                저장하면 공개 곡 목록에 반영됩니다.
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Skeleton className="size-4" />
-            <Skeleton className="h-4 w-52 max-w-full" />
+            <p className="type-label">공개 (loudasobi 곡 목록에 표시)</p>
           </div>
-          <Skeleton className="mt-3 h-3 w-full" />
-          <Skeleton className="mt-2 h-3 w-3/4" />
-        </div>
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+            비공개로 전환해도 가사와 콜 자료는 보존됩니다. 공개하려면 전용
+            YouTube ID가 필요합니다.
+          </p>
+        </section>
       </div>
     </div>
   );

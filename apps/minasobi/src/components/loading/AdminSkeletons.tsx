@@ -1,4 +1,15 @@
 import type { ReactNode } from "react";
+import { Button } from "@asobi/ui/components/button";
+import { Input } from "@asobi/ui/components/input";
+import { NovelMarkdownGuide } from "@asobi/ui/components/NovelMarkdownGuide";
+import {
+  GripVertical,
+  PanelLeft,
+  SunMoon,
+  Trash2,
+  ChevronDown,
+} from "lucide-react";
+import { documentLabels } from "../content/documentLabels";
 import { BookDetailSkeleton, BookListSkeleton } from "./BookSkeletons";
 import {
   MusicOverviewSkeleton,
@@ -14,21 +25,31 @@ import { Skeleton } from "@asobi/ui/components/skeleton";
 
 export function FormSkeleton() {
   return (
-    <div
-      aria-hidden="true"
-      className="space-y-5 p-5 animate-pulse motion-reduce:animate-none [&_[data-slot=skeleton]]:animate-none"
-    >
+    <div className="space-y-5 p-5">
       <div className="flex items-center justify-between gap-3">
-        <Skeleton className="h-5 w-28" />
+        <h2 className="type-card-title">곡 추가</h2>
         <div className="flex gap-2">
-          <Skeleton className="h-7 w-16" />
-          <Skeleton className="h-7 w-20" />
+          <Button disabled size="sm" variant="outline">
+            취소
+          </Button>
+          <Button disabled size="sm">
+            생성
+          </Button>
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {Array.from({ length: 5 }, (_, index) => (
           <div key={index} className="grid gap-2">
-            <Skeleton className="h-4 w-24" />
+            <p className="type-label">
+              {
+                documentLabels[
+                  ["title", "korTitle", "enTitle", "youtubeId", "specialPath"][
+                    index
+                  ]
+                ]
+              }
+              {index < 3 ? " *" : ""}
+            </p>
             <Skeleton className="h-8 w-full" />
           </div>
         ))}
@@ -44,10 +65,7 @@ export function ListSkeleton({
   variant?: "recommendations" | "deleted";
 }) {
   return (
-    <div
-      aria-hidden="true"
-      className="space-y-4 p-5 animate-pulse motion-reduce:animate-none [&_[data-slot=skeleton]]:animate-none"
-    >
+    <div className="space-y-4 p-5">
       {variant === "deleted"
         ? Array.from({ length: 4 }, (_, index) => (
             <div
@@ -55,7 +73,9 @@ export function ListSkeleton({
               className="flex items-center justify-between gap-3 rounded border p-3"
             >
               <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-7 w-16" />
+              <Button disabled size="sm" variant="outline">
+                복원
+              </Button>
             </div>
           ))
         : [0, 1].map((group) => (
@@ -64,9 +84,19 @@ export function ListSkeleton({
               className="overflow-hidden rounded-xl border bg-card"
             >
               <div className="flex items-center gap-3 border-b p-4">
-                <Skeleton className="size-4 shrink-0" />
+                <GripVertical
+                  aria-hidden
+                  className="size-4 shrink-0 text-muted-foreground"
+                />
                 <Skeleton className="h-8 flex-1" />
-                <Skeleton className="size-7" />
+                <Button
+                  disabled
+                  size="icon-sm"
+                  variant="ghost"
+                  aria-label="삭제"
+                >
+                  <Trash2 aria-hidden className="size-4" />
+                </Button>
               </div>
               <div className="space-y-2 p-3">
                 {[0, 1, 2].map((index) => (
@@ -74,14 +104,26 @@ export function ListSkeleton({
                     key={index}
                     className="flex items-center gap-3 rounded-lg border p-3"
                   >
-                    <Skeleton className="size-4 shrink-0" />
+                    <GripVertical
+                      aria-hidden
+                      className="size-4 shrink-0 text-muted-foreground"
+                    />
                     <Skeleton className="size-10 shrink-0" />
                     <div className="flex-1 space-y-2">
                       <Skeleton className="h-4 w-3/4" />
                       <Skeleton className="h-3 w-1/2" />
                     </div>
-                    <Skeleton className="h-7 w-20" />
-                    <Skeleton className="size-7" />
+                    <Button disabled size="sm" variant="outline">
+                      이동
+                    </Button>
+                    <Button
+                      disabled
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="삭제"
+                    >
+                      <Trash2 aria-hidden className="size-4" />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -92,29 +134,7 @@ export function ListSkeleton({
 }
 
 export function GuideSkeleton() {
-  return (
-    <div
-      role="status"
-      aria-label="가이드를 불러오는 중입니다."
-      className="min-h-0 flex-1 space-y-6 overflow-hidden p-6"
-    >
-      <Skeleton className="h-7 w-60" />
-      <Skeleton className="h-4 w-4/5" />
-      {[0, 1].map((index) => (
-        <div key={index} className="space-y-4">
-          <Skeleton className="h-5 w-36" />
-          <div className="grid gap-4 md:grid-cols-2">
-            <Skeleton className="h-48 w-full" />
-            <div className="space-y-3 rounded-lg border p-5">
-              <Skeleton className="h-6 w-40" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-4/5" />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  return <NovelMarkdownGuide className="novel-guide-reading" />;
 }
 
 export function SidebarSkeleton() {
@@ -124,20 +144,19 @@ export function SidebarSkeleton() {
       role="status"
       aria-label="곡 목록을 불러오는 중입니다."
     >
-      <div
-        aria-hidden="true"
-        className="animate-pulse motion-reduce:animate-none [&_[data-slot=skeleton]]:animate-none"
-      >
+      <div className="contents">
         <div className="flex h-[60px] items-center justify-end border-b px-3">
           <div className="flex gap-2 rounded-lg border p-1">
-            {[0, 1, 2].map((index) => (
-              <Skeleton key={index} className="h-6 w-9" />
+            {["추천", "앨범", "발매순"].map((label) => (
+              <Button key={label} disabled size="xs" variant="ghost">
+                {label}
+              </Button>
             ))}
           </div>
         </div>
         <div className="flex h-12 items-center justify-between px-4">
           <Skeleton className="h-4 w-28" />
-          <Skeleton className="size-4" />
+          <ChevronDown aria-hidden className="size-4 text-muted-foreground" />
         </div>
         {Array.from({ length: 6 }, (_, index) => (
           <div
@@ -183,9 +202,40 @@ export function AdminPageSkeleton({
         </>
       ) : (
         <>
-          <div aria-hidden="true" className="space-y-2">
-            <Skeleton className="h-7 w-32" />
-            <Skeleton className="h-4 w-64 max-w-full" />
+          <div className="space-y-2">
+            <h1 className="type-page-title">
+              {kind === "books"
+                ? "서적 관리"
+                : kind === "list"
+                  ? "사이드바 · 추천 정렬"
+                  : kind === "deleted"
+                    ? "숨긴 곡"
+                    : "곡 추가"}
+            </h1>
+            {kind === "books" && (
+              <p className="type-description">
+                서적 정보와 연결 소설, 구매 링크를 관리합니다.
+              </p>
+            )}
+            {kind === "deleted" && (
+              <p className="type-description">
+                연결 자료와 콜 공개 설정은 보존됩니다. 복원하면 이전 공개 설정이
+                다시 적용될 수 있습니다.
+              </p>
+            )}
+            {kind === "list" && (
+              <div className="flex gap-2">
+                <Button disabled size="sm" variant="outline">
+                  최신 목록
+                </Button>
+                <Button disabled size="sm">
+                  추천 목록 저장
+                </Button>
+                <Button disabled size="sm" variant="secondary">
+                  + 그룹 추가
+                </Button>
+              </div>
+            )}
           </div>
           <div
             className={
@@ -226,12 +276,38 @@ export function AdminFrameSkeleton({ children }: { children?: ReactNode }) {
       role="status"
       aria-label="관리 화면을 불러오는 중입니다."
     >
-      <header
-        className="flex shrink-0 items-center justify-between gap-4 border-b bg-card p-4"
-        aria-hidden="true"
-      >
-        <Skeleton className="h-8 w-44" />
-        <Skeleton className="h-8 w-60 max-w-[45%]" />
+      <header className="flex shrink-0 items-center justify-between gap-4 border-b bg-card p-4">
+        <div className="flex items-center gap-3">
+          <Button
+            disabled
+            variant="ghost"
+            size="icon"
+            aria-label="곡 목록 접기"
+          >
+            <PanelLeft className="size-5" />
+          </Button>
+          <h1 className="text-sm font-semibold">ASOBI 관리자</h1>
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            "곡 추가",
+            "서적",
+            "소설 마크다운 작성 가이드",
+            "추천 정렬",
+            "숨긴 곡",
+          ].map((label) => (
+            <Button key={label} disabled size="sm" variant="ghost">
+              {label}
+            </Button>
+          ))}
+          <Button disabled size="icon" variant="ghost" aria-label="테마 전환">
+            <SunMoon className="size-4" />
+          </Button>
+          <Button disabled size="sm" variant="outline">
+            로그아웃
+          </Button>
+        </div>
       </header>
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <aside className="h-[30dvh] shrink-0 overflow-hidden border-b bg-card md:h-auto md:w-[300px] md:border-r md:border-b-0">
@@ -250,16 +326,24 @@ export function LoginSkeleton() {
       role="status"
       aria-label="로그인 화면을 불러오는 중입니다."
     >
-      <section
-        className="w-full max-w-sm rounded-2xl border bg-card p-8"
-        aria-hidden="true"
-      >
-        <Skeleton className="mb-3 h-4 w-16" />
-        <Skeleton className="mb-5 h-7 w-40" />
-        <Skeleton className="mb-6 h-4 w-full" />
-        <Skeleton className="mb-3 h-4 w-20" />
-        <Skeleton className="mb-5 h-11 w-full" />
-        <Skeleton className="h-11 w-full" />
+      <section className="w-full max-w-sm rounded-2xl border bg-card p-8">
+        <p className="mb-2 text-sm text-primary">ASOBI</p>
+        <h1 className="text-xl font-semibold">관리자 로그인</h1>
+        <p className="my-5 text-sm text-muted-foreground">
+          MONOASOBI와 LOUDASOBI의 콘텐츠를 관리합니다.
+        </p>
+        <div className="grid gap-3">
+          <label htmlFor="loading-password" className="type-label">
+            비밀번호
+          </label>
+          <Input
+            id="loading-password"
+            disabled
+            type="password"
+            placeholder="비밀번호를 입력해 주세요"
+          />
+          <Button disabled>로그인</Button>
+        </div>
       </section>
     </main>
   );

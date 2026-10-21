@@ -64,12 +64,12 @@ export function MusicContentTabs({
   }
   return (
     <Tabs value={tab} onValueChange={value => {
-      if (!guard.busy) setView({ source, tab: value });
+      if (!guard.busy && !guard.pending) setView({ source, tab: value });
     }} className="min-h-0 gap-0 overflow-hidden">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5 shrink-0">
         <TabsList aria-label="곡 콘텐츠 구분">
-          <TabsTrigger value="media" disabled={guard.busy}>음원·페이지</TabsTrigger>
-          {groups.map(group => <TabsTrigger key={group.value} value={group.value} disabled={guard.busy}>{group.label}</TabsTrigger>)}
+          <TabsTrigger value="media" disabled={guard.busy || guard.pending}>음원·페이지</TabsTrigger>
+          {groups.map(group => <TabsTrigger key={group.value} value={group.value} disabled={guard.busy || guard.pending}>{group.label}</TabsTrigger>)}
         </TabsList>
         {editAction}
       </header>
@@ -80,14 +80,14 @@ export function MusicContentTabs({
         const showItems = group.items.length > 1 || (creating && group.items.length > 0);
         const canCreate = !readOnly && !!group.create;
         const createAction = canCreate ? (
-          <Button type="button" variant="outline" size="icon-sm" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>
+          <Button type="button" variant="outline" size="icon-sm" aria-label={`${group.label} 추가`} title={`${group.label} 추가`} disabled={guard.busy || guard.pending || creating} onClick={() => select(group.create!)}><Plus className="size-4" /></Button>
         ) : null;
         return (
           <TabsContent key={group.value} value={group.value} forceMount className="relative min-h-0 overflow-y-auto pt-5 data-[state=inactive]:hidden">
             {!node && createAction && <div className="absolute right-5 top-5 z-10">{createAction}</div>}
             {showItems && (
               <div className="mb-4 flex flex-wrap gap-2 px-5">
-                {group.items.map(item => <Button key={getSelectedNodeKey(item.node)} variant={node && getSelectedNodeKey(node) === getSelectedNodeKey(item.node) ? "secondary" : "outline"} size="sm" disabled={guard.busy} onClick={() => select(item.node)}>{item.label}</Button>)}
+                {group.items.map(item => <Button key={getSelectedNodeKey(item.node)} variant={node && getSelectedNodeKey(node) === getSelectedNodeKey(item.node) ? "secondary" : "outline"} size="sm" disabled={guard.busy || guard.pending} onClick={() => select(item.node)}>{item.label}</Button>)}
               </div>
             )}
             {node ? (
